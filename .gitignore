@@ -1,0 +1,79 @@
+# Node modules
+node_modules/
+
+# Build output
+out/
+dist/
+release/
+make/
+
+# Electron Forge output
+/.webpack/
+/.cache/
+
+# VSCode settings
+.vscode/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Env files
+.env
+.env.*
+
+# Compiled binaries
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Packages
+*.tgz
+
+# Misc
+*.log
+*.pid
+
+# Electron packaged apps
+*.app
+*.asar
+
+# Coverage
+coverage/
+
+# Squirrel installer logs
+SquirrelSetup.log
+
+# Windows installer output
+*.nupkg
+*.msi
+*.msix
+*.msixbundle
+
+# Mac installer output
+*.dmg
+*.pkg
+*.mpkg
+
+# Linux installer output
+*.snap
+*.AppImage
+*.deb
+*.rpm
+*.tar.gz
+*.tar.bz2
+*.tar.xz
+
+# Backup files
+*~
+*.swp
+*.swo
+
+# IDE files
+.idea/

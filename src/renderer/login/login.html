@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=400, initial-scale=1.0">
+  <title>Login</title>
+  <link rel="stylesheet" href="login.css">
+</head>
+<body>
+  <div class="login-bg">
+    <div class="login-container">
+      <div class="login-logo">
+        <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="48" height="48" rx="12" fill="#0078d7"/>
+          <path d="M16 32L32 16M16 16H32V32" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <h2>Bienvenido</h2>
+      <p class="login-desc">Accede a tu cuenta para continuar</p>
+      <form id="loginForm" autocomplete="off">
+        <div class="input-group">
+          <input type="text" id="usuario" placeholder="Usuario" required autofocus autocomplete="username">
+        </div>
+        <div class="input-group">
+          <input type="password" id="clave" placeholder="Contraseña" required autocomplete="current-password">
+        </div>
+        <button type="submit">Entrar</button>
+        <div id="error" class="error"></div>
+      </form>
+    </div>
+  </div>
+  <script src="login.js"></script>
+</body>
+</html>
