@@ -6,11 +6,38 @@
   <meta name="viewport" content="width=800, initial-scale=1.0">
   <title>Dashboard</title>
   <link rel="stylesheet" href="dashboard.css">
+  <link rel="stylesheet" href="sidebar.css">
 </head>
 <body>
-  <div class="dashboard-container">
-    <h1>Bienvenido al Dashboard</h1>
-    <p>¡Login exitoso! agregasas</p>
+  <div class="dashboard-layout">
+    <!-- Sidebar -->
+    <div class="dashboard-sidebar">
+      <!-- Incluimos el contenido del sidebar -->
+      <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+          <h1>Química Nava</h1>
+          <h2>Sistema de Planillas</h2>
+        </div>
+        <h3 class="sidebar-section">NAVEGACIÓN PRINCIPAL</h3>
+        <ul class="sidebar-menu">
+          <li><a href="#" class="sidebar-link active" data-section="dashboard">Dashboard</a></li>
+          <li><a href="#" class="sidebar-link" data-section="trabajadores">Trabajadores</a></li>
+          <li><a href="#" class="sidebar-link" data-section="conceptos">Conceptos</a></li>
+          <li><a href="#" class="sidebar-link" data-section="planillas">Planillas</a></li>
+          <li><a href="#" class="sidebar-link" data-section="asientos">Asientos Contables</a></li>
+          <li><a href="#" class="sidebar-link" data-section="reportes">Reportes</a></li>
+          <li><a href="#" class="sidebar-link" data-section="parametros">Parámetros</a></li>
+        </ul>
+        <button class="sidebar-toggle" id="sidebarToggle" aria-label="Abrir menú">
+          <span></span><span></span><span></span>
+        </button>
+      </nav>
+    </div>
+    <!-- Contenido principal -->
+    <div class="dashboard-main" id="dashboardMain">
+      <h1>Bienvenido al Dashboard</h1>
+      <p>¡Login exitoso! agregasas</p>
+    </div>
   </div>
   <script src="dashboard.js"></script>
 </body>

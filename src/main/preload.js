@@ -1,5 +1,8 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('electronAPI', {
-  login: (usuario, clave) => ipcRenderer.invoke('login', usuario, clave)
+  login: (usuario, clave) => ipcRenderer.invoke('login', usuario, clave),
+  
+  // API para trabajadores
+  obtenerTrabajadores: () => ipcRenderer.invoke('obtener-trabajadores')
 });

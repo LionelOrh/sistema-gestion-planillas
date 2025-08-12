@@ -1,0 +1,305 @@
+<section class="trabajadores-gestion">
+    <header class="trabajadores-header">
+        <div>
+            <h1>Gestión de Trabajadores</h1>
+            <h2 class="trabajadores-contador">Trabajadores</h2>
+        </div>
+        <div>
+            <input type="button" class="button-exportar" value="Exportar" id="btnExportar">
+            <input type="button" class="button-agregar" value="Agregar Trabajador" id="btnAgregarTrabajador">
+        </div>
+    </header>
+    <hr>
+    <div class="trabajadores-filtros">
+        <div class="filtro-busqueda">
+            <input type="text" class="input-busqueda" placeholder="Buscaraa por nombre o documento...">
+        </div>
+        <div class="filtro-area">
+            <select class="select-area">
+                <option value="todas">Todas las áreas</option>
+                <option value="produccion">Producción</option>
+                <option value="administracion">Administración</option>
+                <option value="ventas">Ventas</option>
+                <!-- Agrega más áreas según tu sistema -->
+            </select>
+        </div>
+        <div class="filtro-estado">
+            <select class="select-estado">
+                <option value="todos">Todos</option>
+                <option value="activos">Activos</option>
+                <option value="inactivos">Inactivos</option>
+            </select>
+        </div>
+    </div>
+    <div class="trabajadores-tabla-wrapper">
+        <div class="trabajadores-tabla-container">
+            <table class="trabajadores-tabla">
+                <thead>
+                    <tr>
+                        <th>Trabajador</th>
+                        <th>Documento</th>
+                        <th>Área</th>
+                        <th>Cargo</th>
+                        <th>Sueldo</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Los trabajadores se cargarán dinámicamente desde la base de datos -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="trabajadores-paginacion">
+        <!-- Paginación aquí -->
+    </div>
+</section>
+
+<!-- Modal para Agregar Trabajador -->
+<div class="modal-overlay" id="modalAgregarTrabajador">
+    <div class="modal-container">
+        <div class="modal-header">
+            <h2>Agregar Nuevo Trabajador</h2>
+            <button class="modal-close" id="btnCerrarModal">&times;</button>
+        </div>
+        
+        <!-- Pestañas del Modal -->
+        <div class="modal-tabs">
+            <button class="tab-button active" data-tab="personal">Personal</button>
+            <button class="tab-button" data-tab="contacto">Contacto</button>
+            <button class="tab-button" data-tab="laboral">Laboral</button>
+            <button class="tab-button" data-tab="financiero">Financiamiento</button>
+        </div>
+        
+        <form class="modal-form" id="formTrabajador">
+            <!-- Sección Personal -->
+            <div class="tab-content active" id="tab-personal">
+                <h3>Datos Personales</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="nombres">Nombres *</label>
+                        <input type="text" id="nombres" name="nombres" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="apellidos">Apellidos *</label>
+                        <input type="text" id="apellidos" name="apellidos" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="tipoDni">Tipo de Documento *</label>
+                        <select id="tipoDni" name="tipoDni" required>
+                            <option value="">Seleccionar...</option>
+                            <option value="DNI">DNI</option>
+                            <option value="CE">Carnet de Extranjería</option>
+                            <option value="PASAPORTE">Pasaporte</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="numeroDocumento">Número de Documento *</label>
+                        <input type="text" id="numeroDocumento" name="numeroDocumento" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="fechaNacimiento">Fecha de Nacimiento</label>
+                        <input type="date" id="fechaNacimiento" name="fechaNacimiento">
+                    </div>
+                    <div class="form-group">
+                        <label for="sexo">Sexo</label>
+                        <select id="sexo" name="sexo">
+                            <option value="">Seleccionar...</option>
+                            <option value="M">Masculino</option>
+                            <option value="F">Femenino</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="estadoCivil">Estado Civil</label>
+                        <select id="estadoCivil" name="estadoCivil">
+                            <option value="">Seleccionar...</option>
+                            <option value="SOLTERO">Soltero(a)</option>
+                            <option value="CASADO">Casado(a)</option>
+                            <option value="DIVORCIADO">Divorciado(a)</option>
+                            <option value="VIUDO">Viudo(a)</option>
+                            <option value="CONVIVIENTE">Conviviente</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="nacionalidad">Nacionalidad</label>
+                        <select id="nacionalidad" name="nacionalidad">
+                            <option value="">Seleccionar...</option>
+                            <option value="PERUANA">Peruana</option>
+                            <option value="EXTRANJERA">Extranjera</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sección Contacto -->
+            <div class="tab-content" id="tab-contacto">
+                <h3>Información de Contacto</h3>
+                <div class="form-grid">
+                    <div class="form-group full-width">
+                        <label for="direccion">Dirección</label>
+                        <input type="text" id="direccion" name="direccion">
+                    </div>
+                    <div class="form-group">
+                        <label for="distrito">Distrito</label>
+                        <input type="text" id="distrito" name="distrito">
+                    </div>
+                    <div class="form-group">
+                        <label for="provincia">Provincia</label>
+                        <input type="text" id="provincia" name="provincia">
+                    </div>
+                    <div class="form-group">
+                        <label for="departamento">Departamento</label>
+                        <input type="text" id="departamento" name="departamento">
+                    </div>
+                    <div class="form-group">
+                        <label for="telefono">Teléfono</label>
+                        <input type="tel" id="telefono" name="telefono">
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="correo">Correo Electrónico *</label>
+                        <input type="email" id="correo" name="correo" required>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sección Laboral -->
+            <div class="tab-content" id="tab-laboral">
+                <h3>Información Laboral</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="tipoTrabajador">Tipo de Trabajador</label>
+                        <select id="tipoTrabajador" name="tipoTrabajador">
+                            <option value="">Seleccionar...</option>
+                            <option value="EMPLEADO">Empleado</option>
+                            <option value="OBRERO">Obrero</option>
+                            <option value="PRACTICANTE">Practicante</option>
+                            <option value="CONSULTOR">Consultor</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="cargo">Cargo *</label>
+                        <select id="cargo" name="cargo" required>
+                            <option value="">Seleccionar...</option>
+                            <option value="Operario de Máquinas">Operario de Máquinas</option>
+                            <option value="Supervisor de Línea">Supervisor de Línea</option>
+                            <option value="Técnico de Equipos">Técnico de Equipos</option>
+                            <option value="Contador">Contador</option>
+                            <option value="Inspector de Tejidos">Inspector de Tejidos</option>
+                            <option value="Gerente">Gerente</option>
+                            <option value="Asistente">Asistente</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="area">Área *</label>
+                        <select id="area" name="area" required>
+                            <option value="">Seleccionar...</option>
+                            <option value="Producción">Producción</option>
+                            <option value="Administración">Administración</option>
+                            <option value="Mantenimiento">Mantenimiento</option>
+                            <option value="Control de Calidad">Control de Calidad</option>
+                            <option value="Ventas">Ventas</option>
+                            <option value="Recursos Humanos">Recursos Humanos</option>
+                            <option value="Finanzas">Finanzas</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="fechaIngreso">Fecha de Ingreso *</label>
+                        <input type="date" id="fechaIngreso" name="fechaIngreso" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="tipoContrato">Tipo de Contrato</label>
+                        <select id="tipoContrato" name="tipoContrato">
+                            <option value="">Seleccionar...</option>
+                            <option value="INDEFINIDO">Indefinido</option>
+                            <option value="TEMPORAL">Temporal</option>
+                            <option value="LOCACION">Locación de Servicios</option>
+                            <option value="PRACTICAS">Prácticas</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="sueldoBasico">Sueldo Básico *</label>
+                        <input type="number" step="0.01" id="sueldoBasico" name="sueldoBasico" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="regimenLaboral">Régimen Laboral</label>
+                        <select id="regimenLaboral" name="regimenLaboral">
+                            <option value="">Seleccionar...</option>
+                            <option value="GENERAL">Régimen General</option>
+                            <option value="MYPE">Régimen MYPE</option>
+                            <option value="AGRARIO">Régimen Agrario</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="tipoJornada">Tipo de Jornada</label>
+                        <select id="tipoJornada" name="tipoJornada">
+                            <option value="">Seleccionar...</option>
+                            <option value="COMPLETA">Jornada Completa</option>
+                            <option value="PARCIAL">Jornada Parcial</option>
+                            <option value="REDUCIDA">Jornada Reducida</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="turnos">Turnos</label>
+                        <select id="turnos" name="turnos">
+                            <option value="">Seleccionar...</option>
+                            <option value="MAÑANA">Mañana</option>
+                            <option value="TARDE">Tarde</option>
+                            <option value="NOCHE">Noche</option>
+                            <option value="ROTATIVO">Rotativo</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sección Financiamiento -->
+            <div class="tab-content" id="tab-financiero">
+                <h3>Datos Financieros y de Pensión</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="banco">Banco</label>
+                        <select id="banco" name="banco">
+                            <option value="">Seleccionar...</option>
+                            <option value="BCP">Banco de Crédito del Perú</option>
+                            <option value="BBVA">BBVA</option>
+                            <option value="INTERBANK">Interbank</option>
+                            <option value="SCOTIABANK">Scotiabank</option>
+                            <option value="BN">Banco de la Nación</option>
+                            <option value="BANBIF">Banbif</option>
+                            <option value="PICHINCHA">Banco Pichincha</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="numeroCuenta">Número de Cuenta</label>
+                        <input type="text" id="numeroCuenta" name="numeroCuenta">
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="cci">CCI (Código de Cuenta Interbancario)</label>
+                        <input type="text" id="cci" name="cci" maxlength="20">
+                    </div>
+                    <div class="form-group">
+                        <label for="sistemaPension">Sistema de Pensión</label>
+                        <select id="sistemaPension" name="sistemaPension">
+                            <option value="">Seleccionar...</option>
+                            <option value="ONP">ONP</option>
+                            <option value="AFP_HABITAT">AFP Habitat</option>
+                            <option value="AFP_INTEGRA">AFP Integra</option>
+                            <option value="AFP_PRIMA">AFP Prima</option>
+                            <option value="AFP_PROFUTURO">AFP Profuturo</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="numeroAfiliacion">Número de Afiliación</label>
+                        <input type="text" id="numeroAfiliacion" name="numeroAfiliacion">
+                    </div>
+                </div>
+            </div>
+        </form>
+        
+        <!-- Botones del Modal -->
+        <div class="modal-footer">
+            <button type="button" class="btn-cancelar" id="btnCancelar">Cancelar</button>
+            <button type="submit" class="btn-guardar" form="formTrabajador">Guardar Trabajador</button>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,88 @@
+<section class="conceptos-gestion">
+    <header class="conceptos-header">
+        <h1>Configuración de Conceptos</h1>
+        <h2 class="conceptos-contador">0 conceptos activos de 0totales</h2>
+        <hr>
+    </header>
+
+    <!-- Resumen de categorías -->
+    <div class="conceptos-resumen">
+        <div class="categoria-card ingreso">
+            <div class="categoria-icono">📈</div>
+            <div class="categoria-info">
+                <span class="categoria-numero">0</span>
+                <span class="categoria-nombre">Ingreso</span>
+            </div>
+        </div>
+        <div class="categoria-card descuento">
+            <div class="categoria-icono">📉</div>
+            <div class="categoria-info">
+                <span class="categoria-numero">0</span>
+                <span class="categoria-nombre">Descuento</span>
+            </div>
+        </div>
+        <div class="categoria-card aporte-trabajador">
+            <div class="categoria-icono">👤</div>
+            <div class="categoria-info">
+                <span class="categoria-numero">0</span>
+                <span class="categoria-nombre">Aporte Trabajador</span>
+            </div>
+        </div>
+        <div class="categoria-card aporte-empleador">
+            <div class="categoria-icono">🏢</div>
+            <div class="categoria-info">
+                <span class="categoria-numero">0</span>
+                <span class="categoria-nombre">Aporte Empleador</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Botón nuevo concepto -->
+    <div class="conceptos-acciones">
+        <button class="btn-nuevo-concepto">+ Nuevo Concepto</button>
+    </div>
+
+    <!-- Lista de Conceptos -->
+    <div class="conceptos-lista-seccion">
+
+
+        <!-- Filtros -->
+        <div class="conceptos-filtros">
+            <p class="filtros-titulo">Lista de Conceptos</p>
+            <div class="filtro-busqueda">
+                <input type="text" class="input-busqueda" placeholder="Buscar por nombre o código...">
+            </div>
+            <div class="filtro-tipo">
+                <select class="select-tipo">
+                    <option value="todos">Todos los tipos</option>
+                    <option value="ingreso">Ingreso</option>
+                    <option value="descuento">Descuento</option>
+                    <option value="aporte-trabajador">Aporte Trabajador</option>
+                    <option value="aporte-empleador">Aporte Empleador</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Tabla -->
+        <div class="conceptos-tabla-wrapper">
+            <div class="conceptos-tabla-container">
+                <table class="conceptos-tabla">
+                    <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Nombre</th>
+                            <th>Tipo</th>
+                            <th>Cálculo</th>
+                            <th>Valor</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Filas dinámicas -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>

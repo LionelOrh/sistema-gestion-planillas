@@ -1,16 +1,46 @@
 body {
-  background: #e3eafc;
-  font-family: Arial, sans-serif;
+  background: #f8f9fa;
+  font-family: 'Segoe UI', 'Inter', Arial, sans-serif;
 }
-.dashboard-container {
-  width: 600px;
-  margin: 80px auto;
-  padding: 32px 24px;
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  text-align: center;
+.dashboard-layout {
+  display: flex;
+  min-height: 100vh;
 }
-.dashboard-container h1 {
+.dashboard-sidebar {
+  flex: 0 0 250px;
+  min-width: 250px;
+}
+.dashboard-main {
+  flex: 1 1 auto;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+}
+.dashboard-title {
   margin-bottom: 16px;
+  color: #1976d2;
+}
+.dashboard-description {
+  color: #333;
+  font-size: 1.1rem;
+}
+@media (max-width: 768px) {
+  .dashboard-layout {
+    flex-direction: column;
+  }
+  .dashboard-sidebar {
+    min-width: 0;
+    width: 100%;
+    position: fixed;
+    z-index: 1000;
+  }
+  .dashboard-main {
+    padding: 32px 12px 12px 12px;
+    margin-top: 80px;
+  }
 }
