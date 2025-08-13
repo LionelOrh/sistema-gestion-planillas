@@ -1,23 +1,26 @@
 // Lógica simple para mostrar trabajadores
 class TrabajadoresManager {
   constructor() {
-    console.log('TrabajadoresManager inicializado');
     this.init();
-    this.initModal();
+    setTimeout(() => {
+      this.initModal();
+    }, 100);
   }
 
   async init() {
-    console.log('Iniciando carga de trabajadores...');
     await this.cargarTrabajadores();
   }
 
-  initModal() {
+  async initModal() {
     // Referencias del modal
     this.modal = document.getElementById('modalAgregarTrabajador');
     this.btnAgregar = document.getElementById('btnAgregarTrabajador');
     this.btnCerrar = document.getElementById('btnCerrarModal');
     this.btnCancelar = document.getElementById('btnCancelar');
     this.form = document.getElementById('formTrabajador');
+
+    // Cargar ubigeos después de que el modal esté referenciado
+    await this.cargarUbigeos();
 
     // Event listeners
     if (this.btnAgregar) {
@@ -281,6 +284,89 @@ class TrabajadoresManager {
     setTimeout(() => {
       errorDiv.remove();
     }, 5000);
+  }
+
+  async cargarUbigeos() {
+    const departamentoSelect = document.getElementById('departamento');
+    const provinciaSelect = document.getElementById('provincia');
+    const distritoSelect = document.getElementById('distrito');
+
+    if (!departamentoSelect || !provinciaSelect || !distritoSelect) {
+      return;
+    }
+
+    let departamentos = [];
+    let provincias = {};
+    let distritos = {};
+
+    try {
+        // Cargar datos desde los archivos JSON
+        const departamentosResponse = await fetch('../../json/departamentos.json');
+        const provinciasResponse = await fetch('../../json/provincias.json');
+        const distritosResponse = await fetch('../../json/distritos.json');
+
+        if (!departamentosResponse.ok || !provinciasResponse.ok || !distritosResponse.ok) {
+            throw new Error(`Error al cargar archivos JSON. Estados: Departamentos: ${departamentosResponse.status}, Provincias: ${provinciasResponse.status}, Distritos: ${distritosResponse.status}`);
+        }
+
+        departamentos = await departamentosResponse.json();
+        provincias = await provinciasResponse.json();
+        distritos = await distritosResponse.json();
+        
+    } catch (error) {
+        console.error('Error al cargar los datos de ubigeos:', error);
+        return;
+    }
+
+    // Poblar el select de departamentos
+    if (departamentos.length > 0) {
+        departamentos.forEach(departamento => {
+            const option = document.createElement('option');
+            option.value = departamento.id_ubigeo;
+            option.textContent = departamento.nombre_ubigeo;
+            departamentoSelect.appendChild(option);
+        });
+    }
+
+    // Manejar el cambio de departamento
+    departamentoSelect.addEventListener('change', () => {
+        provinciaSelect.innerHTML = '<option value="">Seleccionar...</option>';
+        distritoSelect.innerHTML = '<option value="">Seleccionar...</option>';
+        distritoSelect.disabled = true;
+
+        const selectedDepartamento = departamentoSelect.value;
+        if (selectedDepartamento && provincias[selectedDepartamento]) {
+            const provinciasDelDepartamento = provincias[selectedDepartamento];
+            provinciasDelDepartamento.forEach(provincia => {
+                const option = document.createElement('option');
+                option.value = provincia.id_ubigeo;
+                option.textContent = provincia.nombre_ubigeo;
+                provinciaSelect.appendChild(option);
+            });
+            provinciaSelect.disabled = false;
+        } else {
+            provinciaSelect.disabled = true;
+        }
+    });
+
+    // Manejar el cambio de provincia
+    provinciaSelect.addEventListener('change', () => {
+        distritoSelect.innerHTML = '<option value="">Seleccionar...</option>';
+
+        const selectedProvincia = provinciaSelect.value;
+        if (selectedProvincia && distritos[selectedProvincia]) {
+            const distritosDelaProvincia = distritos[selectedProvincia];
+            distritosDelaProvincia.forEach(distrito => {
+                const option = document.createElement('option');
+                option.value = distrito.id_ubigeo;
+                option.textContent = distrito.nombre_ubigeo;
+                distritoSelect.appendChild(option);
+            });
+            distritoSelect.disabled = false;
+        } else {
+            distritoSelect.disabled = true;
+        }
+    });
   }
 }
 
