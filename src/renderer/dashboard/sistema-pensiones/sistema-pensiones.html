@@ -1,0 +1,163 @@
+<div class="sistema-pensiones-container">
+  <!-- Encabezado -->
+  <div class="header-section">
+    <div class="header-content">
+      <h1 class="main-title">Sistemas de Pensión</h1>
+      <p class="subtitle">Gestión de parámetros y comisiones para AFP y ONP</p>
+    </div>
+    <button class="btn-nuevo-sistema" id="btnNuevoSistema">
+      <span class="plus-icon">+</span>
+      Nuevo Sistema
+    </button>
+  </div>
+
+  <!-- Separador -->
+  <hr class="sistemas-separador">
+
+  <!-- Sección de Parámetros -->
+  <div class="parametros-section">
+    <div class="parametros-header">
+      <div class="parametros-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 1C8.686 1 6 3.686 6 7V10H4C2.9 10 2 10.9 2 12V20C2 21.1 2.9 22 4 22H20C21.1 22 22 21.1 22 20V12C22 10.9 21.1 10 20 10H18V7C18 3.686 15.314 1 12 1ZM12 3C14.206 3 16 4.794 16 7V10H8V7C8 4.794 9.794 3 12 3ZM12 15C13.1 15 14 14.1 14 13C14 11.9 13.1 11 12 11C10.9 11 10 11.9 10 13C10 14.1 10.9 15 12 15Z" fill="#3498db"/>
+        </svg>
+      </div>
+      <h2 class="parametros-title">Parámetros de AFP y ONP</h2>
+    </div>
+
+    <!-- Tabla de Sistemas de Pensión -->
+    <div class="tabla-container">
+      <div class="sistemas-tabla-wrapper">
+        <table class="sistemas-tabla">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Tipo</th>
+              <th>Detalles Específicos</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="sistemasTableBody">
+            <!-- Los datos se cargarán dinámicamente -->
+            <tr class="empty-state">
+              <td colspan="4" class="empty-message">
+                <div class="empty-content">
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2C6.486 2 2 6.486 2 12S6.486 22 12 22 22 17.514 22 12 17.514 2 12 2ZM12 13H7V11H12V6L16 10L12 14V13Z" fill="#bdc3c7"/>
+                  </svg>
+                  <p>No hay sistemas de pensión registrados</p>
+                  <button class="btn-crear-primero" onclick="document.getElementById('btnNuevoSistema').click()">
+                    Crear el primer sistema
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para Nuevo Sistema -->
+  <div class="modal-overlay" id="modalNuevoSistema">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Nuevo Sistema de Pensión</h3>
+        <button class="btn-cerrar-modal" id="btnCerrarModal">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+      
+      <form class="modal-form" id="formNuevoSistema">
+        <!-- Campos iniciales -->
+        <div class="form-group">
+          <label for="nombreSistema">Nombre</label>
+          <input type="text" id="nombreSistema" name="nombre" required placeholder="Ingrese el nombre del sistema">
+        </div>
+
+        <div class="form-group">
+          <label for="tipoSistema">Tipo</label>
+          <select id="tipoSistema" name="tipo" required>
+            <option value="">Seleccionar...</option>
+            <option value="AFP">AFP</option>
+            <option value="ONP">ONP</option>
+          </select>
+        </div>
+
+        <!-- Campo Código SAP (siempre visible) -->
+        <div class="form-group">
+          <label for="codigoSap">Código SAP</label>
+          <input type="text" id="codigoSap" name="codigo_sap" placeholder="Ingrese el código SAP">
+        </div>
+
+        <!-- Sección dinámica para AFP -->
+        <div class="detalles-section" id="detallesAfp" style="display: none;">
+          <div class="section-header">
+            <h4>Detalles AFP</h4>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="fondoAfp">Fondo (%)</label>
+              <input type="number" id="fondoAfp" name="fondo_afp" step="0.01" min="0" max="100" placeholder="0.00">
+            </div>
+            
+            <div class="form-group">
+              <label for="comisionAfp">Comisión (%)</label>
+              <input type="number" id="comisionAfp" name="comision_afp" step="0.01" min="0" max="100" placeholder="0.00">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="seguroAfp">Seguro (%)</label>
+              <input type="number" id="seguroAfp" name="seguro_afp" step="0.01" min="0" max="100" placeholder="0.00">
+            </div>
+            
+            <div class="form-group">
+              <label for="tipoComision">Tipo Comisión</label>
+              <select id="tipoComision" name="tipo_comision">
+                <option value="">Seleccionar...</option>
+                <option value="FLUJO">FLUJO</option>
+                <option value="SALDO">SALDO</option>
+                
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sección dinámica para ONP -->
+        <div class="detalles-section" id="detallesOnp" style="display: none;">
+          <div class="section-header">
+            <h4>Detalles ONP</h4>
+          </div>
+          
+          <div class="form-group">
+            <label for="porcentajeOnp">Porcentaje (%)</label>
+            <input type="number" id="porcentajeOnp" name="porcentaje_onp" step="0.01" min="0" max="100" placeholder="13.00">
+          </div>
+        </div>
+
+        <!-- Botones de acción -->
+        <div class="form-actions">
+          <button type="button" class="btn-cancelar" id="btnCancelar">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Cancelar
+          </button>
+          <button type="submit" class="btn-guardar">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H16L21 8V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M17 21V13H7V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M7 3V8H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Guardar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

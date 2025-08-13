@@ -614,3 +614,708 @@ body {
     width: 100%;
   }
 }
+
+/* Estilos para el modal de detalle */
+.modal-detalle-container {
+  background: white;
+  border-radius: 12px;
+  max-width: 90vw;
+  width: 1200px;
+  max-height: 90vh;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+}
+
+.modal-detalle-content {
+  padding: 20px;
+  max-height: calc(90vh - 120px);
+  overflow-y: auto;
+}
+
+/* Grillas para el modal de detalle */
+.detalle-grid-3-columnas {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 30px;
+  margin-bottom: 20px;
+}
+
+.detalle-grid-2-columnas {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  margin-bottom: 20px;
+}
+
+.detalle-grid-2-sub {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+.detalle-grid-3-sub {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 15px;
+}
+
+.detalle-columna {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.detalle-sub-columna {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.detalle-seccion {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.detalle-seccion h4 {
+  margin: 0 0 15px 0;
+  color: #495057;
+  font-size: 16px;
+  font-weight: 600;
+  border-bottom: 2px solid #dee2e6;
+  padding-bottom: 8px;
+}
+
+.detalle-campos-contacto {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* Campos del detalle */
+.detalle-campo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.detalle-campo label {
+  font-weight: 600;
+  color: #495057;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.detalle-campo span {
+  color: #212529;
+  font-size: 14px;
+  padding: 8px 0;
+  border-bottom: 1px solid #e9ecef;
+  min-height: 20px;
+}
+
+/* Estilos para la sección de conceptos */
+.conceptos-asignacion {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  border: 1px solid #e9ecef;
+}
+
+.conceptos-form-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr auto;
+  gap: 15px;
+  align-items: end;
+}
+
+.conceptos-campo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.conceptos-campo label {
+  font-weight: 600;
+  color: #495057;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.conceptos-campo select,
+.conceptos-campo input {
+  padding: 10px 12px;
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  font-size: 14px;
+  background: white;
+}
+
+.conceptos-campo select:focus,
+.conceptos-campo input:focus {
+  outline: none;
+  border-color: #1976d2;
+  box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.1);
+}
+
+.btn-asignar-concepto {
+  background: #1976d2;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.btn-asignar-concepto:hover {
+  background: #155a8a;
+}
+
+/* Tabla de conceptos asignados */
+.conceptos-asignados {
+  margin-top: 20px;
+}
+
+.conceptos-asignados h4 {
+  margin: 0 0 15px 0;
+  color: #495057;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.conceptos-tabla-container {
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #e9ecef;
+}
+
+.conceptos-asignados-tabla {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.conceptos-asignados-tabla th {
+  background: #f8f9fa;
+  padding: 12px;
+  text-align: left;
+  font-weight: 600;
+  color: #495057;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.conceptos-asignados-tabla td {
+  padding: 12px;
+  border-bottom: 1px solid #e9ecef;
+  color: #212529;
+  font-size: 14px;
+}
+
+.conceptos-asignados-tabla tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+/* Botón de detalle */
+.btn-detalle {
+  background: #17a2b8;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  margin-right: 5px;
+  transition: background-color 0.2s;
+}
+
+.btn-detalle:hover {
+  background: #138496;
+}
+
+/* Pestañas del detalle */
+.tab-detalle-content {
+  display: none;
+}
+
+.tab-detalle-content.active {
+  display: block;
+}
+
+/* Responsive para el modal de detalle */
+@media (max-width: 768px) {
+  .modal-detalle-container {
+    width: 95vw;
+    max-height: 95vh;
+  }
+  
+  .detalle-grid-3-columnas {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .detalle-grid-2-columnas {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .detalle-grid-2-sub {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  
+  .detalle-grid-3-sub {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  
+  .conceptos-form-row {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+}
+
+/* Estilos para la gestión de conceptos en el modal de detalle */
+
+/* Contenedor principal de conceptos asignados */
+#conceptos-asignados-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 15px;
+  max-height: 400px;
+  overflow-y: auto;
+  padding: 5px;
+}
+
+/* Estado vacío */
+.conceptos-vacio {
+  text-align: center;
+  padding: 40px 20px;
+  color: #7f8c8d;
+  background: #f8f9fa;
+  border-radius: 12px;
+  border: 2px dashed #e9ecef;
+}
+
+.conceptos-vacio .icono-vacio {
+  font-size: 48px;
+  margin-bottom: 15px;
+  opacity: 0.5;
+}
+
+.conceptos-vacio h3 {
+  margin: 0 0 8px 0;
+  font-size: 18px;
+  color: #495057;
+}
+
+.conceptos-vacio p {
+  margin: 0;
+  font-size: 14px;
+}
+
+/* Estado de error */
+.conceptos-error {
+  text-align: center;
+  padding: 40px 20px;
+  color: #e74c3c;
+  background: #fdf2f2;
+  border-radius: 12px;
+  border: 2px dashed #f5c6cb;
+}
+
+.conceptos-error .icono-error {
+  font-size: 48px;
+  margin-bottom: 15px;
+  opacity: 0.7;
+}
+
+.conceptos-error h3 {
+  margin: 0 0 8px 0;
+  font-size: 18px;
+  color: #721c24;
+}
+
+.conceptos-error p {
+  margin: 0;
+  font-size: 14px;
+}
+
+/* Contenedor de conceptos asignados */
+.conceptos-asignados-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 16px;
+  max-height: 400px;
+  overflow-y: auto;
+  padding: 2px;
+}
+
+.conceptos-asignados-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.conceptos-asignados-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 6px;
+}
+
+.conceptos-asignados-container::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 6px;
+}
+
+.conceptos-asignados-container::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Panel de conceptos asignados - Diseño horizontal minimalista */
+.concepto-panel {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  background: #f8f9fa;
+  border-radius: 12px;
+  margin-bottom: 12px;
+  transition: all 0.2s ease;
+  border: 1px solid #e9ecef;
+}
+
+.concepto-panel:hover {
+  background: #f1f3f4;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.concepto-contenido {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.concepto-principal {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.concepto-titulo {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1a365d;
+  margin: 0;
+}
+
+.concepto-tipo {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1a365d;
+  margin: 0;
+}
+
+.concepto-fecha {
+  font-size: 12px;
+  color: #718096;
+  margin: 0;
+}
+
+.concepto-acciones {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-desvincular-moderno {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: #e53e3e;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-desvincular-moderno:hover {
+  background: #c53030;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(197, 48, 48, 0.3);
+}
+
+.btn-desvincular-moderno:active {
+  transform: translateY(0);
+}
+
+.icono-interrogacion {
+  font-size: 12px;
+  opacity: 0.9;
+}
+
+/* Responsive para pantallas pequeñas */
+@media (max-width: 768px) {
+  .concepto-panel {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 16px;
+  }
+  
+  .concepto-principal {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    width: 100%;
+  }
+  
+  .concepto-acciones {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}
+
+.concepto-badge.concepto-aporte-empleador {
+  background: #d1ecf1;
+  color: #0c5460;
+  border: 1px solid #17a2b8;
+}
+
+/* Tabla de conceptos asignados (legacy - ya no se usa pero se mantiene por compatibilidad) */
+#conceptos-asignados-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+#conceptos-asignados-table th {
+  background: #ecf0f1;
+  padding: 12px;
+  text-align: left;
+  font-weight: 600;
+  color: #2c3e50;
+  border-bottom: 2px solid #bdc3c7;
+}
+
+#conceptos-asignados-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #ecf0f1;
+}
+
+#conceptos-asignados-table tr:hover {
+  background: #f8f9fa;
+}
+
+/* Badges para tipos de concepto (legacy) */
+.badge {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.badge-ingreso {
+  background: #d5f4e6;
+  color: #0f7b0f;
+  border: 1px solid #27ae60;
+}
+
+.badge-descuento {
+  background: #ffeaa7;
+  color: #b7631f;
+  border: 1px solid #e17055;
+}
+
+.badge-aporte-trabajador {
+  background: #dfe6e9;
+  color: #2d3436;
+  border: 1px solid #6c5ce7;
+}
+
+.badge-aporte-empleador {
+  background: #d1ecf1;
+  color: #0c5460;
+  border: 1px solid #17a2b8;
+}
+
+/* Botones de acción en la tabla (legacy) */
+.btn-eliminar-concepto {
+  background: none;
+  border: none;
+  padding: 8px;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.btn-eliminar-concepto:hover {
+  background: #ffebee;
+  transform: scale(1.1);
+}
+
+/* Botón asignar concepto */
+.btn-asignar-concepto {
+  background: linear-gradient(45deg, #00b894, #00a085);
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-size: 14px;
+  min-width: 140px;
+}
+
+.btn-asignar-concepto:hover {
+  background: linear-gradient(45deg, #00a085, #00906f);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 184, 148, 0.3);
+}
+
+.btn-asignar-concepto:disabled {
+  background: #95a5a6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Select de conceptos con estilo mejorado */
+#concepto-select {
+  border: 2px solid #e0e6ed;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 14px;
+  background: white;
+  transition: all 0.3s;
+  width: 100%;
+}
+
+#concepto-select:focus {
+  border-color: #74b9ff;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(116, 185, 255, 0.1);
+}
+
+#concepto-select optgroup {
+  font-weight: bold;
+  color: #2d3436;
+  font-size: 13px;
+}
+
+#concepto-select option {
+  padding: 8px;
+  font-size: 13px;
+}
+
+/* Contenedor del formulario de asignación */
+.concepto-asignacion-form {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid #e9ecef;
+  margin-bottom: 20px;
+}
+
+.form-row {
+  display: flex;
+  gap: 15px;
+  align-items: end;
+  margin-bottom: 15px;
+}
+
+.form-row.single-field {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.form-group {
+  flex: 1;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+  color: #2d3436;
+  font-size: 13px;
+}
+
+/* Responsive para conceptos */
+@media (max-width: 768px) {
+  .concepto-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 16px;
+  }
+  
+  .concepto-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .concepto-nombre {
+    white-space: normal;
+  }
+  
+  .btn-desvincular {
+    align-self: flex-end;
+  }
+  
+  .form-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .form-row.single-field {
+    gap: 10px;
+  }
+  
+  .btn-asignar-concepto {
+    margin-top: 10px;
+    width: 100%;
+  }
+  
+  #conceptos-asignados-container {
+    max-height: 300px;
+  }
+}
+
+/* Animación para la carga de datos */
+.loading-conceptos {
+  text-align: center;
+  padding: 40px;
+  color: #74b9ff;
+}
+
+.loading-conceptos::after {
+  content: '⏳';
+  font-size: 24px;
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}

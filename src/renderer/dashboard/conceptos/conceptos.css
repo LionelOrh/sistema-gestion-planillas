@@ -293,3 +293,509 @@ body {
     min-width: 500px;
   }
 }
+
+/* ===============================
+   MODAL NUEVO CONCEPTO
+   =============================== */
+.conceptos-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.conceptos-modal-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.conceptos-modal-container {
+  background: #fff;
+  border-radius: 12px;
+  width: 90vw;
+  max-width: 800px;
+  max-height: 90vh;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  transform: translateY(-20px);
+  transition: transform 0.3s ease;
+}
+
+.conceptos-modal-overlay.active .conceptos-modal-container {
+  transform: translateY(0);
+}
+
+/* Header del Modal */
+.conceptos-modal-header {
+  background: #f8f9fa;
+  padding: 20px 24px;
+  border-bottom: 1px solid #e9ecef;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.conceptos-modal-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.conceptos-modal-close {
+  background: none;
+  border: none;
+  font-size: 1.8rem;
+  color: #6c757d;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.conceptos-modal-close:hover {
+  background: #e9ecef;
+  color: #495057;
+}
+
+/* Contenido del Modal */
+.conceptos-modal-content {
+  padding: 24px;
+  max-height: calc(90vh - 140px);
+  overflow-y: auto;
+}
+
+/* Layout de dos columnas */
+.conceptos-form-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.conceptos-columna-izquierda,
+.conceptos-columna-derecha {
+  min-width: 0; /* Permite que el contenido se ajuste */
+}
+
+/* Secciones */
+.conceptos-seccion {
+  margin-bottom: 0; /* Remover margin bottom por defecto */
+}
+
+.conceptos-seccion-full-width {
+  margin-bottom: 0;
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid #e9ecef;
+}
+
+.conceptos-seccion-titulo {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 0 0 16px 0;
+  padding-bottom: 6px;
+  border-bottom: 2px solid #e9ecef;
+}
+
+/* Grid de Campos para columnas */
+.conceptos-campos-grid-single {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+/* Grid de Campos */
+.conceptos-campos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.conceptos-campo-grupo {
+  display: flex;
+  flex-direction: column;
+}
+
+.conceptos-campo-grupo label {
+  font-weight: 500;
+  color: #495057;
+  margin-bottom: 6px;
+  font-size: 0.95rem;
+}
+
+.conceptos-campo-grupo input,
+.conceptos-campo-grupo select {
+  padding: 12px 16px;
+  border: 1.5px solid #dee2e6;
+  border-radius: 8px;
+  font-size: 1rem;
+  background: #fff;
+  color: #495057;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.conceptos-campo-grupo input:focus,
+.conceptos-campo-grupo select:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.conceptos-campo-grupo select {
+  appearance: none;
+  background-image: url('data:image/svg+xml;utf8,<svg fill="%236c757d" height="20" viewBox="0 0 24 24" width="20" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+  padding-right: 40px;
+}
+
+/* Inputs con símbolo */
+.conceptos-input-with-currency,
+.conceptos-input-with-symbol {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.conceptos-input-with-currency .currency-symbol {
+  position: absolute;
+  left: 16px;
+  color: #6c757d;
+  font-weight: 500;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.conceptos-input-with-currency input {
+  width: 100%;
+  padding-left: 40px;
+}
+
+.conceptos-input-with-symbol input {
+  width: 100%;
+  padding-right: 40px;
+}
+
+.conceptos-input-with-symbol .symbol {
+  position: absolute;
+  right: 16px;
+  color: #6c757d;
+  font-weight: 500;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Switches */
+.conceptos-switches-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.conceptos-switch-grupo {
+  display: flex;
+  align-items: center;
+}
+
+.conceptos-switch-label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-weight: 500;
+  color: #495057;
+}
+
+.conceptos-switch-input {
+  display: none;
+}
+
+.conceptos-switch-slider {
+  position: relative;
+  display: inline-block;
+  width: 48px;
+  height: 24px;
+  background: #dee2e6;
+  border-radius: 24px;
+  margin-right: 12px;
+  transition: all 0.3s ease;
+}
+
+.conceptos-switch-slider:before {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  top: 2px;
+  left: 2px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.conceptos-switch-input:checked + .conceptos-switch-slider {
+  background: #007bff;
+}
+
+.conceptos-switch-input:checked + .conceptos-switch-slider:before {
+  transform: translateX(24px);
+}
+
+.conceptos-switch-text {
+  font-size: 0.95rem;
+}
+
+/* Footer del Modal */
+.conceptos-modal-footer {
+  background: #f8f9fa;
+  padding: 20px 24px;
+  border-top: 1px solid #e9ecef;
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.conceptos-modal-footer button {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.conceptos-btn-cancelar {
+  background: #6c757d;
+  color: #fff;
+}
+
+.conceptos-btn-cancelar:hover {
+  background: #5a6268;
+}
+
+.conceptos-btn-crear {
+  background: #007bff;
+  color: #fff;
+}
+
+.conceptos-btn-crear:hover {
+  background: #0056b3;
+}
+
+/* Campo dinámico */
+.conceptos-campo-dinamico {
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: all 0.3s ease;
+}
+
+.conceptos-campo-dinamico.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .conceptos-modal-container {
+    width: 95vw;
+    max-height: 95vh;
+  }
+  
+  .conceptos-form-layout {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .conceptos-campos-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .conceptos-campos-grid-single {
+    gap: 12px;
+  }
+  
+  .conceptos-switches-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  
+  .conceptos-modal-footer {
+    flex-direction: column-reverse;
+  }
+  
+  .conceptos-modal-footer button {
+    width: 100%;
+  }
+}
+
+/* Acciones de tabla */
+.conceptos-celda-acciones {
+  width: 120px;
+  text-align: center;
+}
+
+.conceptos-acciones {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+}
+
+.conceptos-btn-sm {
+  padding: 4px 8px;
+  font-size: 12px;
+  min-width: auto;
+  height: auto;
+  border-radius: 4px;
+}
+
+.conceptos-btn-outline {
+  background: transparent;
+  border: 1px solid #ddd;
+  color: #666;
+}
+
+.conceptos-btn-outline:hover {
+  background: #f8f9fa;
+  border-color: #ccc;
+}
+
+.conceptos-btn-danger {
+  background: #dc3545;
+  border: 1px solid #dc3545;
+  color: white;
+}
+
+.conceptos-btn-danger:hover {
+  background: #c82333;
+  border-color: #bd2130;
+}
+
+/* Badges para estados */
+.conceptos-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  border-radius: 12px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.conceptos-badge-ingreso {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.conceptos-badge-descuento {
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.conceptos-badge-aporte-trabajador {
+  background: #d1ecf1;
+  color: #0c5460;
+  border: 1px solid #bee5eb;
+}
+
+.conceptos-badge-aporte-empleador {
+  background: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeeba;
+}
+
+.conceptos-badge-success {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.conceptos-badge-danger {
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.conceptos-badge-secondary {
+  background: #e2e3e5;
+  color: #383d41;
+  border: 1px solid #d6d8db;
+}
+
+/* Estado vacío */
+.conceptos-fila-vacia td {
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.conceptos-empty-state p {
+  color: #666;
+  font-size: 16px;
+  margin-bottom: 20px;
+}
+
+.conceptos-text-center {
+  text-align: center;
+}
+
+/* Estado de carga */
+.conceptos-tabla.conceptos-loading {
+  opacity: 0.6;
+  pointer-events: none;
+  position: relative;
+}
+
+.conceptos-tabla.conceptos-loading::after {
+  content: 'Cargando...';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(255, 255, 255, 0.9);
+  padding: 10px 20px;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  font-weight: 500;
+}
+
+/* Estilos para la columna nombre con subtexto */
+.conceptos-nombre-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.conceptos-nombre-principal {
+  font-weight: 500;
+  color: #2c3e50;
+  font-size: 14px;
+  line-height: 1.2;
+}
+
+.conceptos-nombre-subtexto {
+  font-size: 11px;
+  color: #6c757d;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}

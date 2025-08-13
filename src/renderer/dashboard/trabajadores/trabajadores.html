@@ -1,4 +1,5 @@
 <section class="trabajadores-gestion">
+    <link rel="stylesheet" href="trabajadores.css">
     <header class="trabajadores-header">
         <div>
             <h1>Gestión de Trabajadores</h1>
@@ -289,12 +290,8 @@
                     <div class="form-group">
                         <label for="sistemaPension">Sistema de Pensión</label>
                         <select id="sistemaPension" name="sistemaPension">
-                            <option value="">Seleccionar...</option>
-                            <option value="ONP">ONP</option>
-                            <option value="AFP_HABITAT">AFP Habitat</option>
-                            <option value="AFP_INTEGRA">AFP Integra</option>
-                            <option value="AFP_PRIMA">AFP Prima</option>
-                            <option value="AFP_PROFUTURO">AFP Profuturo</option>
+                            <option value="">Cargando sistemas...</option>
+                            <!-- Los sistemas se cargarán dinámicamente desde la base de datos -->
                         </select>
                     </div>
                     <div class="form-group">
@@ -309,6 +306,229 @@
         <div class="modal-footer">
             <button type="button" class="btn-cancelar" id="btnCancelar">Cancelar</button>
             <button type="submit" class="btn-guardar" form="formTrabajador">Guardar Trabajador</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Detalle del Trabajador -->
+<div class="modal-overlay" id="modalDetalleTrabajador">
+    <div class="modal-detalle-container">
+        <div class="modal-header">
+            <h2>Detalle del Trabajador</h2>
+            <button class="modal-close" id="btnCerrarModalDetalle">&times;</button>
+        </div>
+        
+        <!-- Pestañas del Modal de Detalle -->
+        <div class="modal-tabs">
+            <button class="tab-button active" data-tab-detalle="resumen">Resumen</button>
+            <button class="tab-button" data-tab-detalle="personal">Personal</button>
+            <button class="tab-button" data-tab-detalle="laboral">Laboral</button>
+            <button class="tab-button" data-tab-detalle="conceptos">Conceptos</button>
+        </div>
+        
+        <div class="modal-detalle-content">
+            <!-- Sección Resumen General -->
+            <div class="tab-detalle-content active" id="tab-detalle-resumen">
+                <h3>Resumen General</h3>
+                <div class="detalle-grid-3-columnas">
+                    <div class="detalle-columna">
+                        <div class="detalle-campo">
+                            <label>Documento:</label>
+                            <span id="detalle-documento-completo"></span>
+                        </div>
+                        <div class="detalle-campo">
+                            <label>Sexo:</label>
+                            <span id="detalle-sexo"></span>
+                        </div>
+                        <div class="detalle-campo">
+                            <label>Teléfono:</label>
+                            <span id="detalle-telefono"></span>
+                        </div>
+                        <div class="detalle-campo">
+                            <label>Fecha de Ingreso:</label>
+                            <span id="detalle-fecha-ingreso"></span>
+                        </div>
+                        <div class="detalle-campo">
+                            <label>Sistema de Pensión:</label>
+                            <span id="detalle-sistema-pension"></span>
+                        </div>
+                    </div>
+                    <div class="detalle-columna">
+                        <div class="detalle-campo">
+                            <label>Fecha de Nacimiento:</label>
+                            <span id="detalle-fecha-nacimiento"></span>
+                        </div>
+                        <div class="detalle-campo">
+                            <label>Estado Civil:</label>
+                            <span id="detalle-estado-civil"></span>
+                        </div>
+                        <div class="detalle-campo">
+                            <label>Email:</label>
+                            <span id="detalle-email"></span>
+                        </div>
+                        <div class="detalle-campo">
+                            <label>Sueldo Básico:</label>
+                            <span id="detalle-sueldo-basico"></span>
+                        </div>
+                    </div>
+                    <div class="detalle-columna">
+                        <div class="detalle-campo">
+                            <label>Nacionalidad:</label>
+                            <span id="detalle-nacionalidad"></span>
+                        </div>
+                        <div class="detalle-campo">
+                            <label>Dirección:</label>
+                            <span id="detalle-direccion"></span>
+                        </div>
+                        <div class="detalle-campo">
+                            <label>Tipo de Trabajador:</label>
+                            <span id="detalle-tipo-trabajador"></span>
+                        </div>
+                        <div class="detalle-campo">
+                            <label>Banco:</label>
+                            <span id="detalle-banco"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sección Personal -->
+            <div class="tab-detalle-content" id="tab-detalle-personal">
+                <h3>Personal</h3>
+                <div class="detalle-grid-2-columnas">
+                    <div class="detalle-seccion">
+                        <h4>Datos Personales</h4>
+                        <div class="detalle-grid-2-sub">
+                            <div class="detalle-sub-columna">
+                                <div class="detalle-campo">
+                                    <label>Documento:</label>
+                                    <span id="detalle-personal-documento"></span>
+                                </div>
+                                <div class="detalle-campo">
+                                    <label>Fecha de Nacimiento:</label>
+                                    <span id="detalle-personal-fecha-nacimiento"></span>
+                                </div>
+                                <div class="detalle-campo">
+                                    <label>Estado Civil:</label>
+                                    <span id="detalle-personal-estado-civil"></span>
+                                </div>
+                            </div>
+                            <div class="detalle-sub-columna">
+                                <div class="detalle-campo">
+                                    <label>Nacionalidad:</label>
+                                    <span id="detalle-personal-nacionalidad"></span>
+                                </div>
+                                <div class="detalle-campo">
+                                    <label>Sexo:</label>
+                                    <span id="detalle-personal-sexo"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="detalle-seccion">
+                        <h4>Contacto</h4>
+                        <div class="detalle-campos-contacto">
+                            <div class="detalle-campo">
+                                <label>Dirección:</label>
+                                <span id="detalle-contacto-direccion"></span>
+                            </div>
+                            <div class="detalle-grid-3-sub">
+                                <div class="detalle-campo">
+                                    <label>Departamento:</label>
+                                    <span id="detalle-contacto-departamento"></span>
+                                </div>
+                                <div class="detalle-campo">
+                                    <label>Provincia:</label>
+                                    <span id="detalle-contacto-provincia"></span>
+                                </div>
+                                <div class="detalle-campo">
+                                    <label>Distrito:</label>
+                                    <span id="detalle-contacto-distrito"></span>
+                                </div>
+                            </div>
+                            <div class="detalle-grid-2-sub">
+                                <div class="detalle-campo">
+                                    <label>Teléfono:</label>
+                                    <span id="detalle-contacto-telefono"></span>
+                                </div>
+                                <div class="detalle-campo">
+                                    <label>Email:</label>
+                                    <span id="detalle-contacto-email"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sección Laboral -->
+            <div class="tab-detalle-content" id="tab-detalle-laboral">
+                <h3>Información Laboral</h3>
+                <div class="detalle-grid-2-columnas">
+                    <div class="detalle-columna">
+                        <div class="detalle-campo">
+                            <label>Tipo de Trabajador:</label>
+                            <span id="detalle-laboral-tipo-trabajador"></span>
+                        </div>
+                        <div class="detalle-campo">
+                            <label>Fecha de Ingreso:</label>
+                            <span id="detalle-laboral-fecha-ingreso"></span>
+                        </div>
+                        <div class="detalle-campo">
+                            <label>Sueldo Básico:</label>
+                            <span id="detalle-laboral-sueldo-basico"></span>
+                        </div>
+                        <div class="detalle-campo">
+                            <label>Jornada:</label>
+                            <span id="detalle-laboral-jornada"></span>
+                        </div>
+                    </div>
+                    <div class="detalle-columna">
+                        <div class="detalle-campo">
+                            <label>Área:</label>
+                            <span id="detalle-laboral-area"></span>
+                        </div>
+                        <div class="detalle-campo">
+                            <label>Tipo de Contrato:</label>
+                            <span id="detalle-laboral-tipo-contrato"></span>
+                        </div>
+                        <div class="detalle-campo">
+                            <label>Régimen Laboral:</label>
+                            <span id="detalle-laboral-regimen-laboral"></span>
+                        </div>
+                        <div class="detalle-campo">
+                            <label>Turno:</label>
+                            <span id="detalle-laboral-turno"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sección Conceptos -->
+            <div class="tab-detalle-content" id="tab-detalle-conceptos">
+                <h3>Asignar Nuevo Concepto</h3>
+                <div class="conceptos-asignacion">
+                    <div class="conceptos-form-row">
+                        <div class="conceptos-campo">
+                            <label for="concepto-select">Concepto:</label>
+                            <select id="concepto-select">
+                                <option value="">Seleccionar concepto...</option>
+                                <!-- Los conceptos se cargarán dinámicamente -->
+                            </select>
+                        </div>
+                        <div class="conceptos-campo">
+                            <button type="button" class="btn-asignar-concepto">Asignar</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="conceptos-asignados">
+                    <h4>Conceptos Asignados</h4>
+                    <div id="conceptos-asignados-container" class="conceptos-asignados-container">
+                        <!-- Los conceptos asignados se cargarán dinámicamente como paneles horizontales -->
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>

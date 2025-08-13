@@ -86,3 +86,168 @@
         </div>
     </div>
 </section>
+
+<!-- Modal Nuevo Concepto -->
+<div id="modal-concepto" class="conceptos-modal-overlay">
+    <div class="conceptos-modal-container">
+        <div class="conceptos-modal-header">
+            <h2>Nuevo Concepto</h2>
+            <button class="conceptos-modal-close">&times;</button>
+        </div>
+        
+        <form id="form-concepto" class="conceptos-modal-content">
+            <!-- Layout de dos columnas -->
+            <div class="conceptos-form-layout">
+                <!-- Columna Izquierda: Información Básica -->
+                <div class="conceptos-columna-izquierda">
+                    <div class="conceptos-seccion">
+                        <h3 class="conceptos-seccion-titulo">Información Básica</h3>
+                        <div class="conceptos-campos-grid-single">
+                            <div class="conceptos-campo-grupo">
+                                <label for="nombre-concepto">Nombre del Concepto *</label>
+                                <input 
+                                    type="text" 
+                                    id="nombre-concepto" 
+                                    name="nombre" 
+                                    placeholder="Ej. Sueldo Básico, AFP Comisión, ESSALUD"
+                                    required
+                                >
+                            </div>
+                            
+                            <div class="conceptos-campo-grupo">
+                                <label for="codigo-concepto">Código *</label>
+                                <input 
+                                    type="text" 
+                                    id="codigo-concepto" 
+                                    name="codigo" 
+                                    placeholder="Ej: 001, 101, 201"
+                                    required
+                                >
+                            </div>
+                            
+                            <div class="conceptos-campo-grupo">
+                                <label for="tipo-concepto">Tipo de Concepto *</label>
+                                <select id="tipo-concepto" name="tipo" required>
+                                    <option value="">Seleccionar tipo</option>
+                                    <option value="ingreso">Ingresos</option>
+                                    <option value="descuento">Descuentos</option>
+                                    <option value="aporte-trabajador">Aporte del trabajador</option>
+                                    <option value="aporte-empleador">Aportes del empleador</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- Switches -->
+                        <div class="conceptos-switches-grid">
+                            <div class="conceptos-switch-grupo">
+                                <label class="conceptos-switch-label">
+                                    <input type="checkbox" id="es-remunerativo" name="esRemunerativo" class="conceptos-switch-input">
+                                    <span class="conceptos-switch-slider"></span>
+                                    <span class="conceptos-switch-text">Es Remunerativo</span>
+                                </label>
+                            </div>
+                            
+                            <div class="conceptos-switch-grupo">
+                                <label class="conceptos-switch-label">
+                                    <input type="checkbox" id="concepto-activo" name="activo" class="conceptos-switch-input" checked>
+                                    <span class="conceptos-switch-slider"></span>
+                                    <span class="conceptos-switch-text">Concepto Activo</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Columna Derecha: Configuración de Cálculo -->
+                <div class="conceptos-columna-derecha">
+                    <div class="conceptos-seccion">
+                        <h3 class="conceptos-seccion-titulo">Configuración de Cálculo</h3>
+                        <div class="conceptos-campos-grid-single">
+                            <div class="conceptos-campo-grupo">
+                                <label for="tipo-calculo">Tipo de Cálculo *</label>
+                                <select id="tipo-calculo" name="tipoCalculo" required>
+                                    <option value="">Seleccionar tipo</option>
+                                    <option value="monto-fijo">Monto fijo</option>
+                                    <option value="porcentaje">Porcentaje</option>
+                                </select>
+                            </div>
+
+                            <div class="conceptos-campo-grupo">
+                                <label for="codigo-contable">Código Contable</label>
+                                <input 
+                                    type="text" 
+                                    id="codigo-contable" 
+                                    name="codigoContable" 
+                                    placeholder="Ej: 621001, 403001, 627001"
+                                >
+                            </div>
+                            
+                            <!-- Campo dinámico para monto fijo -->
+                            <div class="conceptos-campo-grupo conceptos-campo-dinamico" id="campo-monto" style="display: none;">
+                                <label for="monto-fijo">Monto Fijo *</label>
+                                <div class="conceptos-input-with-currency">
+                                    <span class="currency-symbol">S/.</span>
+                                    <input 
+                                        type="number" 
+                                        id="monto-fijo" 
+                                        name="montoFijo" 
+                                        step="0.01" 
+                                        min="0"
+                                        placeholder="0.00"
+                                    >
+                                </div>
+                            </div>
+                            
+                            <!-- Campo dinámico para porcentaje -->
+                            <div class="conceptos-campo-grupo conceptos-campo-dinamico" id="campo-porcentaje" style="display: none;">
+                                <label for="porcentaje">Porcentaje *</label>
+                                <div class="conceptos-input-with-symbol">
+                                    <input 
+                                        type="number" 
+                                        id="porcentaje" 
+                                        name="porcentaje" 
+                                        step="0.01" 
+                                        min="0" 
+                                        max="100"
+                                        placeholder="0.00"
+                                    >
+                                    <span class="symbol">%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vigencia - Ocupa todo el ancho -->
+            <div class="conceptos-seccion conceptos-seccion-full-width">
+                <h3 class="conceptos-seccion-titulo">Vigencia</h3>
+                <div class="conceptos-campos-grid">
+                    <div class="conceptos-campo-grupo">
+                        <label for="fecha-inicio">Fecha de Inicio *</label>
+                        <input 
+                            type="date" 
+                            id="fecha-inicio" 
+                            name="fechaInicio" 
+                            required
+                        >
+                    </div>
+                    
+                    <div class="conceptos-campo-grupo">
+                        <label for="fecha-fin">Fecha de Fin (Opcional)</label>
+                        <input 
+                            type="date" 
+                            id="fecha-fin" 
+                            name="fechaFin"
+                        >
+                    </div>
+                </div>
+            </div>
+        </form>
+        
+        <div class="conceptos-modal-footer">
+            <button type="button" class="conceptos-btn-cancelar">Cancelar</button>
+            <button type="submit" form="form-concepto" class="conceptos-btn-crear">Crear Concepto</button>
+        </div>
+    </div>
+</div>
