@@ -5,18 +5,22 @@ async function obtenerTrabajadores() {
     console.log('Ejecutando consulta SQL para obtener trabajadores...');
     const [rows] = await pool.query(`
       SELECT 
-        id_trabajador,
-        codigo,
-        nombres,
-        apellidos,
-        numero_documento,
-        area,
-        cargo,
-        sueldo,
-        estado,
-        correo
-      FROM trabajadores 
-      ORDER BY nombres ASC
+        t.id_trabajador,
+        t.codigo,
+        t.nombres,
+        t.apellidos,
+        t.numero_documento,
+        t.area,
+        t.cargo,
+        t.sueldo,
+        t.estado,
+        t.correo,
+        t.id_sistema_pension,
+        sp.nombre as sistema_pension_nombre,
+        sp.tipo as sistema_pension_tipo
+      FROM trabajadores t
+      LEFT JOIN sistema_pension sp ON t.id_sistema_pension = sp.id_sistema_pension
+      ORDER BY t.nombres ASC
     `);
     console.log('Resultados de la consulta:', rows);
     return rows;
@@ -304,17 +308,21 @@ async function obtenerTrabajadoresParaPlanilla() {
     console.log('Ejecutando consulta SQL para obtener trabajadores para planilla...');
     const [rows] = await pool.query(`
       SELECT 
-        id_trabajador,
-        codigo,
-        nombres,
-        apellidos,
-        area,
-        cargo,
-        sueldo,
-        estado
-      FROM trabajadores 
-      WHERE estado = 'ACTIVO'
-      ORDER BY area ASC, nombres ASC, apellidos ASC
+        t.id_trabajador,
+        t.codigo,
+        t.nombres,
+        t.apellidos,
+        t.area,
+        t.cargo,
+        t.sueldo,
+        t.estado,
+        t.id_sistema_pension,
+        sp.nombre as sistema_pension_nombre,
+        sp.tipo as sistema_pension_tipo
+      FROM trabajadores t
+      LEFT JOIN sistema_pension sp ON t.id_sistema_pension = sp.id_sistema_pension
+      WHERE t.estado = 'ACTIVO'
+      ORDER BY t.area ASC, t.nombres ASC, t.apellidos ASC
     `);
     
     console.log(`Encontrados ${rows.length} trabajadores activos para planilla`);

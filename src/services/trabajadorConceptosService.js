@@ -377,6 +377,7 @@ class TrabajadorConceptosService {
       };
     }
   }
+
 }
 
 module.exports = new TrabajadorConceptosService();

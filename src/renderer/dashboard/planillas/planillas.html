@@ -5,6 +5,7 @@
             <h2 class="planillas-contador">0 planillas activas • 0 planillas totales</h2>
         </div>
         <div>
+            <input type="button" class="button-recargar" value="Recargar" id="btnRecargar" title="Recargar planillas">
             <input type="button" class="button-exportar" value="Exportar" id="btnExportar">
             <input type="button" class="button-agregar" value="Agregar Planilla" id="btnAgregarPlanilla">
         </div>
@@ -251,7 +252,7 @@
         <nav class="calculadora-modal-nav">
             <button class="calculadora-nav-btn active" data-interface="trabajador">Por Trabajador</button>
             <button class="calculadora-nav-btn" data-interface="concepto">Resumen por Concepto</button>
-            <button class="calculadora-nav-btn" data-interface="vista-previa">Vista Previa</button>
+            <button class="calculadora-nav-btn disabled" data-interface="vista-previa" id="btnVistaPrevia">Vista Previa</button>
         </nav>
         
         <!-- Contenido de las Interfaces -->
@@ -358,50 +359,40 @@
             
             <!-- Interfaz 3: Vista Previa de Planilla Calculada -->
             <div class="calculadora-interface calculadora-interface-vista-previa" id="interfazVistaPrevia">
-                <!-- Checkbox superior -->
-                <div class="calculadora-exito-mensaje">
-                    <label class="calculadora-checkbox-label">
-                        <input type="checkbox" class="calculadora-checkbox" checked disabled>
-                        <span>Planilla calculada exitosamente. Se han procesado todos los trabajadores seleccionados.</span>
-                    </label>
+                <!-- Estado Bloqueado -->
+                <div class="vista-previa-bloqueado" id="vistaPreviaBloqueado">
+                    <div class="vista-previa-mensaje">
+                        <div class="vista-previa-icono">
+                            <svg width="64" height="64" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12,1A11,11 0 0,0 1,12A11,11 0 0,0 12,23A11,11 0 0,0 23,12A11,11 0 0,0 12,1M12,3A9,9 0 0,1 21,12A9,9 0 0,1 12,21A9,9 0 0,1 3,12A9,9 0 0,1 12,3M12,16A1,1 0 0,1 13,17A1,1 0 0,1 12,18A1,1 0 0,1 11,17A1,1 0 0,1 12,16M12,6A3,3 0 0,1 15,9C15,10.88 13.88,12 12,12C10.12,12 9,10.88 9,9A3,3 0 0,1 12,6Z"/>
+                            </svg>
+                        </div>
+                        <h3>Vista Previa Bloqueada</h3>
+                        <p>Debe calcular la planilla antes de ver la vista previa</p>
+                        <small>Presione "Calcular Planilla" para habilitar esta vista</small>
+                    </div>
                 </div>
-                
-                <!-- Tabla de Vista Previa -->
-                <div class="calculadora-tabla-container">
-                    <table class="calculadora-tabla">
-                        <thead>
-                            <tr>
-                                <th>Trabajador</th>
-                                <th>Ingresos</th>
-                                <th>Descuentos</th>
-                                <th>Aportes</th>
-                                <th>Neto a Pagar</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><strong>Diego Torres Ramírez</strong></td>
-                                <td>S/ 1,448.88</td>
-                                <td>S/ 0.00</td>
-                                <td>S/ 0.00</td>
-                                <td><strong>S/ 1,448.88</strong></td>
-                            </tr>
-                            <tr>
-                                <td><strong>Ana García Vásquez</strong></td>
-                                <td>S/ 2,800.00</td>
-                                <td>S/ 280.00</td>
-                                <td>S/ 252.00</td>
-                                <td><strong>S/ 2,268.00</strong></td>
-                            </tr>
-                            <tr class="calculadora-total-row">
-                                <td><strong>TOTALES</strong></td>
-                                <td><strong>S/ 4,248.88</strong></td>
-                                <td><strong>S/ 280.00</strong></td>
-                                <td><strong>S/ 252.00</strong></td>
-                                <td><strong>S/ 3,716.88</strong></td>
-                            </tr>
-                        </tbody>
-                    </table>
+
+                <!-- Estado Desbloqueado (Oculto inicialmente) -->
+                <div class="vista-previa-desbloqueado" id="vistaPreviewDesbloqueado" style="display: none;">
+                    <!-- Título Principal -->
+                    <div class="vista-previa-header">
+                        <h2 class="vista-previa-titulo">Vista Previa - Planilla Calculada</h2>
+                    </div>
+
+                    <!-- Encabezados de Columna -->
+                    <div class="vista-previa-encabezados">
+                        <div class="vista-previa-columna-header">Trabajador</div>
+                        <div class="vista-previa-columna-header">Ingresos</div>
+                        <div class="vista-previa-columna-header">Descuentos</div>
+                        <div class="vista-previa-columna-header">Aportes</div>
+                        <div class="vista-previa-columna-header">Neto a Pagar</div>
+                    </div>
+
+                    <!-- Contenedor de Datos -->
+                    <div class="vista-previa-contenido" id="vistaPreviaContenido">
+                        <!-- Se llenará dinámicamente -->
+                    </div>
                 </div>
             </div>
             
@@ -412,6 +403,143 @@
             <div class="calculadora-footer-botones">
                 <button type="button" class="calculadora-btn-cancelar" id="btnCancelarCalculadora">Cancelar</button>
                 <button type="button" class="calculadora-btn-guardar" id="btnGuardarCalculadora">Guardar Planilla Calculada</button>
+            </div>
+        </footer>
+    </div>
+</div>
+
+<!-- Modal Detalle de Planilla -->
+<div id="modalDetallePlanilla" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 99999;" onclick="if(event.target === this) cerrarModalDetalle()">
+    <div class="detalle-modal-container">
+        <!-- Encabezado Principal -->
+        <header class="detalle-modal-header">
+            <div class="detalle-header-content">
+                <div class="detalle-header-info">
+                    <div class="detalle-icono-titulo">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor" class="detalle-icono-reloj">
+                            <path d="M12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22C6.47,22 2,17.5 2,12A10,10 0 0,1 12,2M12.5,7V12.25L17,14.92L16.25,16.15L11,13V7H12.5Z"/>
+                        </svg>
+                        <h1 class="detalle-modal-titulo" id="detalleTituloPlanilla">Planilla Quincenal Agosto 2025 - 2da Quincena</h1>
+                    </div>
+                    <div class="detalle-etiquetas">
+                        <span class="detalle-etiqueta detalle-etiqueta-variable" id="detalleTipoPlanilla">Variable</span>
+                        <span class="detalle-etiqueta detalle-etiqueta-calculada" id="detalleEstadoPlanilla">Calculada</span>
+                    </div>
+                </div>
+                <button class="detalle-btn-cerrar" id="btnCerrarDetalle" onclick="cerrarModalDetalle()">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"/>
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- Contenido Principal -->
+        <div class="detalle-modal-content">
+            <!-- Fila Superior: Información del Período y Resumen Financiero -->
+            <div class="detalle-contenido-grid">
+                
+                <!-- Información del Período -->
+                <div class="detalle-seccion detalle-informacion-periodo">
+                    <h3 class="detalle-seccion-titulo">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" class="detalle-seccion-icono">
+                            <path d="M19,19H5V8H19M16,1V3H8V1H6V3H5C3.89,3 3,3.89 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5C21,3.89 20.1,3 19,3H18V1M17,12H12V17H17V12Z"/>
+                        </svg>
+                        Información del Período
+                    </h3>
+                    
+                    <div class="detalle-campos-grid">
+                        <div class="detalle-campo">
+                            <label class="detalle-campo-label">Fecha Inicio</label>
+                            <div class="detalle-campo-valor" id="detalleFechaInicio">01/08/2025</div>
+                        </div>
+                        <div class="detalle-campo">
+                            <label class="detalle-campo-label">Fecha Fin</label>
+                            <div class="detalle-campo-valor" id="detalleFechaFin">15/08/2025</div>
+                        </div>
+                    </div>
+                    
+                    <div class="detalle-campo-full">
+                        <label class="detalle-campo-label">Tipo de Período</label>
+                        <div class="detalle-campo-valor" id="detalleTipoPeriodo">Quincenal</div>
+                    </div>
+                    
+                    <div class="detalle-campo-full">
+                        <label class="detalle-campo-label">Estado Actual</label>
+                        <div class="detalle-campo-valor">
+                            <span class="detalle-estado-badge detalle-estado-calculada" id="detalleEstadoActual">Calculada</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Resumen Financiero -->
+                <div class="detalle-seccion detalle-resumen-financiero">
+                    <h3 class="detalle-seccion-titulo">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" class="detalle-seccion-icono">
+                            <path d="M7,15H9C9,16.08 10.37,17 12,17C13.63,17 15,16.08 15,15C15,13.9 13.96,13.5 11.76,12.97C9.64,12.44 7,11.78 7,9C7,7.21 8.47,5.69 10.5,5.18V3H13.5V5.18C15.53,5.69 17,7.21 17,9H15C15,7.92 13.63,7 12,7C10.37,7 9,7.92 9,9C9,10.1 10.04,10.5 12.24,11.03C14.36,11.56 17,12.22 17,15C17,16.79 15.53,18.31 13.5,18.82V21H10.5V18.82C8.47,18.31 7,16.79 7,15Z"/>
+                        </svg>
+                        Resumen Financiero
+                    </h3>
+                    
+                    <div class="detalle-financiero-lista">
+                        <div class="detalle-financiero-item">
+                            <span class="detalle-financiero-label">Total Ingresos</span>
+                            <span class="detalle-financiero-valor detalle-valor-positivo" id="detalleTotalIngresos">S/ 0.00</span>
+                        </div>
+                        <div class="detalle-financiero-item">
+                            <span class="detalle-financiero-label">Total Descuentos</span>
+                            <span class="detalle-financiero-valor detalle-valor-negativo" id="detalleTotalDescuentos">S/ 0.00</span>
+                        </div>
+                        <div class="detalle-financiero-item">
+                            <span class="detalle-financiero-label">Aportes Trabajador</span>
+                            <span class="detalle-financiero-valor detalle-valor-neutral" id="detalleAportesTrabajador">S/ 0.00</span>
+                        </div>
+                        <div class="detalle-financiero-item">
+                            <span class="detalle-financiero-label">Aportes Empleador</span>
+                            <span class="detalle-financiero-valor detalle-valor-neutral" id="detalleAportesEmpleador">S/ 0.00</span>
+                        </div>
+                        <div class="detalle-financiero-item detalle-financiero-total">
+                            <span class="detalle-financiero-label">Total Neto a Pagar</span>
+                            <span class="detalle-financiero-valor detalle-valor-total" id="detalleTotalNeto">S/ 0.00</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fila Inferior: Auditoría y Aprobación -->
+            <div class="detalle-seccion detalle-auditoria">
+                <h3 class="detalle-seccion-titulo">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" class="detalle-seccion-icono">
+                        <path d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z"/>
+                    </svg>
+                    Auditoría y Aprobación
+                </h3>
+                
+                <div class="detalle-auditoria-grid">
+                    <div class="detalle-auditoria-campo">
+                        <label class="detalle-campo-label">Creada por</label>
+                        <div class="detalle-campo-valor" id="detalleCreadaPor">Sistema Automático</div>
+                        <small class="detalle-campo-fecha" id="detalleFechaCreacion">14 de agosto de 2025, 10:30 AM</small>
+                    </div>
+                    <div class="detalle-auditoria-campo">
+                        <label class="detalle-campo-label">Última modificación</label>
+                        <div class="detalle-campo-valor" id="detalleModificadaPor">Sistema Automático</div>
+                        <small class="detalle-campo-fecha" id="detalleFechaModificacion">14 de agosto de 2025, 11:45 AM</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pie del Modal -->
+        <footer class="detalle-modal-footer">
+            <div class="detalle-footer-botones">
+                <button type="button" class="detalle-btn-secundario" id="btnEditarPlanilla">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M20.71,7.04C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18,2.9 17.35,2.9 16.96,3.29L15.12,5.12L18.87,8.87M3,17.25V21H6.75L17.81,9.93L14.06,6.18L3,17.25Z"/>
+                    </svg>
+                    Editar
+                </button>
+                <button type="button" class="detalle-btn-primario" id="btnCerrarDetallePlanilla" onclick="cerrarModalDetalle()">Cerrar</button>
             </div>
         </footer>
     </div>

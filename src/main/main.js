@@ -5,6 +5,7 @@ const { obtenerTrabajadores, obtenerTrabajadorPorId, crearTrabajador, actualizar
 const { obtenerSistemasPension, obtenerSistemaPorId, crearSistemaPension, actualizarSistemaPension, eliminarSistemaPension } = require('../services/sistemaPensionesService');
 const conceptosService = require('../services/conceptosService');
 const trabajadorConceptosService = require('../services/trabajadorConceptosService');
+const planillasService = require('../services/planillasService');
 
 let loginWindow = null;
 let dashboardWindow = null;
@@ -332,6 +333,122 @@ app.whenReady().then(() => {
       return resultado;
     } catch (error) {
       console.error('[IPC] Error en get-trabajador-aportes:', error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  // Handler para obtener aportes del empleador de un trabajador
+  ipcMain.handle('get-aportes-empleador', async (event, idTrabajador) => {
+    try {
+      console.log(`[IPC] Obteniendo aportes del empleador para trabajador ${idTrabajador}`);
+      
+      const resultado = await trabajadorConceptosService.obtenerConceptosPorTrabajador(idTrabajador, 'aporte-empleador');
+      
+      console.log(`[IPC] Aportes del empleador obtenidos para trabajador ${idTrabajador}:`, resultado.conceptos?.length || 0);
+      
+      return resultado;
+    } catch (error) {
+      console.error('[IPC] Error en get-aportes-empleador:', error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  // ============================================
+  // HANDLERS PARA PLANILLAS
+  // ============================================
+  
+  // Handler para crear nueva planilla
+  ipcMain.handle('crear-planilla', async (event, planillaData) => {
+    try {
+      console.log('[IPC] Creando nueva planilla:', planillaData);
+      
+      const resultado = await planillasService.crearPlanilla(planillaData);
+      
+      console.log('[IPC] Planilla creada exitosamente:', resultado.id_planilla);
+      
+      return resultado;
+    } catch (error) {
+      console.error('[IPC] Error creando planilla:', error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  // Handler para guardar cálculos de planilla
+  ipcMain.handle('guardar-calculos-planilla', async (event, idPlanilla, datosCalculados) => {
+    try {
+      console.log(`[IPC] Guardando cálculos para planilla ${idPlanilla}`);
+      
+      const resultado = await planillasService.guardarCalculosPlanilla(idPlanilla, datosCalculados);
+      
+      console.log(`[IPC] Cálculos guardados exitosamente para planilla ${idPlanilla}`);
+      
+      return resultado;
+    } catch (error) {
+      console.error('[IPC] Error guardando cálculos:', error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  // Handler para listar planillas
+  ipcMain.handle('listar-planillas', async (event, filtros = {}) => {
+    try {
+      console.log('[IPC] Listando planillas con filtros:', filtros);
+      
+      const resultado = await planillasService.listarPlanillas(filtros);
+      
+      console.log(`[IPC] Planillas obtenidas: ${resultado.planillas?.length || 0}`);
+      
+      return resultado;
+    } catch (error) {
+      console.error('[IPC] Error listando planillas:', error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  // Handler para obtener estadísticas de planillas
+  ipcMain.handle('obtener-estadisticas-planillas', async (event) => {
+    try {
+      console.log('[IPC] Obteniendo estadísticas de planillas');
+      
+      const resultado = await planillasService.obtenerEstadisticas();
+      
+      console.log('[IPC] Estadísticas obtenidas:', resultado.estadisticas);
+      
+      return resultado;
+    } catch (error) {
+      console.error('[IPC] Error obteniendo estadísticas:', error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  // Handler para obtener detalle de planilla
+  ipcMain.handle('obtener-detalle-planilla', async (event, idPlanilla) => {
+    try {
+      console.log(`[IPC] Obteniendo detalle de planilla ${idPlanilla}`);
+      
+      const resultado = await planillasService.obtenerDetallePlanilla(idPlanilla);
+      
+      console.log(`[IPC] Detalle obtenido para planilla ${idPlanilla}`);
+      
+      return resultado;
+    } catch (error) {
+      console.error('[IPC] Error obteniendo detalle:', error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  // Handler para actualizar estado de planilla
+  ipcMain.handle('actualizar-estado-planilla', async (event, idPlanilla, nuevoEstado) => {
+    try {
+      console.log(`[IPC] Actualizando estado de planilla ${idPlanilla} a ${nuevoEstado}`);
+      
+      const resultado = await planillasService.actualizarEstadoPlanilla(idPlanilla, nuevoEstado);
+      
+      console.log(`[IPC] Estado actualizado para planilla ${idPlanilla}`);
+      
+      return resultado;
+    } catch (error) {
+      console.error('[IPC] Error actualizando estado:', error);
       return { success: false, error: error.message };
     }
   });

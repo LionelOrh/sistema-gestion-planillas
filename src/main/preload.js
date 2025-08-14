@@ -34,5 +34,27 @@ contextBridge.exposeInMainWorld('electronAPI', {
   asignarConceptoTrabajador: (datos) => ipcRenderer.invoke('asignar-concepto-trabajador', datos),
   obtenerConceptosAsignadosTrabajador: (idTrabajador) => ipcRenderer.invoke('obtener-conceptos-asignados-trabajador', idTrabajador),
   desvincularConceptoTrabajador: (idTrabajador, idConcepto) => ipcRenderer.invoke('desvincular-concepto-trabajador', idTrabajador, idConcepto),
-  obtenerEstadisticasTrabajadorConceptos: () => ipcRenderer.invoke('obtener-estadisticas-trabajador-conceptos')
+  obtenerEstadisticasTrabajadorConceptos: () => ipcRenderer.invoke('obtener-estadisticas-trabajador-conceptos'),
+
+  // ============================================
+  // API PARA PLANILLAS
+  // ============================================
+  
+  // Crear nueva planilla
+  crearPlanilla: (planillaData) => ipcRenderer.invoke('crear-planilla', planillaData),
+  
+  // Guardar cálculos de planilla
+  guardarCalculosPlanilla: (idPlanilla, datosCalculados) => ipcRenderer.invoke('guardar-calculos-planilla', idPlanilla, datosCalculados),
+  
+  // Listar planillas con filtros
+  listarPlanillas: (filtros) => ipcRenderer.invoke('listar-planillas', filtros),
+  
+  // Obtener estadísticas de planillas
+  obtenerEstadisticasPlanillas: () => ipcRenderer.invoke('obtener-estadisticas-planillas'),
+  
+  // Obtener detalle completo de una planilla
+  obtenerDetallePlanilla: (idPlanilla) => ipcRenderer.invoke('obtener-detalle-planilla', idPlanilla),
+  
+  // Actualizar estado de planilla
+  actualizarEstadoPlanilla: (idPlanilla, nuevoEstado) => ipcRenderer.invoke('actualizar-estado-planilla', idPlanilla, nuevoEstado)
 });
