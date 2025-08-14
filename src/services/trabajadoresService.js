@@ -299,9 +299,58 @@ async function obtenerSiguienteCodigo() {
   }
 }
 
+async function obtenerTrabajadoresParaPlanilla() {
+  try {
+    console.log('Ejecutando consulta SQL para obtener trabajadores para planilla...');
+    const [rows] = await pool.query(`
+      SELECT 
+        id_trabajador,
+        codigo,
+        nombres,
+        apellidos,
+        area,
+        cargo,
+        sueldo,
+        estado
+      FROM trabajadores 
+      WHERE estado = 'ACTIVO'
+      ORDER BY area ASC, nombres ASC, apellidos ASC
+    `);
+    
+    console.log(`Encontrados ${rows.length} trabajadores activos para planilla`);
+    return rows;
+  } catch (err) {
+    console.error('Error al obtener trabajadores para planilla:', err);
+    throw err;
+  }
+}
+
+async function obtenerTrabajadoresPorArea() {
+  try {
+    console.log('Ejecutando consulta SQL para obtener trabajadores agrupados por área...');
+    const [rows] = await pool.query(`
+      SELECT 
+        area,
+        COUNT(*) as cantidad_trabajadores
+      FROM trabajadores 
+      WHERE estado = 'ACTIVO'
+      GROUP BY area
+      ORDER BY area ASC
+    `);
+    
+    console.log('Trabajadores por área:', rows);
+    return rows;
+  } catch (err) {
+    console.error('Error al obtener trabajadores por área:', err);
+    throw err;
+  }
+}
+
 module.exports = {
   obtenerTrabajadores,
   obtenerTrabajadorPorId,
   crearTrabajador,
-  actualizarTrabajador
+  actualizarTrabajador,
+  obtenerTrabajadoresParaPlanilla,
+  obtenerTrabajadoresPorArea
 };

@@ -501,7 +501,6 @@ class TrabajadoresManager {
         <td>
           <button class="btn-accion btn-detalle" data-id="${trabajador.id_trabajador}" title="Ver Detalle">👁️</button>
           <button class="btn-accion btn-editar" data-id="${trabajador.id_trabajador}">Editar</button>
-          <button class="btn-accion btn-eliminar" data-id="${trabajador.id_trabajador}">Eliminar</button>
         </td>
       `;
       tbody.appendChild(fila);

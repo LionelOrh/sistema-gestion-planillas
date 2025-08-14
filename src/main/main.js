@@ -1,7 +1,7 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 const { login } = require('../services/loginService');
-const { obtenerTrabajadores, obtenerTrabajadorPorId, crearTrabajador, actualizarTrabajador } = require('../services/trabajadoresService');
+const { obtenerTrabajadores, obtenerTrabajadorPorId, crearTrabajador, actualizarTrabajador, obtenerTrabajadoresParaPlanilla, obtenerTrabajadoresPorArea } = require('../services/trabajadoresService');
 const { obtenerSistemasPension, obtenerSistemaPorId, crearSistemaPension, actualizarSistemaPension, eliminarSistemaPension } = require('../services/sistemaPensionesService');
 const conceptosService = require('../services/conceptosService');
 const trabajadorConceptosService = require('../services/trabajadorConceptosService');
@@ -104,6 +104,31 @@ app.whenReady().then(() => {
       return result;
     } catch (error) {
       console.error('Error en handler actualizar-trabajador:', error);
+      throw error;
+    }
+  });
+
+  // IPC handlers para trabajadores en planillas
+  ipcMain.handle('obtener-trabajadores-planilla', async () => {
+    console.log('Handler obtener-trabajadores-planilla llamado');
+    try {
+      const result = await obtenerTrabajadoresParaPlanilla();
+      console.log('Trabajadores para planilla obtenidos:', result.length);
+      return result;
+    } catch (error) {
+      console.error('Error en handler obtener-trabajadores-planilla:', error);
+      throw error;
+    }
+  });
+
+  ipcMain.handle('obtener-trabajadores-por-area', async () => {
+    console.log('Handler obtener-trabajadores-por-area llamado');
+    try {
+      const result = await obtenerTrabajadoresPorArea();
+      console.log('Trabajadores por área obtenidos:', result.length, 'áreas');
+      return result;
+    } catch (error) {
+      console.error('Error en handler obtener-trabajadores-por-area:', error);
       throw error;
     }
   });

@@ -11,7 +11,10 @@ document.addEventListener('DOMContentLoaded', () => {
 			const section = link.getAttribute('data-section');
 			
 			if (section === 'dashboard') {
-				main.innerHTML = `<h1>Bienvenido al Dashboard</h1><p>¡Login exitoso! agregasas</p>`;
+				main.innerHTML = `
+					<h1>Bienvenido al Dashboard</h1>
+					<p>Panel principal del sistema de planillas</p>
+				`;
 			} else if (section === 'trabajadores') {
 				// Cargar la vista de trabajadores y su CSS
 				const res = await fetch('trabajadores/trabajadores.html');
@@ -91,6 +94,33 @@ document.addEventListener('DOMContentLoaded', () => {
 					// Si el script ya está cargado, reinicializar manualmente
 					if (window.SistemaPensionesManager) {
 						new window.SistemaPensionesManager();
+					}
+				}
+			} else if (section === 'planillas') {
+				// Cargar la vista de planillas y su CSS
+				const res = await fetch('planillas/planillas.html');
+				const html = await res.text();
+				main.innerHTML = html;
+				
+				// Cargar CSS solo si no está ya cargado
+				if (!document.getElementById('planillas-css')) {
+					const link = document.createElement('link');
+					link.rel = 'stylesheet';
+					link.href = 'planillas/planillas.css';
+					link.id = 'planillas-css';
+					document.head.appendChild(link);
+				}
+				
+				// Cargar y ejecutar el script de planillas
+				if (!document.getElementById('planillas-script')) {
+					const script = document.createElement('script');
+					script.src = 'planillas/planillas.js';
+					script.id = 'planillas-script';
+					document.head.appendChild(script);
+				} else {
+					// Si el script ya está cargado, reinicializar manualmente
+					if (window.PlanillasManager) {
+						new window.PlanillasManager();
 					}
 				}
 			} else {

@@ -1,0 +1,227 @@
+    <section class="planillas-gestion">
+    <header class="planillas-header">
+        <div>
+            <h1 class="planillas-titulo">Gestión de Planillas</h1>
+            <h2 class="planillas-contador">0 planillas activas • 0 planillas totales</h2>
+        </div>
+        <div>
+            <input type="button" class="button-exportar" value="Exportar" id="btnExportar">
+            <input type="button" class="button-agregar" value="Agregar Planilla" id="btnAgregarPlanilla">
+        </div>
+    </header>
+    <hr class="planillas-separador">
+
+    <!-- Tarjetas de estadísticas -->
+    <section class="stats-section">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-info">
+                    <span class="stat-label">Planillas Activas</span>
+                    <span class="stat-number">0</span>
+                </div>
+                <div class="stat-icon stat-icon-blue">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M19,3H5C3.9,3 3,3.9 3,5V19C3,20.1 3.9,21 5,21H19C20.1,21 21,20.1 21,19V5C21,3.9 20.1,3 19,3M19,19H5V5H19V19Z"/>
+                        <path d="M6.25,7.72H9.31V16.28H7.39V9.56H6.25V7.72M10.75,7.72H12.69V9.56H13.81V16.28H15.75V7.72H18.81V9.05H16.87V16.28H10.75V7.72Z"/>
+                    </svg>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-info">
+                    <span class="stat-label">Total Pagado 2025</span>
+                    <span class="stat-number">S/ 0</span>
+                </div>
+                <div class="stat-icon stat-icon-green">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M7,15H9C9,16.08 10.37,17 12,17C13.63,17 15,16.08 15,15C15,13.9 13.96,13.5 11.76,12.97C9.64,12.44 7,11.78 7,9C7,7.21 8.47,5.69 10.5,5.18V3H13.5V5.18C15.53,5.69 17,7.21 17,9H15C15,7.92 13.63,7 12,7C10.37,7 9,7.92 9,9C9,10.1 10.04,10.5 12.24,11.03C14.36,11.56 17,12.22 17,15C17,16.79 15.53,18.31 13.5,18.82V21H10.5V18.82C8.47,18.31 7,16.79 7,15Z"/>
+                    </svg>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-info">
+                    <span class="stat-label">Trabajadores</span>
+                    <span class="stat-number">11</span>
+                </div>
+                <div class="stat-icon stat-icon-purple">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sección de lista de planillas -->
+    <section class="table-section">
+        <div class="section-header">
+            <div class="section-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M19,3H5C3.9,3 3,3.9 3,5V19C3,20.1 3.9,21 5,21H19C20.1,21 21,20.1 21,19V5C21,3.9 20.1,3 19,3M19,19H5V5H19V19Z"/>
+                </svg>
+                <h3>Lista de Planillas</h3>
+            </div>
+        </div>
+
+        <!-- Barra de filtros -->
+        <div class="filters-bar">
+            <div class="search-box">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M9.5,3A6.5,6.5 0 0,1 16,9.5C16,11.11 15.41,12.59 14.44,13.73L14.71,14H15.5L20.5,19L19,20.5L14,15.5V14.71L13.73,14.44C12.59,15.41 11.11,16 9.5,16A6.5,6.5 0 0,1 3,9.5A6.5,6.5 0 0,1 9.5,3M9.5,5C7,5 5,7 5,9.5C5,12 7,14 9.5,14C12,14 14,12 14,9.5C14,7 12,5 9.5,5Z"/>
+                </svg>
+                <input type="search" placeholder="Buscar planilla..." class="search-input">
+            </div>
+            <div class="filters-group">
+                <button class="filter-btn" type="button">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M14,12V19.88C14.04,20.18 13.94,20.5 13.71,20.71C13.32,21.1 12.69,21.1 12.3,20.71L10.29,18.7C10.06,18.47 9.96,18.16 10,17.87V12H9.97L4.21,4.62C3.87,4.19 3.95,3.56 4.38,3.22C4.57,3.08 4.78,3 5,3V3H19V3C19.22,3 19.43,3.08 19.62,3.22C20.05,3.56 20.13,4.19 19.79,4.62L14.03,12H14Z"/>
+                    </svg>
+                </button>
+                <select class="filter-select">
+                    <option value="">Todos</option>
+                    <option value="borrador">Borrador</option>
+                    <option value="procesando">Procesando</option>
+                    <option value="finalizada">Finalizada</option>
+                    <option value="pagada">Pagada</option>
+                </select>
+                <select class="filter-select">
+                    <option value="2025">2025</option>
+                    <option value="2024">2024</option>
+                    <option value="2023">2023</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Tabla -->
+        <div class="table-container">
+            <table class="planillas-table">
+                <thead>
+                    <tr>
+                        <th>Planilla</th>
+                        <th>Período</th>
+                        <th>Tipo</th>
+                        <th>Total Neto</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Los datos se cargarán dinámicamente -->
+                </tbody>
+            </table>
+        </div>
+    </section>
+</section>
+
+<!-- Modal para Crear Nueva Planilla -->
+<div id="modalCrearPlanilla" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 99999;">
+    <div class="planilla-modal-container">
+        <!-- Título Principal -->
+        <h1 class="planilla-modal-titulo">Crear Nueva Planilla</h1>
+        
+        <!-- Contenido en dos columnas -->
+        <div class="planilla-modal-contenido-grid">
+            
+            <!-- Columna Izquierda: Información de la Planilla -->
+            <div class="planilla-modal-columna-izquierda">
+                <div class="planilla-modal-seccion">
+                    <h2 class="planilla-modal-subtitulo">Información de la Planilla</h2>
+                    <hr class="planilla-modal-separador">
+                    
+                    <div class="planilla-modal-form-grid">
+                        <div class="planilla-modal-campo planilla-modal-campo-full">
+                            <label class="planilla-modal-label">Tipo de Período <span class="planilla-modal-required">*</span></label>
+                            <select class="planilla-modal-input">
+                                <option value="">Seleccionar período</option>
+                                <option value="quincenal">Quincenal</option>
+                                <option value="mensual">Mensual</option>
+                            </select>
+                        </div>
+                        
+                        <div class="planilla-modal-campo">
+                            <label class="planilla-modal-label">Mes <span class="planilla-modal-required">*</span></label>
+                            <select class="planilla-modal-input" id="selectMes">
+                                <option value="1">Enero</option>
+                                <option value="2">Febrero</option>
+                                <option value="3">Marzo</option>
+                                <option value="4">Abril</option>
+                                <option value="5">Mayo</option>
+                                <option value="6">Junio</option>
+                                <option value="7">Julio</option>
+                                <option value="8">Agosto</option>
+                                <option value="9">Septiembre</option>
+                                <option value="10">Octubre</option>
+                                <option value="11">Noviembre</option>
+                                <option value="12">Diciembre</option>
+                            </select>
+                        </div>
+                        
+                        <div class="planilla-modal-campo">
+                            <label class="planilla-modal-label">Año <span class="planilla-modal-required">*</span></label>
+                            <input type="number" class="planilla-modal-input" id="inputAno" min="2020" max="2030" step="1" value="2025">
+                        </div>
+                        
+                        <div class="planilla-modal-campo">
+                            <label class="planilla-modal-label">Fecha Inicio <span class="planilla-modal-required">*</span></label>
+                            <input type="date" class="planilla-modal-input" id="inputFechaInicio">
+                        </div>
+                        
+                        <div class="planilla-modal-campo">
+                            <label class="planilla-modal-label">Fecha Fin <span class="planilla-modal-required">*</span></label>
+                            <input type="date" class="planilla-modal-input" id="inputFechaFin">
+                        </div>
+                        
+                        <div class="planilla-modal-campo planilla-modal-campo-full">
+                            <label class="planilla-modal-label">Nombre de la Planilla <span class="planilla-modal-required">*</span></label>
+                            <input type="text" class="planilla-modal-input" value="Se generará automáticamente" readonly>
+                        </div>
+                        
+                        <div class="planilla-modal-campo planilla-modal-campo-full">
+                            <label class="planilla-modal-label">Observaciones</label>
+                            <textarea class="planilla-modal-textarea" placeholder="Observaciones adicionales"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Columna Derecha: Selección de Trabajadores -->
+            <div class="planilla-modal-columna-derecha">
+                <div class="planilla-modal-seccion">
+                    <h2 class="planilla-modal-subtitulo">Selección de Trabajadores</h2>
+                    <hr class="planilla-modal-separador">
+                    
+                    <!-- Tabla de Filtros -->
+                    <div class="planilla-modal-filtros-grid">
+                        <!-- Los filtros se generarán dinámicamente basados en las áreas de los trabajadores -->
+                    </div>
+                    
+                    <div class="planilla-modal-filtros-acciones">
+                        <button class="planilla-modal-limpiar-btn">Limpiar</button>
+                    </div>
+                    
+                    <div class="planilla-modal-seleccionados">Seleccionados: <span id="contadorSeleccionados">0</span> de 11</div>
+                    
+                    <!-- Lista de Trabajadores -->
+                    <div class="planilla-modal-trabajadores-lista">
+                        <div class="loading-trabajadores" style="padding: 20px; text-align: center; color: #666;">
+                            <p>Cargando trabajadores...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+        
+        <!-- Botones Inferiores -->
+        <div class="planilla-modal-footer">
+            
+            <div class="planilla-modal-footer-botones">
+                <button type="button" class="planilla-modal-btn-cancelar" id="btnCancelarPlanilla">Cancelar</button>
+                <button type="button" class="planilla-modal-btn-crear" id="btnCrearPlanilla">Crear Planilla</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="planillas.js"></script>

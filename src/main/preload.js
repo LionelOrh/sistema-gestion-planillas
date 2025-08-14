@@ -9,6 +9,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
   crearTrabajador: (datosFormulario) => ipcRenderer.invoke('crear-trabajador', datosFormulario),
   actualizarTrabajador: (id, datosFormulario) => ipcRenderer.invoke('actualizar-trabajador', id, datosFormulario),
   
+  // API para trabajadores en planillas
+  obtenerTrabajadoresParaPlanilla: () => ipcRenderer.invoke('obtener-trabajadores-planilla'),
+  obtenerTrabajadoresPorArea: () => ipcRenderer.invoke('obtener-trabajadores-por-area'),
+  
   // API para sistemas de pensión
   obtenerSistemasPension: () => ipcRenderer.invoke('obtener-sistemas-pension'),
   obtenerSistemaPensionPorId: (id) => ipcRenderer.invoke('obtener-sistema-pension-por-id', id),
