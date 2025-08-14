@@ -224,4 +224,197 @@
     </div>
 </div>
 
+<!-- Modal Calculadora de Planilla -->
+<div id="modalCalculadoraPlanilla" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 99999;">
+    <div class="calculadora-modal-container">
+        <!-- Encabezado del Modal -->
+        <header class="calculadora-modal-header">
+            <div class="calculadora-header-content">
+                <div class="calculadora-header-info">
+                    <h1 class="calculadora-modal-titulo">Calculadora de Planilla</h1>
+                    <h2 class="calculadora-modal-subtitulo">Planilla Variable Agosto 2025</h2>
+                    <p class="calculadora-modal-info">1 trabajadores • 17 conceptos</p>
+                </div>
+                <div class="calculadora-header-actions">
+                    <button class="calculadora-btn-calcular" id="btnCalcularPlanilla">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M19,3H5C3.9,3 3,3.9 3,5V19C3,20.1 3.9,21 5,21H19C20.1,21 21,20.1 21,19V5C21,3.9 20.1,3 19,3M7,7H17V9H7V7M7,11H17V13H7V11M7,15H17V17H7V15Z"/>
+                        </svg>
+                        Calcular Planilla
+                    </button>
+                </div>
+            </div>
+            <hr class="calculadora-modal-separador">
+        </header>
+        
+        <!-- Navegación de Interfaces -->
+        <nav class="calculadora-modal-nav">
+            <button class="calculadora-nav-btn active" data-interface="trabajador">Por Trabajador</button>
+            <button class="calculadora-nav-btn" data-interface="concepto">Resumen por Concepto</button>
+            <button class="calculadora-nav-btn" data-interface="vista-previa">Vista Previa</button>
+        </nav>
+        
+        <!-- Contenido de las Interfaces -->
+        <div class="calculadora-modal-content">
+            
+            <!-- Interfaz 1: Vista Detallada por Trabajador -->
+            <div class="calculadora-interface calculadora-interface-trabajador active" id="interfazTrabajador">
+                <!-- Contenedor Dinámico de Trabajadores (apilados verticalmente) -->
+                <div class="calculadora-trabajadores-container" id="trabajadoresContainer">
+                    <!-- Se generará dinámicamente para cada trabajador uno debajo del otro -->
+                </div>
+            </div>
+            
+            <!-- Interfaz 2: Resumen por Concepto -->
+            <div class="calculadora-interface calculadora-interface-concepto" id="interfazConcepto">
+                <!-- Tarjetas de Totales -->
+                <div class="resumen-tarjetas-grid">
+                    
+                    <!-- Total Ingresos -->
+                    <div class="resumen-tarjeta resumen-tarjeta-ingresos">
+                        <div class="resumen-tarjeta-header">
+                            <h3 class="resumen-tarjeta-titulo">Total Ingresos</h3>
+                            <div class="resumen-tarjeta-icono resumen-icono-verde">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M7,14L12,9L17,14H7Z"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="resumen-tarjeta-valor resumen-valor-verde" id="totalIngresos">S/ 0</div>
+                    </div>
+                    
+                    <!-- Total Descuentos -->
+                    <div class="resumen-tarjeta resumen-tarjeta-descuentos">
+                        <div class="resumen-tarjeta-header">
+                            <h3 class="resumen-tarjeta-titulo">Total Descuentos</h3>
+                            <div class="resumen-tarjeta-icono resumen-icono-rojo">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M7,10L12,15L17,10H7Z"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="resumen-tarjeta-valor resumen-valor-rojo" id="totalDescuentos">S/ 0</div>
+                    </div>
+                    
+                    <!-- Aportes Trabajador -->
+                    <div class="resumen-tarjeta resumen-tarjeta-aportes">
+                        <div class="resumen-tarjeta-header">
+                            <h3 class="resumen-tarjeta-titulo">Aportes Trabajador</h3>
+                            <div class="resumen-tarjeta-icono resumen-icono-azul">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="resumen-tarjeta-valor resumen-valor-azul" id="totalAportes">S/ 0</div>
+                    </div>
+                    
+                    <!-- Total Neto -->
+                    <div class="resumen-tarjeta resumen-tarjeta-neto">
+                        <div class="resumen-tarjeta-header">
+                            <h3 class="resumen-tarjeta-titulo">Total Neto</h3>
+                            <div class="resumen-tarjeta-icono resumen-icono-gris">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M7,15H9C9,16.08 10.37,17 12,17C13.63,17 15,16.08 15,15C15,13.9 13.96,13.5 11.76,12.97C9.64,12.44 7,11.78 7,9C7,7.21 8.47,5.69 10.5,5.18V3H13.5V5.18C15.53,5.69 17,7.21 17,9H15C15,7.92 13.63,7 12,7C10.37,7 9,7.92 9,9C9,10.1 10.04,10.5 12.24,11.03C14.36,11.56 17,12.22 17,15C17,16.79 15.53,18.31 13.5,18.82V21H10.5V18.82C8.47,18.31 7,16.79 7,15Z"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="resumen-tarjeta-valor resumen-valor-gris" id="totalNeto">S/ 0</div>
+                    </div>
+                    
+                </div>
+                
+                <!-- Sección Inferior: Tabla de Resumen por Concepto -->
+                <div class="resumen-tabla-seccion">
+                    <div class="resumen-tabla-header">
+                        <h3 class="resumen-tabla-titulo">Resumen por Concepto</h3>
+                    </div>
+                    
+                    <div class="calculadora-tabla-container">
+                        <table class="calculadora-tabla resumen-tabla">
+                            <thead>
+                                <tr>
+                                    <th>Concepto</th>
+                                    <th>Tipo</th>
+                                    <th>Cantidad Trabajadores</th>
+                                    <th>Monto Total</th>
+                                </tr>
+                            </thead>
+                            <tbody id="resumenConceptosBody">
+                                <tr class="tabla-vacia">
+                                    <td colspan="4" style="text-align: center; padding: 40px; color: #666;">
+                                        <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor" style="opacity: 0.3; margin-bottom: 10px;">
+                                            <path d="M19,3H5C3.9,3 3,3.9 3,5V19C3,20.1 3.9,21 5,21H19C20.1,21 21,20.1 21,19V5C21,3.9 20.1,3 19,3M19,19H5V5H19V19Z"/>
+                                        </svg>
+                                        <p>No hay datos calculados aún</p>
+                                        <small>Los conceptos aparecerán después del cálculo</small>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Interfaz 3: Vista Previa de Planilla Calculada -->
+            <div class="calculadora-interface calculadora-interface-vista-previa" id="interfazVistaPrevia">
+                <!-- Checkbox superior -->
+                <div class="calculadora-exito-mensaje">
+                    <label class="calculadora-checkbox-label">
+                        <input type="checkbox" class="calculadora-checkbox" checked disabled>
+                        <span>Planilla calculada exitosamente. Se han procesado todos los trabajadores seleccionados.</span>
+                    </label>
+                </div>
+                
+                <!-- Tabla de Vista Previa -->
+                <div class="calculadora-tabla-container">
+                    <table class="calculadora-tabla">
+                        <thead>
+                            <tr>
+                                <th>Trabajador</th>
+                                <th>Ingresos</th>
+                                <th>Descuentos</th>
+                                <th>Aportes</th>
+                                <th>Neto a Pagar</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Diego Torres Ramírez</strong></td>
+                                <td>S/ 1,448.88</td>
+                                <td>S/ 0.00</td>
+                                <td>S/ 0.00</td>
+                                <td><strong>S/ 1,448.88</strong></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Ana García Vásquez</strong></td>
+                                <td>S/ 2,800.00</td>
+                                <td>S/ 280.00</td>
+                                <td>S/ 252.00</td>
+                                <td><strong>S/ 2,268.00</strong></td>
+                            </tr>
+                            <tr class="calculadora-total-row">
+                                <td><strong>TOTALES</strong></td>
+                                <td><strong>S/ 4,248.88</strong></td>
+                                <td><strong>S/ 280.00</strong></td>
+                                <td><strong>S/ 252.00</strong></td>
+                                <td><strong>S/ 3,716.88</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+        </div>
+        
+        <!-- Pie del Modal -->
+        <footer class="calculadora-modal-footer">
+            <div class="calculadora-footer-botones">
+                <button type="button" class="calculadora-btn-cancelar" id="btnCancelarCalculadora">Cancelar</button>
+                <button type="button" class="calculadora-btn-guardar" id="btnGuardarCalculadora">Guardar Planilla Calculada</button>
+            </div>
+        </footer>
+    </div>
+</div>
+
 <script src="planillas.js"></script>

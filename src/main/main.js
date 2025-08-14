@@ -304,6 +304,38 @@ app.whenReady().then(() => {
     }
   });
 
+  // Handler para obtener conceptos de un trabajador
+  ipcMain.handle('get-trabajador-conceptos', async (event, idTrabajador, tipoConcepto = null) => {
+    try {
+      console.log(`[IPC] Obteniendo conceptos del trabajador ${idTrabajador}, tipo: ${tipoConcepto || 'todos'}`);
+      
+      const resultado = await trabajadorConceptosService.obtenerConceptosPorTrabajador(idTrabajador, tipoConcepto);
+      
+      console.log(`[IPC] Conceptos obtenidos para trabajador ${idTrabajador}:`, resultado.conceptos?.length || 0);
+      
+      return resultado;
+    } catch (error) {
+      console.error('[IPC] Error en get-trabajador-conceptos:', error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  // Handler para obtener aportes calculados de un trabajador
+  ipcMain.handle('get-trabajador-aportes', async (event, idTrabajador) => {
+    try {
+      console.log(`[IPC] Calculando aportes del trabajador ${idTrabajador}`);
+      
+      const resultado = await trabajadorConceptosService.obtenerAportesTrabajador(idTrabajador);
+      
+      console.log(`[IPC] Aportes calculados para trabajador ${idTrabajador}:`, resultado.aportes?.length || 0);
+      
+      return resultado;
+    } catch (error) {
+      console.error('[IPC] Error en get-trabajador-aportes:', error);
+      return { success: false, error: error.message };
+    }
+  });
+
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createLoginWindow();
   });
