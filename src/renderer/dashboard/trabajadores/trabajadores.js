@@ -57,9 +57,105 @@ class TrabajadoresManager {
     // Manejar validación de campos
     this.initValidation();
 
+    // **Manejar lógica de Asignación Familiar**
+    this.initAsignacionFamiliar();
+    
+    // **Manejar lógica de Fecha de Cese según Tipo de Contrato**
+    this.initTipoContratoYFechaCese();
+
     // Manejar envío del formulario
     if (this.form) {
       this.form.addEventListener('submit', (e) => this.guardarTrabajador(e));
+    }
+  }
+
+  initAsignacionFamiliar() {
+    const checkboxAsignacion = document.getElementById('asignacionFamiliar');
+    const inputCantidadHijos = document.getElementById('cantidadHijos');
+
+    if (checkboxAsignacion && inputCantidadHijos) {
+      // Función para controlar el estado del campo cantidad de hijos
+      const actualizarEstadoCampoHijos = () => {
+        console.log('Actualizando estado campo hijos. Checkbox marcado:', checkboxAsignacion.checked);
+        if (checkboxAsignacion.checked) {
+          inputCantidadHijos.disabled = false;
+          inputCantidadHijos.style.opacity = '1';
+          if (inputCantidadHijos.value === '0' || inputCantidadHijos.value === '') {
+            inputCantidadHijos.value = '1'; // Valor por defecto cuando se habilita
+          }
+        } else {
+          inputCantidadHijos.disabled = true;
+          inputCantidadHijos.style.opacity = '0.5';
+          inputCantidadHijos.value = '0'; // Resetear a 0 cuando se deshabilita
+        }
+      };
+
+      // Event listener para el checkbox
+      checkboxAsignacion.addEventListener('change', actualizarEstadoCampoHijos);
+
+      // Estado inicial
+      actualizarEstadoCampoHijos();
+      
+      console.log('Asignación familiar inicializada correctamente');
+    } else {
+      console.error('No se pudieron encontrar los elementos de asignación familiar');
+    }
+  }
+
+  initTipoContratoYFechaCese() {
+    const selectTipoContrato = document.getElementById('tipoContrato');
+    const inputFechaCese = document.getElementById('fechaCese');
+    const inputFechaIngreso = document.getElementById('fechaIngreso');
+
+    if (selectTipoContrato && inputFechaCese && inputFechaIngreso) {
+      // Función para controlar el estado del campo fecha de cese
+      const actualizarEstadoFechaCese = () => {
+        const tipoContrato = selectTipoContrato.value;
+        console.log('Actualizando estado fecha de cese. Tipo de contrato:', tipoContrato);
+        
+        if (tipoContrato === 'PLAZO_FIJO') {
+          inputFechaCese.disabled = false;
+          inputFechaCese.style.opacity = '1';
+          inputFechaCese.required = true;
+        } else {
+          inputFechaCese.disabled = true;
+          inputFechaCese.style.opacity = '0.5';
+          inputFechaCese.required = false;
+          inputFechaCese.value = ''; // Limpiar el valor cuando se deshabilita
+        }
+      };
+
+      // Validación de fechas
+      const validarFechas = () => {
+        const fechaIngreso = new Date(inputFechaIngreso.value);
+        const fechaCese = new Date(inputFechaCese.value);
+        
+        if (inputFechaIngreso.value && inputFechaCese.value && !inputFechaCese.disabled) {
+          if (fechaCese <= fechaIngreso) {
+            inputFechaCese.setCustomValidity('La fecha de cese debe ser posterior a la fecha de ingreso');
+          } else {
+            inputFechaCese.setCustomValidity('');
+          }
+        } else {
+          inputFechaCese.setCustomValidity('');
+        }
+      };
+
+      // Event listeners
+      selectTipoContrato.addEventListener('change', () => {
+        actualizarEstadoFechaCese();
+        validarFechas();
+      });
+      
+      inputFechaIngreso.addEventListener('change', validarFechas);
+      inputFechaCese.addEventListener('change', validarFechas);
+
+      // Estado inicial
+      actualizarEstadoFechaCese();
+      
+      console.log('Lógica de tipo de contrato y fecha de cese inicializada correctamente');
+    } else {
+      console.error('No se pudieron encontrar los elementos de tipo de contrato y fecha de cese');
     }
   }
 
@@ -216,6 +312,7 @@ class TrabajadoresManager {
       this.setFieldValue('area', trabajador.area);
       this.setFieldValue('fechaIngreso', trabajador.fecha_ingreso);
       this.setFieldValue('tipoContrato', trabajador.tipo_contrato);
+      this.setFieldValue('fechaCese', trabajador.fecha_cese);
       this.setFieldValue('sueldoBasico', trabajador.sueldo);
       this.setFieldValue('regimenLaboral', trabajador.regimen_laboral);
       this.setFieldValue('tipoJornada', trabajador.tipo_jornada);
@@ -227,6 +324,18 @@ class TrabajadoresManager {
       this.setFieldValue('cci', trabajador.cci);
       this.setFieldValue('sistemaPension', trabajador.id_sistema_pension);
       this.setFieldValue('numeroAfiliacion', trabajador.numero_afiliacion);
+      
+      // Asignación Familiar - Manejo especial para checkbox
+      const checkboxAsignacion = document.getElementById('asignacionFamiliar');
+      if (checkboxAsignacion) {
+        checkboxAsignacion.checked = trabajador.asignacion_familiar === 1;
+        // Disparar el evento change para actualizar el estado del campo hijos
+        setTimeout(() => {
+          checkboxAsignacion.dispatchEvent(new Event('change'));
+        }, 100);
+      }
+      
+      this.setFieldValue('cantidadHijos', trabajador.cantidad_hijos || 0);
       
       console.log('Datos cargados exitosamente en el modal');
       
@@ -327,7 +436,25 @@ class TrabajadoresManager {
     const formData = new FormData(this.form);
     const trabajadorData = Object.fromEntries(formData);
     
-    console.log('Datos del trabajador a guardar:', trabajadorData);
+    // **VERIFICACIÓN ESPECIAL PARA ASIGNACIÓN FAMILIAR**
+    const checkboxAsignacion = document.getElementById('asignacionFamiliar');
+    const inputCantidadHijos = document.getElementById('cantidadHijos');
+    
+    // Los checkboxes no marcados no se incluyen en FormData, hay que agregarlos manualmente
+    if (checkboxAsignacion) {
+      trabajadorData.asignacionFamiliar = checkboxAsignacion.checked ? 'on' : '';
+    }
+    
+    if (inputCantidadHijos) {
+      trabajadorData.cantidadHijos = inputCantidadHijos.value || '0';
+    }
+    
+    console.log('Datos del trabajador a guardar (con asignación familiar):', trabajadorData);
+    console.log('Asignación familiar específica:', {
+      asignacionFamiliar: trabajadorData.asignacionFamiliar,
+      cantidadHijos: trabajadorData.cantidadHijos,
+      checkboxMarcado: checkboxAsignacion ? checkboxAsignacion.checked : 'No encontrado'
+    });
     
     // Mostrar loading - definir textoOriginal aquí para que esté disponible en finally
     const btnGuardar = document.querySelector('.btn-guardar');
@@ -839,6 +966,8 @@ class TrabajadoresManager {
     this.setearTexto('detalle-direccion', trabajador.direccion || 'N/A');
     this.setearTexto('detalle-tipo-trabajador', trabajador.tipo_trabajador || 'N/A');
     this.setearTexto('detalle-banco', trabajador.banco || 'N/A');
+    this.setearTexto('detalle-asignacion-familiar', trabajador.asignacion_familiar === 1 ? 'Sí' : 'No');
+    this.setearTexto('detalle-cantidad-hijos', trabajador.cantidad_hijos || '0');
 
     // Personal - Datos Personales
     this.setearTexto('detalle-personal-documento', `${trabajador.tipo_dni || 'N/A'} - ${trabajador.numero_documento || 'N/A'}`);
@@ -858,6 +987,7 @@ class TrabajadoresManager {
     // Laboral
     this.setearTexto('detalle-laboral-tipo-trabajador', trabajador.tipo_trabajador || 'N/A');
     this.setearTexto('detalle-laboral-fecha-ingreso', this.formatearFecha(trabajador.fecha_ingreso));
+    this.setearTexto('detalle-laboral-fecha-cese', trabajador.fecha_cese ? this.formatearFecha(trabajador.fecha_cese) : 'N/A');
     this.setearTexto('detalle-laboral-sueldo-basico', `S/ ${Number(trabajador.sueldo || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`);
     this.setearTexto('detalle-laboral-jornada', trabajador.tipo_jornada || 'N/A');
     this.setearTexto('detalle-laboral-area', trabajador.area || 'N/A');

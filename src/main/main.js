@@ -6,6 +6,7 @@ const { obtenerSistemasPension, obtenerSistemaPorId, crearSistemaPension, actual
 const conceptosService = require('../services/conceptosService');
 const trabajadorConceptosService = require('../services/trabajadorConceptosService');
 const planillasService = require('../services/planillasService');
+const parametrosService = require('../services/parametrosService');
 
 let loginWindow = null;
 let dashboardWindow = null;
@@ -449,6 +450,47 @@ app.whenReady().then(() => {
       return resultado;
     } catch (error) {
       console.error('[IPC] Error actualizando estado:', error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  // ============================================
+  // HANDLERS PARA PARAMETROS DEL SISTEMA
+  // ============================================
+  
+  // Handler para obtener RMV
+  ipcMain.handle('obtener-rmv', async () => {
+    try {
+      console.log('[IPC] Obteniendo RMV del sistema');
+      
+      const resultado = await parametrosService.obtenerRMV();
+      
+      console.log('[IPC] RMV obtenido:', resultado);
+      
+      return resultado;
+    } catch (error) {
+      console.error('[IPC] Error obteniendo RMV:', error);
+      return { 
+        success: true, 
+        valor: 1130.00, 
+        esRespaldo: true, 
+        mensaje: 'RMV de respaldo' 
+      };
+    }
+  });
+  
+  // Handler para obtener parámetro por código
+  ipcMain.handle('obtener-parametro', async (event, codigo) => {
+    try {
+      console.log(`[IPC] Obteniendo parámetro: ${codigo}`);
+      
+      const resultado = await parametrosService.obtenerParametroPorCodigo(codigo);
+      
+      console.log(`[IPC] Parámetro ${codigo} obtenido:`, resultado);
+      
+      return resultado;
+    } catch (error) {
+      console.error('[IPC] Error obteniendo parámetro:', error);
       return { success: false, error: error.message };
     }
   });

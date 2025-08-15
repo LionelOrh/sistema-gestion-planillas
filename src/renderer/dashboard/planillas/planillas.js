@@ -86,14 +86,11 @@
             activasElement.textContent = stats.planillasActivas || 0;
         }
         
-        // Total Pagado 2025
-        const pagadoElements = document.querySelectorAll('.stat-card .stat-number');
-        if (pagadoElements[1]) {
-            const totalPagado = stats.totalPagado || 0;
-            pagadoElements[1].textContent = `S/ ${totalPagado.toLocaleString('es-PE')}`;
-        }
+        // Total Pagado 2025 - Usar cálculo local basado en datos de la tabla
+        actualizarTotalPagado2025();
         
         // Trabajadores (este viene del sistema general)
+        const pagadoElements = document.querySelectorAll('.stat-card .stat-number');
         if (pagadoElements[2]) {
             pagadoElements[2].textContent = stats.totalTrabajadores || 0;
         }
@@ -298,6 +295,76 @@
                 </td>
             </tr>
         `).join('');
+        
+        // Asegurar que el scroll se active correctamente con contenido dinámico
+        const tableContainer = document.querySelector('.table-container');
+        if (tableContainer) {
+            // Trigger reflow para asegurar que las propiedades de scroll se apliquen
+            setTimeout(() => {
+                tableContainer.scrollTop = 0; // Reset scroll position
+                // Force recalculation of scroll properties
+                const scrollHeight = tableContainer.scrollHeight;
+                const clientHeight = tableContainer.clientHeight;
+                if (scrollHeight > clientHeight) {
+                    tableContainer.style.overflowY = 'auto';
+                }
+            }, 50);
+        }
+        
+        // Actualizar el total pagado 2025
+        actualizarTotalPagado2025();
+    }
+    
+    // Función para calcular y actualizar el Total Pagado 2025
+    function actualizarTotalPagado2025() {
+        try {
+            console.log('[PlanillasManager] Actualizando Total Pagado 2025...');
+            console.log('[PlanillasManager] Planillas disponibles:', planillasData);
+            
+            // Filtrar y sumar solo planillas del 2025 que estén pagadas o finalizadas
+            const planillasFiltradas = planillasData.filter(planilla => {
+                // Verificar que sea del año 2025 y que esté en estado pagada o finalizada
+                const esDel2025 = planilla.periodo && planilla.periodo.includes('2025');
+                const estaPagadaOFinalizada = planilla.estado === 'pagada' || planilla.estado === 'finalizada';
+                
+                const incluir = esDel2025 && estaPagadaOFinalizada;
+                console.log(`[PlanillasManager] Planilla "${planilla.nombre}": periodo=${planilla.periodo}, estado=${planilla.estado}, incluir=${incluir}`);
+                
+                return incluir;
+            });
+            
+            const totalPagado = planillasFiltradas.reduce((sum, planilla) => {
+                const monto = parseFloat(planilla.totalNeto) || 0;
+                console.log(`[PlanillasManager] Sumando planilla "${planilla.nombre}": S/ ${monto}`);
+                return sum + monto;
+            }, 0);
+            
+            console.log(`[PlanillasManager] Total calculado para 2025: S/ ${totalPagado}`);
+            
+            // Buscar el elemento de la tarjeta de Total Pagado 2025
+            const statCards = document.querySelectorAll('.stat-card');
+            
+            statCards.forEach((card, index) => {
+                const label = card.querySelector('.stat-label');
+                const number = card.querySelector('.stat-number');
+                
+                if (label && label.textContent.includes('Total Pagado 2025') && number) {
+                    const montoFormateado = `S/ ${totalPagado.toLocaleString('es-PE', { 
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2 
+                    })}`;
+                    
+                    number.textContent = montoFormateado;
+                    console.log(`[PlanillasManager] Total Pagado 2025 actualizado en tarjeta ${index}: ${montoFormateado}`);
+                }
+            });
+            
+            return totalPagado;
+            
+        } catch (error) {
+            console.error('[PlanillasManager] Error actualizando Total Pagado 2025:', error);
+            return 0;
+        }
     }
     
     // Función auxiliar para obtener texto del estado
@@ -626,8 +693,12 @@
     }
 
     // Función para abrir modal de calculadora
-    function abrirModalCalculadora(trabajadoresSeleccionados) {
-        console.log('[PlanillasManager] Abriendo modal calculadora con', trabajadoresSeleccionados.length, 'trabajadores');
+    function abrirModalCalculadora(trabajadoresSeleccionados, idPlanilla = null, datosExistentes = null) {
+        console.log('[PlanillasManager] Abriendo modal calculadora con', {
+            trabajadores: trabajadoresSeleccionados?.length || 0,
+            idPlanilla,
+            datosExistentes: !!datosExistentes
+        });
         
         const modal = document.getElementById('modalCalculadoraPlanilla');
         if (modal) {
@@ -646,16 +717,23 @@
             
             document.body.style.overflow = 'hidden';
             
+            // Establecer ID de planilla actual
+            if (idPlanilla) {
+                planillaActualId = idPlanilla;
+            }
+            
             // Inicializar estado bloqueado de vista previa
             inicializarVistaPrevia();
             
             // Actualizar información del modal
-            actualizarInfoCalculadora(trabajadoresSeleccionados);
+            actualizarInfoCalculadora(trabajadoresSeleccionados, datosExistentes);
             
             // Configurar navegación de interfaces
             configurarNavegacionCalculadora();
             
             console.log('[PlanillasManager] Modal calculadora abierto');
+        } else {
+            console.error('[PlanillasManager] Modal calculadora no encontrado');
         }
     }
 
@@ -687,16 +765,62 @@
     }
 
     // Función para actualizar información del modal calculadora
-    async function actualizarInfoCalculadora(trabajadoresSeleccionados) {
-        // Actualizar información en el header
-        const infoElement = document.querySelector('.calculadora-modal-info');
-        if (infoElement) {
-            const totalConceptos = 17; // Placeholder - debería ser dinámico
-            infoElement.textContent = `${trabajadoresSeleccionados.length} trabajadores • ${totalConceptos} conceptos`;
+    async function actualizarInfoCalculadora(trabajadoresSeleccionados, datosExistentes = null) {
+        try {
+            console.log('[PlanillasManager] actualizarInfoCalculadora - Parámetros recibidos:', {
+                trabajadoresSeleccionados,
+                datosExistentes,
+                tipoTrabajadores: Array.isArray(trabajadoresSeleccionados) ? 'array' : typeof trabajadoresSeleccionados,
+                cantidadTrabajadores: trabajadoresSeleccionados?.length || 0
+            });
+            
+            let trabajadores = trabajadoresSeleccionados;
+            
+            // Si tenemos datos existentes, usar esos trabajadores
+            if (datosExistentes && datosExistentes.trabajadores) {
+                trabajadores = datosExistentes.trabajadores;
+                console.log('[PlanillasManager] Usando trabajadores de planilla existente:', trabajadores.length);
+            } else if (!trabajadores) {
+                console.log('[PlanillasManager] No hay trabajadores, inicializando array vacío');
+                trabajadores = [];
+            }
+            
+            // Log detallado de los trabajadores
+            if (trabajadores && trabajadores.length > 0) {
+                console.log('[PlanillasManager] Primer trabajador:', trabajadores[0]);
+                trabajadores.forEach((trabajador, index) => {
+                    console.log(`[PlanillasManager] Trabajador ${index + 1}:`, {
+                        id: trabajador.id_trabajador || trabajador.id,
+                        nombre: trabajador.nombres || trabajador.nombre,
+                        apellidos: trabajador.apellidos || trabajador.apellido,
+                        cargo: trabajador.cargo,
+                        area: trabajador.area
+                    });
+                });
+            } else {
+                console.log('[PlanillasManager] No hay trabajadores para mostrar');
+            }
+            
+            // Actualizar título del modal
+            const titulo = document.querySelector('.calculadora-modal-subtitulo');
+            if (titulo && datosExistentes) {
+                titulo.textContent = datosExistentes.nombre || 'Planilla Variable';
+            }
+            
+            // Actualizar información en el header
+            const infoElement = document.querySelector('.calculadora-modal-info');
+            if (infoElement) {
+                const totalConceptos = 17; // Placeholder - debería ser dinámico
+                infoElement.textContent = `${trabajadores.length} trabajadores • ${totalConceptos} conceptos`;
+            }
+            
+            // Generar secciones dinámicas para cada trabajador
+            await generarSeccionesTrabajadores(trabajadores);
+            
+            console.log('[PlanillasManager] Información del modal actualizada');
+        } catch (error) {
+            console.error('[PlanillasManager] Error actualizando información del modal:', error);
         }
-        
-        // Generar secciones dinámicas para cada trabajador
-        await generarSeccionesTrabajadores(trabajadoresSeleccionados);
     }
 
     // Función para generar secciones dinámicas de trabajadores
@@ -757,24 +881,41 @@
 
     // Función para crear la sección de un trabajador
     async function crearSeccionTrabajador(trabajador, index) {
+        console.log(`[PlanillasManager] Creando sección para trabajador ${index + 1}:`, trabajador);
+        
         const seccion = document.createElement('div');
         seccion.className = 'calculadora-trabajador-section';
         seccion.dataset.trabajadorIndex = index;
-        seccion.dataset.trabajadorId = trabajador.id_trabajador;
+        seccion.dataset.trabajadorId = trabajador.id_trabajador || trabajador.id;
+        
+        // Obtener datos del trabajador de forma robusta
+        const trabajadorId = trabajador.id_trabajador || trabajador.id;
+        const nombres = trabajador.trabajador_nombres || trabajador.nombres || trabajador.nombre || 'Sin nombre';
+        const apellidos = trabajador.trabajador_apellidos || trabajador.apellidos || trabajador.apellido || '';
+        const area = trabajador.trabajador_area || trabajador.area || trabajador.departamento || 'Sin área';
+        const sueldo = parseFloat(trabajador.sueldo_basico || trabajador.sueldo || trabajador.salario || 0);
+        
+        console.log(`[PlanillasManager] Datos normalizados:`, {
+            id: trabajadorId,
+            nombres,
+            apellidos,
+            area,
+            sueldo
+        });
         
         // Cargar conceptos de ingresos y aportes para este trabajador
         const [conceptosIngresos, aportesTrabajador, aportesEmpleador] = await Promise.all([
-            cargarConceptosIngresos(trabajador.id_trabajador),
-            cargarAportesTrabajador(trabajador.id_trabajador),
-            cargarAportesEmpleador(trabajador.id_trabajador)
+            cargarConceptosIngresos(trabajadorId),
+            cargarAportesTrabajador(trabajadorId),
+            cargarAportesEmpleador(trabajadorId)
         ]);
         
         // Generar HTML de conceptos y aportes dinámicos
-        const ingresosHTML = generarConceptosIngresosHTML(conceptosIngresos, trabajador);
+        const ingresosHTML = await generarConceptosIngresosHTML(conceptosIngresos, trabajador);
         const aportesHTML = generarAportesHTML(aportesTrabajador);
         const aportesEmpleadorHTML = generarAportesEmpleadorHTML(aportesEmpleador, trabajador);
         // Calcular el neto a pagar para este trabajador de forma simplificada
-        let totalIngresos = parseFloat(trabajador.sueldo) || 0;
+        let totalIngresos = sueldo;
         
         // Sumar conceptos de ingresos
         conceptosIngresos.forEach(concepto => {
@@ -800,8 +941,8 @@
         seccion.innerHTML = `
             <!-- Información del Trabajador -->
             <div class="calculadora-trabajador-header">
-                <h3 class="calculadora-trabajador-nombre">${trabajador.nombres} ${trabajador.apellidos}</h3>
-                <p class="calculadora-trabajador-detalle">${trabajador.area} - S/ ${parseFloat(trabajador.sueldo).toLocaleString('es-PE')}</p>
+                <h3 class="calculadora-trabajador-nombre">${nombres} ${apellidos}</h3>
+                <p class="calculadora-trabajador-detalle">${area} - S/ ${sueldo.toLocaleString('es-PE')}</p>
             </div>
             
             <!-- Contenido en filas -->
@@ -818,7 +959,7 @@
                                 <!-- Sueldo Básico siempre presente -->
                                 <div class="calculadora-concepto-item calculadora-concepto-fijo" data-concepto="sueldo_basico">
                                     <span class="calculadora-concepto-nombre">Sueldo Base</span>
-                                    <span class="calculadora-concepto-monto">S/ ${parseFloat(trabajador.sueldo).toLocaleString('es-PE')}</span>
+                                    <span class="calculadora-concepto-monto">S/ ${sueldo.toLocaleString('es-PE')}</span>
                                 </div>
                                 <!-- Conceptos dinámicos de ingresos -->
                                 ${ingresosHTML}
@@ -908,7 +1049,7 @@
     }
 
     // Función específica para generar HTML de conceptos de ingresos
-    function generarConceptosIngresosHTML(conceptos, trabajador) {
+    async function generarConceptosIngresosHTML(conceptos, trabajador) {
         if (!conceptos || conceptos.length === 0) {
             return `
                 <div class="calculadora-concepto-item calculadora-concepto-vacio">
@@ -918,18 +1059,40 @@
             `;
         }
         
+        // Obtener RMV para cálculos de asignación familiar
+        let rmvData = null;
+        try {
+            rmvData = await window.electronAPI.obtenerRMV();
+        } catch (error) {
+            console.warn('[PlanillasManager] Error obteniendo RMV:', error);
+            rmvData = { valor: 1130.00, esRespaldo: true, mensaje: 'RMV de respaldo' };
+        }
+        
         return conceptos.map(concepto => {
             let montoCalculado = 0;
             let montoMostrar = '0.00';
+            let mensajeAdicional = '';
             
             if (concepto.tipo_calculo === 'monto-fijo') {
                 montoCalculado = parseFloat(concepto.valor);
                 montoMostrar = montoCalculado.toFixed(2);
             } else if (concepto.tipo_calculo === 'porcentaje') {
-                // Calcular porcentaje sobre el sueldo básico
-                const sueldoBasico = parseFloat(trabajador.sueldo);
-                montoCalculado = (sueldoBasico * parseFloat(concepto.valor)) / 100;
-                montoMostrar = montoCalculado.toFixed(2);
+                // Verificar si es Asignación Familiar (ID 6)
+                if (concepto.id_concepto === 6) {
+                    // Calcular con RMV: RMV × 10%
+                    montoCalculado = (rmvData.valor * parseFloat(concepto.valor)) / 100;
+                    montoMostrar = montoCalculado.toFixed(2);
+                    
+                    // Agregar mensaje de respaldo si es necesario
+                    if (rmvData.esRespaldo && rmvData.mensaje) {
+                        mensajeAdicional = `<br><small style="color: #f39c12; font-style: italic;">${rmvData.mensaje}</small>`;
+                    }
+                } else {
+                    // Calcular porcentaje sobre el sueldo básico (comportamiento normal)
+                    const sueldoBasico = parseFloat(trabajador.sueldo);
+                    montoCalculado = (sueldoBasico * parseFloat(concepto.valor)) / 100;
+                    montoMostrar = montoCalculado.toFixed(2);
+                }
             }
             
             return `
@@ -938,7 +1101,7 @@
                      data-tipo-calculo="${concepto.tipo_calculo}" 
                      data-valor="${concepto.valor}"
                      data-monto-calculado="${montoCalculado}">
-                    <span class="calculadora-concepto-nombre">${concepto.nombre}</span>
+                    <span class="calculadora-concepto-nombre">${concepto.nombre}${mensajeAdicional}</span>
                     <span class="calculadora-concepto-monto">S/ ${montoMostrar}</span>
                 </div>
             `;
@@ -1234,11 +1397,17 @@
 
     // Función para cerrar modal calculadora
     function cerrarModalCalculadora() {
+        console.log('[PlanillasManager] Cerrando modal calculadora');
         const modal = document.getElementById('modalCalculadoraPlanilla');
         if (modal) {
             modal.style.display = 'none';
             modal.classList.remove('active');
-            document.body.style.overflow = 'auto';
+            document.body.style.overflow = ''; // Restaurar scroll del body
+            
+            // Limpiar datos de la planilla actual si no se guardó
+            // planillaActualId = null; // Comentado para mantener el estado
+        } else {
+            console.error('[PlanillasManager] Modal calculadora no encontrado para cerrar');
         }
         
         console.log('[PlanillasManager] Modal calculadora cerrado');
@@ -1744,8 +1913,21 @@
             });
         }
         
+        // Configurar modal calculadora
+        configurarModalCalculadora();
+        
         // Configurar modal de detalle
         configurarModalDetallePlanilla();
+        
+        // Verificar funciones globales
+        console.log('[PlanillasManager] Funciones globales disponibles:', {
+            abrirCalculadoraPlanilla: typeof window.abrirCalculadoraPlanilla,
+            abrirModalCalculadora: typeof window.abrirModalCalculadora,
+            verDetallePlanilla: typeof window.verDetallePlanilla,
+            cerrarModalDetalle: typeof window.cerrarModalDetalle,
+            cerrarModalCalculadora: typeof window.cerrarModalCalculadora,
+            mostrarMensajeTemporalInfo: typeof window.mostrarMensajeTemporalInfo
+        });
         
         console.log('[PlanillasManager] Inicialización completada');
     }
@@ -1780,6 +1962,15 @@
     // Función global para pruebas
     window.abrirModalPlanilla = abrirModalPlanilla;
     window.cerrarModalPlanilla = cerrarModalPlanilla;
+    
+    // Exponer funciones globalmente para uso en onclick
+    window.abrirCalculadoraPlanilla = abrirCalculadoraPlanilla;
+    window.abrirModalCalculadora = abrirModalCalculadora;
+    window.verDetallePlanilla = verDetallePlanilla;
+    window.mostrarMenuPlanilla = mostrarMenuPlanilla;
+    window.cerrarModalDetalle = cerrarModalDetalle;
+    window.cerrarModalCalculadora = cerrarModalCalculadora;
+    window.mostrarMensajeTemporalInfo = mostrarMensajeTemporalInfo;
     
 })();
 
@@ -2707,8 +2898,94 @@ async function abrirCalculadoraPlanilla(idPlanilla) {
             const planilla = response.planilla;
             planillaActualId = idPlanilla;
             
+            console.log('[PlanillasManager] Datos de planilla obtenidos:', {
+                nombre: planilla.nombre,
+                estado: planilla.estado,
+                trabajadores: planilla.trabajadores?.length || 0
+            });
+            
+            // Verificar que la planilla esté en estado borrador
+            if (planilla.estado !== 'borrador') {
+                alert('Solo se pueden calcular planillas en estado borrador');
+                return;
+            }
+            
+            // Si no hay trabajadores, obtenerlos de la base de datos
+            let trabajadores = planilla.trabajadores;
+            if (!trabajadores || trabajadores.length === 0) {
+                console.log('[PlanillasManager] Obteniendo trabajadores de la planilla...');
+                try {
+                    const trabajadoresResponse = await window.electronAPI.obtenerTrabajadoresPlanilla(idPlanilla);
+                    console.log('[PlanillasManager] Respuesta completa de obtenerTrabajadoresPlanilla:', trabajadoresResponse);
+                    
+                    if (trabajadoresResponse && trabajadoresResponse.success) {
+                        trabajadores = trabajadoresResponse.trabajadores;
+                        console.log('[PlanillasManager] Trabajadores obtenidos de la BD:', trabajadores);
+                        
+                        // Log detallado de cada trabajador
+                        if (trabajadores && trabajadores.length > 0) {
+                            trabajadores.forEach((trab, index) => {
+                                console.log(`[PlanillasManager] Trabajador ${index + 1} en BD:`, {
+                                    id: trab.id || trab.id_trabajador,
+                                    id_planilla_trabajador: trab.id_planilla_trabajador,
+                                    trabajador_nombres: trab.trabajador_nombres,
+                                    trabajador_apellidos: trab.trabajador_apellidos,
+                                    trabajador_area: trab.trabajador_area,
+                                    sueldo_basico: trab.sueldo_basico,
+                                    // Campos alternativos
+                                    nombres: trab.nombres,
+                                    apellidos: trab.apellidos,
+                                    area: trab.area,
+                                    sueldo: trab.sueldo,
+                                    todasPropiedades: Object.keys(trab)
+                                });
+                            });
+                        }
+                    } else {
+                        console.error('[PlanillasManager] Respuesta inválida al obtener trabajadores:', trabajadoresResponse);
+                        throw new Error('No se pudieron obtener los trabajadores de la planilla');
+                    }
+                } catch (error) {
+                    console.error('[PlanillasManager] Error obteniendo trabajadores:', error);
+                    // Intentar con trabajadores vacíos para no bloquear
+                    trabajadores = [];
+                    alert('Advertencia: No se pudieron cargar los trabajadores de la planilla. Se abrirá la calculadora vacía.');
+                }
+            } else {
+                console.log('[PlanillasManager] Usando trabajadores de la planilla original:', trabajadores);
+                // Log detallado de trabajadores originales
+                if (trabajadores && trabajadores.length > 0) {
+                    trabajadores.forEach((trab, index) => {
+                        console.log(`[PlanillasManager] Trabajador ${index + 1} original:`, {
+                            id: trab.id || trab.id_trabajador,
+                            // Campos de planilla_trabajadores
+                            trabajador_nombres: trab.trabajador_nombres,
+                            trabajador_apellidos: trab.trabajador_apellidos,
+                            trabajador_area: trab.trabajador_area,
+                            sueldo_basico: trab.sueldo_basico,
+                            // Campos alternativos
+                            nombres: trab.nombres,
+                            apellidos: trab.apellidos,
+                            area: trab.area,
+                            sueldo: trab.sueldo,
+                            todasPropiedades: Object.keys(trab)
+                        });
+                    });
+                }
+            }
+            
+            console.log('[PlanillasManager] Trabajadores finales para la calculadora:', trabajadores);
+            
+            // Verificar disponibilidad de la función antes de llamarla
+            console.log('[PlanillasManager] Verificando disponibilidad de abrirModalCalculadora:', typeof abrirModalCalculadora);
+            console.log('[PlanillasManager] Verificando disponibilidad global de abrirModalCalculadora:', typeof window.abrirModalCalculadora);
+            
             // Abrir modal calculadora con los datos existentes
-            abrirModalCalculadora(planilla.trabajadores, idPlanilla, planilla);
+            abrirModalCalculadora(trabajadores, idPlanilla, planilla);
+            
+            // Mostrar mensaje de éxito
+            mostrarMensajeTemporalInfo(`✅ Calculadora abierta para: ${planilla.nombre}`);
+            
         } else {
             throw new Error(response.error || 'Error obteniendo detalle de planilla');
         }
@@ -3032,6 +3309,62 @@ function cerrarModalDetalle() {
     }
 }
 
+// Función para configurar el modal calculadora
+function configurarModalCalculadora() {
+    console.log('[PlanillasManager] Configurando modal calculadora...');
+    
+    const modal = document.getElementById('modalCalculadoraPlanilla');
+    const btnCancelar = document.getElementById('btnCancelarCalculadora');
+    const btnGuardar = document.getElementById('btnGuardarCalculadora');
+    const btnCalcular = document.getElementById('btnCalcularPlanilla');
+    
+    if (!modal) {
+        console.error('[PlanillasManager] Modal calculadora no encontrado');
+        return;
+    }
+    
+    // Configurar botón cancelar
+    if (btnCancelar) {
+        btnCancelar.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('[PlanillasManager] Cancelando calculadora');
+            cerrarModalCalculadora();
+        });
+        console.log('[PlanillasManager] Botón cancelar configurado');
+    }
+    
+    // Configurar botón guardar
+    if (btnGuardar) {
+        // El event listener para guardar ya está configurado en otra parte
+        console.log('[PlanillasManager] Botón guardar encontrado');
+    }
+    
+    // Configurar botón calcular
+    if (btnCalcular) {
+        // El event listener para calcular ya está configurado en otra parte
+        console.log('[PlanillasManager] Botón calcular encontrado');
+    }
+    
+    // Cerrar modal haciendo click fuera de él
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            console.log('[PlanillasManager] Click fuera del modal calculadora');
+            cerrarModalCalculadora();
+        }
+    });
+    
+    // Cerrar modal con tecla Escape
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && modal && modal.style.display === 'flex') {
+            console.log('[PlanillasManager] Cerrando calculadora con Escape');
+            cerrarModalCalculadora();
+        }
+    });
+    
+    console.log('[PlanillasManager] Modal calculadora configurado exitosamente');
+}
+
 // Función para configurar los filtros de la tabla
 function configurarFiltrosPlanillas() {
     // Filtro de búsqueda
@@ -3061,9 +3394,3 @@ function configurarFiltrosPlanillas() {
         });
     }
 }
-
-// Exponer funciones globalmente para uso en onclick
-window.abrirCalculadoraPlanilla = abrirCalculadoraPlanilla;
-window.verDetallePlanilla = verDetallePlanilla;
-window.mostrarMenuPlanilla = mostrarMenuPlanilla;
-window.cerrarModalDetalle = cerrarModalDetalle;

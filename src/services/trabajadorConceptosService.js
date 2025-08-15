@@ -1,10 +1,11 @@
-const db = require('./db');
+const pool = require('./db');
+const parametrosService = require('./parametrosService');
 
 class TrabajadorConceptosService {
   
   // Asignar un concepto a un trabajador
   async asignarConcepto(idTrabajador, idConcepto) {
-    const connection = await db.getConnection();
+    const connection = await pool.getConnection();
     try {
       await connection.beginTransaction();
       
@@ -73,7 +74,7 @@ class TrabajadorConceptosService {
   
   // Obtener conceptos asignados a un trabajador con información del concepto
   async obtenerConceptosAsignados(idTrabajador) {
-    const connection = await db.getConnection();
+    const connection = await pool.getConnection();
     try {
       const [rows] = await connection.execute(
         `SELECT 
@@ -107,7 +108,7 @@ class TrabajadorConceptosService {
   
   // Desvincular un concepto de un trabajador
   async desvincularConcepto(idTrabajador, idConcepto) {
-    const connection = await db.getConnection();
+    const connection = await pool.getConnection();
     try {
       await connection.beginTransaction();
       
@@ -151,7 +152,7 @@ class TrabajadorConceptosService {
   
   // Obtener estadísticas de asignaciones
   async obtenerEstadisticas() {
-    const connection = await db.getConnection();
+    const connection = await pool.getConnection();
     try {
       const [stats] = await connection.execute(
         `SELECT 
@@ -209,7 +210,7 @@ class TrabajadorConceptosService {
       console.log(`[TrabajadorConceptosService] Query: ${query}`);
       console.log(`[TrabajadorConceptosService] Params:`, params);
       
-      const [rows] = await db.execute(query, params);
+      const [rows] = await pool.execute(query, params);
       
       console.log(`[TrabajadorConceptosService] Conceptos encontrados: ${rows.length}`);
       
@@ -246,7 +247,7 @@ class TrabajadorConceptosService {
         WHERE t.id_trabajador = ? AND t.estado = 'ACTIVO'
       `;
       
-      const [trabajadorRows] = await db.execute(queryTrabajador, [idTrabajador]);
+      const [trabajadorRows] = await pool.execute(queryTrabajador, [idTrabajador]);
       
       if (trabajadorRows.length === 0) {
         return { success: false, error: 'Trabajador no encontrado' };
@@ -272,19 +273,33 @@ class TrabajadorConceptosService {
         ORDER BY c.nombre
       `;
       
-      const [conceptosRows] = await db.execute(queryIngresosRemunerativos, [idTrabajador]);
+      const [conceptosRows] = await pool.execute(queryIngresosRemunerativos, [idTrabajador]);
       
       // 3. Calcular total de ingresos remunerativos
       let totalRemunerativo = parseFloat(trabajador.sueldo); // Sueldo básico siempre es remunerativo
       
+      // Obtener RMV para cálculos de asignación familiar
+      const rmvData = await parametrosService.obtenerRMV();
+      const rmvValue = rmvData.valor || 1130.00; // Valor de respaldo si no se obtiene
+      
+      console.log(`[TrabajadorConceptosService] RMV obtenido: ${rmvValue}`);
+      
       // Sumar conceptos remunerativos
-      conceptosRows.forEach(concepto => {
+      for (const concepto of conceptosRows) {
         if (concepto.tipo_calculo === 'monto-fijo') {
           totalRemunerativo += parseFloat(concepto.valor);
         } else if (concepto.tipo_calculo === 'porcentaje') {
-          totalRemunerativo += (parseFloat(trabajador.sueldo) * parseFloat(concepto.valor)) / 100;
+          // Verificar si es Asignación Familiar (codigo "022" o nombre "Asignación Familiar")
+          if (concepto.codigo === '022' || concepto.nombre === 'Asignación Familiar') {
+            // Calcular con RMV: RMV × porcentaje
+            totalRemunerativo += (rmvValue * parseFloat(concepto.valor)) / 100;
+            console.log(`[TrabajadorConceptosService] Asignación familiar calculada con RMV: ${rmvValue} × ${concepto.valor}% = ${(rmvValue * parseFloat(concepto.valor)) / 100}`);
+          } else {
+            // Calcular con sueldo del trabajador para otros conceptos
+            totalRemunerativo += (parseFloat(trabajador.sueldo) * parseFloat(concepto.valor)) / 100;
+          }
         }
-      });
+      }
       
       console.log(`[TrabajadorConceptosService] Total remunerativo calculado: ${totalRemunerativo}`);
       
@@ -299,7 +314,7 @@ class TrabajadorConceptosService {
           WHERE id_sistema_pension = ?
         `;
         
-        const [onpRows] = await db.execute(queryONP, [trabajador.id_sistema_pension]);
+        const [onpRows] = await pool.execute(queryONP, [trabajador.id_sistema_pension]);
         
         if (onpRows.length > 0) {
           const porcentajeONP = parseFloat(onpRows[0].porcentaje);
@@ -320,7 +335,7 @@ class TrabajadorConceptosService {
           WHERE id_sistema_pension = ?
         `;
         
-        const [afpRows] = await db.execute(queryAFP, [trabajador.id_sistema_pension]);
+        const [afpRows] = await pool.execute(queryAFP, [trabajador.id_sistema_pension]);
         
         if (afpRows.length > 0) {
           const detalleAFP = afpRows[0];

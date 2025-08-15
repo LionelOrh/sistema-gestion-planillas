@@ -59,6 +59,7 @@ async function crearTrabajador(datosFormulario) {
         area,
         fecha_ingreso,
         tipo_contrato,
+        fecha_cese,
         sueldo,
         regimen_laboral,
         tipo_jornada,
@@ -68,8 +69,10 @@ async function crearTrabajador(datosFormulario) {
         cci,
         id_sistema_pension,
         numero_afiliacion,
+        asignacion_familiar,
+        cantidad_hijos,
         estado
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
     
     const valores = [
@@ -93,6 +96,7 @@ async function crearTrabajador(datosFormulario) {
       datosFormulario.area,
       datosFormulario.fechaIngreso,
       datosFormulario.tipoContrato || 'INDEFINIDO',
+      datosFormulario.fechaCese || null,
       parseFloat(datosFormulario.sueldoBasico),
       datosFormulario.regimenLaboral || 'GENERAL',
       datosFormulario.tipoJornada || 'COMPLETA',
@@ -102,12 +106,22 @@ async function crearTrabajador(datosFormulario) {
       datosFormulario.cci || null,
       datosFormulario.sistemaPension ? parseInt(datosFormulario.sistemaPension) : null,
       datosFormulario.numeroAfiliacion || null,
+      datosFormulario.asignacionFamiliar === 'on' ? 1 : 0, // Convertir checkbox a booleano
+      parseInt(datosFormulario.cantidadHijos) || 0, // Asegurar que sea número
       'ACTIVO'
     ];
     
     const [result] = await pool.query(query, valores);
     
     console.log('Trabajador creado exitosamente con ID:', result.insertId);
+
+    // **PASO IMPORTANTE: Asignar ESSALUD automáticamente a todos los trabajadores**
+    await asignarESSALUDAutomatico(result.insertId);
+    
+    // **Si tiene asignación familiar, crear el registro en trabajador_conceptos**
+    if (datosFormulario.asignacionFamiliar === 'on' && parseInt(datosFormulario.cantidadHijos) > 0) {
+      await asignarAsignacionFamiliar(result.insertId);
+    }
     
     return {
       id: result.insertId,
@@ -159,6 +173,7 @@ async function obtenerTrabajadorPorId(id) {
         t.area,
         t.fecha_ingreso,
         t.tipo_contrato,
+        t.fecha_cese,
         t.sueldo,
         t.regimen_laboral,
         t.tipo_jornada,
@@ -168,6 +183,8 @@ async function obtenerTrabajadorPorId(id) {
         t.cci,
         t.id_sistema_pension,
         t.numero_afiliacion,
+        t.asignacion_familiar,
+        t.cantidad_hijos,
         t.estado,
         sp.nombre as sistema_pension_nombre,
         sp.tipo as sistema_pension_tipo
@@ -216,6 +233,7 @@ async function actualizarTrabajador(id, datosFormulario) {
         area = ?,
         fecha_ingreso = ?,
         tipo_contrato = ?,
+        fecha_cese = ?,
         sueldo = ?,
         regimen_laboral = ?,
         tipo_jornada = ?,
@@ -224,7 +242,9 @@ async function actualizarTrabajador(id, datosFormulario) {
         numero_cuenta = ?,
         cci = ?,
         id_sistema_pension = ?,
-        numero_afiliacion = ?
+        numero_afiliacion = ?,
+        asignacion_familiar = ?,
+        cantidad_hijos = ?
       WHERE id_trabajador = ?
     `;
     
@@ -248,6 +268,7 @@ async function actualizarTrabajador(id, datosFormulario) {
       datosFormulario.area,
       datosFormulario.fechaIngreso,
       datosFormulario.tipoContrato || 'INDEFINIDO',
+      datosFormulario.fechaCese || null,
       parseFloat(datosFormulario.sueldoBasico),
       datosFormulario.regimenLaboral || 'GENERAL',
       datosFormulario.tipoJornada || 'COMPLETA',
@@ -257,6 +278,8 @@ async function actualizarTrabajador(id, datosFormulario) {
       datosFormulario.cci || null,
       datosFormulario.sistemaPension ? parseInt(datosFormulario.sistemaPension) : null,
       datosFormulario.numeroAfiliacion || null,
+      datosFormulario.asignacionFamiliar === 'on' ? 1 : 0, // Convertir checkbox a booleano
+      parseInt(datosFormulario.cantidadHijos) || 0, // Asegurar que sea número
       id
     ];
     
@@ -264,6 +287,18 @@ async function actualizarTrabajador(id, datosFormulario) {
     
     if (result.affectedRows === 0) {
       throw new Error('Trabajador no encontrado');
+    }
+
+    // **Gestión de Asignación Familiar en actualización**
+    const tieneAsignacion = datosFormulario.asignacionFamiliar === 'on';
+    const cantidadHijos = parseInt(datosFormulario.cantidadHijos) || 0;
+    
+    if (tieneAsignacion && cantidadHijos > 0) {
+      // Asignar asignación familiar si no la tiene
+      await asignarAsignacionFamiliar(id);
+    } else {
+      // Remover asignación familiar si no cumple condiciones
+      await removerAsignacionFamiliar(id);
     }
     
     console.log('Trabajador actualizado exitosamente');
@@ -354,11 +389,129 @@ async function obtenerTrabajadoresPorArea() {
   }
 }
 
+// **FUNCIÓN PARA ASIGNAR ESSALUD AUTOMÁTICAMENTE**
+async function asignarESSALUDAutomatico(idTrabajador) {
+  try {
+    console.log(`Asignando ESSALUD automáticamente al trabajador ID: ${idTrabajador}`);
+    
+    // Buscar el concepto de ESSALUD (ID = 2 según tu base de datos)
+    const [conceptoESSALUD] = await pool.query(
+      'SELECT id_concepto FROM conceptos WHERE codigo = "301" AND nombre = "ESSALUD" LIMIT 1'
+    );
+    
+    if (conceptoESSALUD.length === 0) {
+      console.error('No se encontró el concepto ESSALUD en la base de datos');
+      return;
+    }
+    
+    const idConceptoESSALUD = conceptoESSALUD[0].id_concepto;
+    
+    // Verificar si ya existe la relación
+    const [existeRelacion] = await pool.query(
+      'SELECT id_trabajador_concepto FROM trabajador_conceptos WHERE id_trabajador = ? AND id_concepto = ?',
+      [idTrabajador, idConceptoESSALUD]
+    );
+    
+    if (existeRelacion.length === 0) {
+      // Crear la relación trabajador-concepto para ESSALUD
+      await pool.query(
+        'INSERT INTO trabajador_conceptos (id_trabajador, id_concepto, fecha_asignacion) VALUES (?, ?, NOW())',
+        [idTrabajador, idConceptoESSALUD]
+      );
+      console.log(`ESSALUD asignado exitosamente al trabajador ${idTrabajador}`);
+    } else {
+      console.log(`ESSALUD ya estaba asignado al trabajador ${idTrabajador}`);
+    }
+    
+  } catch (err) {
+    console.error('Error al asignar ESSALUD automáticamente:', err);
+    throw err;
+  }
+}
+
+// **FUNCIÓN PARA ASIGNAR ASIGNACIÓN FAMILIAR**
+async function asignarAsignacionFamiliar(idTrabajador) {
+  try {
+    console.log(`Asignando Asignación Familiar al trabajador ID: ${idTrabajador}`);
+    
+    // Buscar el concepto de Asignación Familiar (ID = 6 según tu base de datos)
+    const [conceptoAsignacion] = await pool.query(
+      'SELECT id_concepto FROM conceptos WHERE codigo = "022" AND nombre = "Asignación Familiar" LIMIT 1'
+    );
+    
+    if (conceptoAsignacion.length === 0) {
+      console.error('No se encontró el concepto Asignación Familiar en la base de datos');
+      return;
+    }
+    
+    const idConceptoAsignacion = conceptoAsignacion[0].id_concepto;
+    
+    // Verificar si ya existe la relación
+    const [existeRelacion] = await pool.query(
+      'SELECT id_trabajador_concepto FROM trabajador_conceptos WHERE id_trabajador = ? AND id_concepto = ?',
+      [idTrabajador, idConceptoAsignacion]
+    );
+    
+    if (existeRelacion.length === 0) {
+      // Crear la relación trabajador-concepto para Asignación Familiar
+      await pool.query(
+        'INSERT INTO trabajador_conceptos (id_trabajador, id_concepto, fecha_asignacion) VALUES (?, ?, NOW())',
+        [idTrabajador, idConceptoAsignacion]
+      );
+      console.log(`Asignación Familiar asignada exitosamente al trabajador ${idTrabajador}`);
+    } else {
+      console.log(`Asignación Familiar ya estaba asignada al trabajador ${idTrabajador}`);
+    }
+    
+  } catch (err) {
+    console.error('Error al asignar Asignación Familiar:', err);
+    throw err;
+  }
+}
+
+// **FUNCIÓN PARA REMOVER ASIGNACIÓN FAMILIAR**
+async function removerAsignacionFamiliar(idTrabajador) {
+  try {
+    console.log(`Removiendo Asignación Familiar del trabajador ID: ${idTrabajador}`);
+    
+    // Buscar el concepto de Asignación Familiar
+    const [conceptoAsignacion] = await pool.query(
+      'SELECT id_concepto FROM conceptos WHERE codigo = "022" AND nombre = "Asignación Familiar" LIMIT 1'
+    );
+    
+    if (conceptoAsignacion.length === 0) {
+      console.log('No se encontró el concepto Asignación Familiar en la base de datos');
+      return;
+    }
+    
+    const idConceptoAsignacion = conceptoAsignacion[0].id_concepto;
+    
+    // Eliminar la relación trabajador-concepto para Asignación Familiar
+    const [result] = await pool.query(
+      'DELETE FROM trabajador_conceptos WHERE id_trabajador = ? AND id_concepto = ?',
+      [idTrabajador, idConceptoAsignacion]
+    );
+    
+    if (result.affectedRows > 0) {
+      console.log(`Asignación Familiar removida exitosamente del trabajador ${idTrabajador}`);
+    } else {
+      console.log(`No se encontró Asignación Familiar asignada al trabajador ${idTrabajador}`);
+    }
+    
+  } catch (err) {
+    console.error('Error al remover Asignación Familiar:', err);
+    throw err;
+  }
+}
+
 module.exports = {
   obtenerTrabajadores,
   obtenerTrabajadorPorId,
   crearTrabajador,
   actualizarTrabajador,
   obtenerTrabajadoresParaPlanilla,
-  obtenerTrabajadoresPorArea
+  obtenerTrabajadoresPorArea,
+  asignarESSALUDAutomatico,
+  asignarAsignacionFamiliar,
+  removerAsignacionFamiliar
 };

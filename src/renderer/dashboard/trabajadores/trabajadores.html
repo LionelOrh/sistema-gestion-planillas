@@ -221,10 +221,19 @@
                         <select id="tipoContrato" name="tipoContrato">
                             <option value="">Seleccionar...</option>
                             <option value="INDEFINIDO">Indefinido</option>
-                            <option value="TEMPORAL">Temporal</option>
-                            <option value="LOCACION">Locación de Servicios</option>
-                            <option value="PRACTICAS">Prácticas</option>
+                            <option value="PLAZO_FIJO">Plazo Fijo</option>
+                            <option value="OCASIONAL">Ocasional</option>
+                            <option value="SUPLENCIA">Suplencia</option>
+                            <option value="EMERGENCIA">Emergencia</option>
+                            <option value="OBRA_DETERMINADA_O_SERVICIO_ESPECIFICO">Obra Determinada o Servicio Específico</option>
+                            <option value="INTERMITENTE">Intermitente</option>
+                            <option value="TEMPORADA">Temporada</option>
                         </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="fechaCese">Fecha de Cese</label>
+                        <input type="date" id="fechaCese" name="fechaCese" disabled>
+                        <small style="color: #666; font-size: 12px;">Solo requerido para contratos de plazo fijo</small>
                     </div>
                     <div class="form-group">
                         <label for="sueldoBasico">Sueldo Básico *</label>
@@ -296,6 +305,16 @@
                     <div class="form-group">
                         <label for="numeroAfiliacion">Número de Afiliación</label>
                         <input type="text" id="numeroAfiliacion" name="numeroAfiliacion">
+                    </div>
+                    <div class="form-group">
+                        <label for="asignacionFamiliar">
+                            <input type="checkbox" id="asignacionFamiliar" name="asignacionFamiliar" style="margin-right: 8px;">
+                            Asignación Familiar
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label for="cantidadHijos">Cantidad de Hijos</label>
+                        <input type="number" id="cantidadHijos" name="cantidadHijos" min="0" max="10" value="0">
                     </div>
                 </div>
             </div>
@@ -387,6 +406,14 @@
                             <label>Banco:</label>
                             <span id="detalle-banco"></span>
                         </div>
+                        <div class="detalle-campo">
+                            <label>Asignación Familiar:</label>
+                            <span id="detalle-asignacion-familiar"></span>
+                        </div>
+                        <div class="detalle-campo">
+                            <label>Cantidad de Hijos:</label>
+                            <span id="detalle-cantidad-hijos"></span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -472,6 +499,10 @@
                         <div class="detalle-campo">
                             <label>Fecha de Ingreso:</label>
                             <span id="detalle-laboral-fecha-ingreso"></span>
+                        </div>
+                        <div class="detalle-campo">
+                            <label>Fecha de Cese:</label>
+                            <span id="detalle-laboral-fecha-cese"></span>
                         </div>
                         <div class="detalle-campo">
                             <label>Sueldo Básico:</label>

@@ -393,44 +393,273 @@ body {
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
-/* Tabla */
+/* Tabla - Diseño dinámico y adaptable */
+.table-section {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    margin-top: 24px;
+}
+
 .table-container {
+    width: 100%;
+    max-height: 70vh; /* Altura dinámica basada en viewport */
+    min-height: 300px; /* Altura mínima para mantener usabilidad */
     overflow-x: auto;
+    overflow-y: auto;
+    border: none;
+    position: relative;
+    display: block;
+    /* Transición suave para cambios de tamaño */
+    transition: max-height 0.3s ease;
+}
+
+/* Estilos mejorados para scrollbar */
+.table-container::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+}
+
+.table-container::-webkit-scrollbar-track {
+    background: #f8fafc;
+    border-radius: 6px;
+}
+
+.table-container::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #cbd5e1 0%, #94a3b8 100%);
+    border-radius: 6px;
+    border: 2px solid #f8fafc;
+}
+
+.table-container::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #94a3b8 0%, #64748b 100%);
+}
+
+.table-container::-webkit-scrollbar-corner {
+    background: #f8fafc;
 }
 
 .planillas-table {
     width: 100%;
-    border-collapse: collapse;
+    min-width: 800px; /* Ancho mínimo para asegurar scroll horizontal */
+    border-collapse: separate;
+    border-spacing: 0;
+    table-layout: auto;
+}
+
+.planillas-table thead {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: white;
 }
 
 .planillas-table th {
-    background-color: #f8fafc;
-    padding: 16px 24px;
+    background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+    padding: 20px 16px;
     text-align: left;
-    font-weight: 600;
-    color: #374151;
-    font-size: 14px;
-    border-bottom: 1px solid #e2e8f0;
+    font-weight: 700;
+    color: #1e293b;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-right: 1px solid #e2e8f0;
+    border-bottom: 2px solid #cbd5e1;
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    white-space: nowrap;
+}
+
+.planillas-table th:last-child {
+    border-right: none;
+}
+
+.planillas-table tbody {
+    background: white;
 }
 
 .planillas-table td {
-    padding: 16px 24px;
+    padding: 18px 16px;
+    border-right: 1px solid #f1f5f9;
     border-bottom: 1px solid #f1f5f9;
     font-size: 14px;
+    color: #334155;
+    vertical-align: top;
+    white-space: nowrap;
+}
+
+.planillas-table td:last-child {
+    border-right: none;
+}
+
+.planillas-table tbody tr {
+    transition: all 0.2s ease;
 }
 
 .planillas-table tbody tr:hover {
-    background-color: #f8fafc;
+    background: linear-gradient(90deg, #f8fafc 0%, #f1f5f9 100%);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
-/* Estados de planillas */
-.estado-badge {
-  padding: 6px 12px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 500;
-  text-transform: uppercase;
-  display: inline-block;
+.planillas-table tbody tr:nth-child(even) {
+    background: #fafbfc;
+}
+
+.planillas-table tbody tr:nth-child(even):hover {
+    background: linear-gradient(90deg, #f1f5f9 0%, #e2e8f0 100%);
+}
+
+/* Estados de planillas - Mejorado para scroll */
+.estado-badge, .badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    display: inline-block;
+    white-space: nowrap;
+    letter-spacing: 0.5px;
+    min-width: 70px;
+    text-align: center;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Acciones mejoradas */
+.acciones-grupo {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    justify-content: flex-start;
+    min-width: 140px;
+}
+
+.btn-accion {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px;
+    height: 36px;
+    white-space: nowrap;
+}
+
+.btn-accion:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Optimización para datos dinámicos */
+.planillas-table tbody tr {
+    min-height: 60px;
+    transition: all 0.2s ease;
+}
+
+.planillas-table tbody td div {
+    line-height: 1.4;
+}
+
+.planillas-table tbody td small {
+    display: block;
+    margin-top: 4px;
+    color: #64748b;
+    font-size: 12px;
+}
+
+/* Adaptación automática para diferentes cantidades de contenido */
+.table-container:has(.planillas-table tbody tr:nth-child(n+15)) {
+    max-height: 80vh; /* Más altura cuando hay muchas filas */
+}
+
+.table-container:has(.planillas-table tbody tr:nth-child(-n+5)) {
+    max-height: 40vh; /* Menos altura cuando hay pocas filas */
+    min-height: 200px;
+}
+
+/* Asegurar que el scroll funcione con contenido dinámico */
+.table-section {
+    position: relative;
+    z-index: 1;
+}
+
+.table-container {
+    background: white;
+    border-radius: 0 0 12px 12px;
+}
+
+/* Estado vacío mejorado */
+.planillas-table tbody td[colspan="6"] {
+    text-align: center !important;
+    padding: 60px 20px !important;
+    color: #64748b !important;
+}
+
+.planillas-table tbody td[colspan="6"] svg {
+    opacity: 0.2 !important;
+    margin-bottom: 16px !important;
+    display: block !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
+
+.planillas-table tbody td[colspan="6"] p {
+    font-size: 16px !important;
+    font-weight: 500 !important;
+    margin: 0 0 8px 0 !important;
+    color: #374151 !important;
+}
+
+.planillas-table tbody td[colspan="6"] small {
+    font-size: 14px !important;
+    color: #64748b !important;
+    display: block !important;
+}
+
+/* Fix para elementos que se pueden superponer */
+.section-header {
+    position: relative;
+    z-index: 5;
+}
+
+.filters-bar {
+    position: relative;
+    z-index: 4;
+}
+
+/* Responsive scroll para pantallas pequeñas */
+@media (max-width: 1200px) {
+    .planillas-table {
+        min-width: 900px;
+    }
+    
+    .table-container {
+        max-height: 60vh;
+        min-height: 250px;
+    }
+}
+
+@media (max-width: 768px) {
+    .planillas-table {
+        min-width: 800px;
+    }
+    
+    .table-container {
+        max-height: 50vh;
+        min-height: 200px;
+    }
+    
+    .planillas-table th,
+    .planillas-table td {
+        padding: 12px 8px;
+        font-size: 13px;
+    }
 }
 
 .estado-badge.borrador {

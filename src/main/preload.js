@@ -56,5 +56,15 @@ contextBridge.exposeInMainWorld('electronAPI', {
   obtenerDetallePlanilla: (idPlanilla) => ipcRenderer.invoke('obtener-detalle-planilla', idPlanilla),
   
   // Actualizar estado de planilla
-  actualizarEstadoPlanilla: (idPlanilla, nuevoEstado) => ipcRenderer.invoke('actualizar-estado-planilla', idPlanilla, nuevoEstado)
+  actualizarEstadoPlanilla: (idPlanilla, nuevoEstado) => ipcRenderer.invoke('actualizar-estado-planilla', idPlanilla, nuevoEstado),
+
+  // ============================================
+  // API PARA PARAMETROS DEL SISTEMA
+  // ============================================
+  
+  // Obtener RMV vigente
+  obtenerRMV: () => ipcRenderer.invoke('obtener-rmv'),
+  
+  // Obtener parámetro por código
+  obtenerParametro: (codigo) => ipcRenderer.invoke('obtener-parametro', codigo)
 });

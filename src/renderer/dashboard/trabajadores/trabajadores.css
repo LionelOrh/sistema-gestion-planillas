@@ -528,6 +528,43 @@ body {
   border-color: #27ae60 !important;
 }
 
+/* Estilos específicos para Asignación Familiar */
+.form-group label input[type="checkbox"] {
+  margin-right: 8px;
+  transform: scale(1.2);
+  cursor: pointer;
+}
+
+.form-group label:has(input[type="checkbox"]) {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-weight: 500;
+  color: #34495e;
+  margin-bottom: 8px;
+}
+
+.form-group input[type="number"] {
+  padding: 12px 16px;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  background: #fff;
+}
+
+.form-group input[type="number"]:disabled {
+  opacity: 0.5;
+  background-color: #f8f9fa;
+  cursor: not-allowed;
+}
+
+.form-group input[type="number"]:focus:not(:disabled) {
+  outline: none;
+  border-color: #667eea !important;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
 /* Footer del Modal */
 .modal-footer {
   display: flex;
