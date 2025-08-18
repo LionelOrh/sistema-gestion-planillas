@@ -123,6 +123,33 @@ document.addEventListener('DOMContentLoaded', () => {
 						new window.PlanillasManager();
 					}
 				}
+			} else if (section === 'licencias') {
+				// Cargar la vista de licencias y su CSS
+				const res = await fetch('licencias/licencias.html');
+				const html = await res.text();
+				main.innerHTML = html;
+				
+				// Cargar CSS solo si no está ya cargado
+				if (!document.getElementById('licencias-css')) {
+					const link = document.createElement('link');
+					link.rel = 'stylesheet';
+					link.href = 'licencias/licencias.css';
+					link.id = 'licencias-css';
+					document.head.appendChild(link);
+				}
+				
+				// Cargar y ejecutar el script de licencias
+				if (!document.getElementById('licencias-script')) {
+					const script = document.createElement('script');
+					script.src = 'licencias/licencias.js';
+					script.id = 'licencias-script';
+					document.head.appendChild(script);
+				} else {
+					// Si el script ya está cargado, reinicializar manualmente
+					if (window.LicenciasManager) {
+						new window.LicenciasManager();
+					}
+				}
 			} else {
 				main.innerHTML = `<h1>${link.textContent}</h1><p>En construcción...</p>`;
 			}

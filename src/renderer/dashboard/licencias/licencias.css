@@ -1,0 +1,611 @@
+/* ============================================
+   ESTILOS PARA GESTIÓN DE LICENCIAS
+   ============================================ */
+
+.licencias-gestion {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* ============================================
+   ENCABEZADO
+   ============================================ */
+
+.licencias-header {
+    margin-bottom: 30px;
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.header-info h1.licencias-titulo {
+    font-size: 2rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin: 0 0 5px 0;
+}
+
+.licencias-subtitulo {
+    color: #7f8c8d;
+    margin: 0;
+    font-size: 1.1rem;
+}
+
+.header-actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.btn-recargar {
+    background: #ecf0f1;
+    border: 1px solid #bdc3c7;
+    border-radius: 6px;
+    padding: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-recargar:hover {
+    background: #d5dbdb;
+    border-color: #95a5a6;
+}
+
+.btn-nueva-licencia {
+    background: #3498db;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 16px;
+    color: white;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-nueva-licencia:hover {
+    background: #2980b9;
+    transform: translateY(-1px);
+}
+
+/* ============================================
+   FILTROS Y BÚSQUEDA
+   ============================================ */
+
+.licencias-filtros {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.search-box {
+    position: relative;
+    max-width: 400px;
+}
+
+.search-box svg {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #7f8c8d;
+}
+
+.search-input {
+    width: 100%;
+    padding: 12px 12px 12px 40px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: border-color 0.2s;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.filtros-estados {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.filtro-estado {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 20px;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.filtro-estado:hover {
+    background: #e9ecef;
+}
+
+.filtro-estado.active {
+    background: #3498db;
+    color: white;
+    border-color: #3498db;
+}
+
+/* Badges de estado en filtros */
+.badge-pendiente { color: #f39c12; }
+.badge-activa { color: #3498db; }
+.badge-concluida { color: #27ae60; }
+.badge-cancelada { color: #e74c3c; }
+
+/* ============================================
+   GRID DE LICENCIAS
+   ============================================ */
+
+.licencias-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    gap: 20px;
+}
+
+/* Loading state */
+.loading-licencias {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px;
+    color: #7f8c8d;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid #ecf0f1;
+    border-top: 3px solid #3498db;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 16px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* ============================================
+   TARJETAS DE LICENCIAS
+   ============================================ */
+
+.licencia-card {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: all 0.2s;
+    border-left: 4px solid #ecf0f1;
+}
+
+.licencia-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* Estados de las tarjetas */
+.licencia-card.pendiente { border-left-color: #f39c12; }
+.licencia-card.activa { border-left-color: #3498db; }
+.licencia-card.concluida { border-left-color: #27ae60; }
+.licencia-card.cancelada { border-left-color: #e74c3c; }
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 15px;
+}
+
+.card-tipo {
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: #2c3e50;
+    margin: 0;
+}
+
+.card-badge {
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+.badge-pendiente {
+    background: #fef5e7;
+    color: #f39c12;
+}
+
+.badge-activa {
+    background: #ebf3fd;
+    color: #3498db;
+}
+
+.badge-concluida {
+    background: #eafaf1;
+    color: #27ae60;
+}
+
+.badge-cancelada {
+    background: #fdf2f2;
+    color: #e74c3c;
+}
+
+.card-body {
+    margin-bottom: 15px;
+}
+
+.card-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+    font-size: 14px;
+    color: #555;
+}
+
+.card-info svg {
+    width: 16px;
+    height: 16px;
+    color: #7f8c8d;
+}
+
+.card-info strong {
+    color: #2c3e50;
+}
+
+.card-motivo {
+    color: #666;
+    font-style: italic;
+    font-size: 13px;
+    margin-top: 8px;
+    padding: 8px;
+    background: #f8f9fa;
+    border-radius: 4px;
+}
+
+.card-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
+.btn-action {
+    background: none;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 6px 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.btn-action:hover {
+    background: #f8f9fa;
+}
+
+.btn-aprobar {
+    border-color: #27ae60;
+    color: #27ae60;
+}
+
+.btn-aprobar:hover {
+    background: #27ae60;
+    color: white;
+}
+
+.btn-rechazar {
+    border-color: #e74c3c;
+    color: #e74c3c;
+}
+
+.btn-rechazar:hover {
+    background: #e74c3c;
+    color: white;
+}
+
+.btn-editar {
+    border-color: #3498db;
+    color: #3498db;
+}
+
+.btn-editar:hover {
+    background: #3498db;
+    color: white;
+}
+
+.btn-eliminar {
+    border-color: #e74c3c;
+    color: #e74c3c;
+}
+
+.btn-eliminar:hover {
+    background: #e74c3c;
+    color: white;
+}
+
+/* ============================================
+   NO RESULTS STATE
+   ============================================ */
+
+.no-results {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px;
+    color: #7f8c8d;
+    text-align: center;
+}
+
+.no-results svg {
+    margin-bottom: 20px;
+    opacity: 0.5;
+}
+
+.no-results h3 {
+    margin: 0 0 10px 0;
+    color: #95a5a6;
+}
+
+.no-results p {
+    margin: 0;
+    font-size: 14px;
+}
+
+/* ============================================
+   MODAL STYLES
+   ============================================ */
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    backdrop-filter: blur(2px);
+}
+
+.modal-content {
+    background: white;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+.modal-small {
+    max-width: 400px;
+}
+
+.modal-header {
+    padding: 20px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h2 {
+    margin: 0;
+    color: #2c3e50;
+    font-size: 1.3rem;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+
+.modal-close:hover {
+    background: #f5f5f5;
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+.modal-footer {
+    padding: 20px;
+    border-top: 1px solid #eee;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+/* ============================================
+   FORM STYLES
+   ============================================ */
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 500;
+    color: #2c3e50;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: border-color 0.2s;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.form-group input[readonly] {
+    background: #f8f9fa;
+    color: #6c757d;
+    cursor: not-allowed;
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+/* ============================================
+   BUTTONS
+   ============================================ */
+
+.btn-primary {
+    background: #3498db;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.btn-primary:hover {
+    background: #2980b9;
+    transform: translateY(-1px);
+}
+
+.btn-secondary {
+    background: #95a5a6;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+    background: #7f8c8d;
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+
+@media (max-width: 768px) {
+    .licencias-gestion {
+        padding: 15px;
+    }
+    
+    .header-content {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .header-actions {
+        justify-content: flex-end;
+    }
+    
+    .licencias-filtros {
+        padding: 15px;
+    }
+    
+    .filtros-estados {
+        justify-content: center;
+    }
+    
+    .licencias-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .licencia-card {
+        padding: 15px;
+    }
+    
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .modal-content {
+        width: 95%;
+        margin: 10px;
+    }
+    
+    .card-actions {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+}
+
+@media (max-width: 480px) {
+    .header-info h1.licencias-titulo {
+        font-size: 1.5rem;
+    }
+    
+    .licencias-subtitulo {
+        font-size: 1rem;
+    }
+    
+    .btn-nueva-licencia {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .search-box {
+        max-width: none;
+    }
+}

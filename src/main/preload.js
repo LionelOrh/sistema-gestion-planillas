@@ -68,6 +68,34 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // Obtener parámetro por código
   obtenerParametro: (codigo) => ipcRenderer.invoke('obtener-parametro', codigo),
 
+  // ============================================
+  // API PARA LICENCIAS
+  // ============================================
+  
+  // Obtener licencias
+  obtenerLicencias: (filtros) => ipcRenderer.invoke('obtener-licencias', filtros),
+  
+  // Obtener licencia por ID
+  obtenerLicenciaPorId: (idLicencia) => ipcRenderer.invoke('obtener-licencia-por-id', idLicencia),
+  
+  // Crear licencia
+  crearLicencia: (datosLicencia) => ipcRenderer.invoke('crear-licencia', datosLicencia),
+  
+  // Actualizar licencia
+  actualizarLicencia: (idLicencia, datosLicencia) => ipcRenderer.invoke('actualizar-licencia', idLicencia, datosLicencia),
+  
+  // Eliminar licencia
+  eliminarLicencia: (idLicencia) => ipcRenderer.invoke('eliminar-licencia', idLicencia),
+  
+  // Actualizar estado de licencia
+  actualizarEstadoLicencia: (idLicencia, nuevoEstado) => ipcRenderer.invoke('actualizar-estado-licencia', idLicencia, nuevoEstado),
+  
+  // Obtener tipos de licencia
+  obtenerTiposLicencia: () => ipcRenderer.invoke('obtener-tipos-licencia'),
+  
+  // Obtener estadísticas de licencias
+  obtenerEstadisticasLicencias: () => ipcRenderer.invoke('obtener-estadisticas-licencias'),
+
   // Función para generar constancia de trabajo en PDF
   generarConstanciaPDF: (datosConstancia) => ipcRenderer.invoke('generar-constancia-pdf', datosConstancia),
 });

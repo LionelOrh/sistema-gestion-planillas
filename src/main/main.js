@@ -8,6 +8,7 @@ const trabajadorConceptosService = require('../services/trabajadorConceptosServi
 const planillasService = require('../services/planillasService');
 const parametrosService = require('../services/parametrosService');
 const trabajadoresService = require('../services/trabajadoresService');
+const licenciasService = require('../services/licenciasService');
 
 let loginWindow = null;
 let dashboardWindow = null;
@@ -506,6 +507,114 @@ app.whenReady().then(() => {
     } catch (error) {
       console.error('Handler: Error al generar constancia PDF:', error);
       throw error;
+    }
+  });
+
+  // ============================================
+  // HANDLERS PARA LICENCIAS
+  // ============================================
+  
+  // Obtener todas las licencias
+  ipcMain.handle('obtener-licencias', async (event, filtros = {}) => {
+    try {
+      console.log('[IPC] Obteniendo licencias con filtros:', filtros);
+      const resultado = await licenciasService.obtenerLicencias(filtros);
+      console.log('[IPC] Licencias obtenidas:', resultado.licencias?.length || 0);
+      return resultado;
+    } catch (error) {
+      console.error('[IPC] Error obteniendo licencias:', error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  // Obtener licencia por ID
+  ipcMain.handle('obtener-licencia-por-id', async (event, idLicencia) => {
+    try {
+      console.log('[IPC] Obteniendo licencia por ID:', idLicencia);
+      const resultado = await licenciasService.obtenerLicenciaPorId(idLicencia);
+      console.log('[IPC] Licencia obtenida:', resultado.success);
+      return resultado;
+    } catch (error) {
+      console.error('[IPC] Error obteniendo licencia por ID:', error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  // Crear nueva licencia
+  ipcMain.handle('crear-licencia', async (event, datosLicencia) => {
+    try {
+      console.log('[IPC] Creando licencia:', datosLicencia);
+      const resultado = await licenciasService.crearLicencia(datosLicencia);
+      console.log('[IPC] Licencia creada con ID:', resultado.id_licencia);
+      return resultado;
+    } catch (error) {
+      console.error('[IPC] Error creando licencia:', error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  // Actualizar licencia
+  ipcMain.handle('actualizar-licencia', async (event, idLicencia, datosLicencia) => {
+    try {
+      console.log('[IPC] Actualizando licencia:', idLicencia, datosLicencia);
+      const resultado = await licenciasService.actualizarLicencia(idLicencia, datosLicencia);
+      console.log('[IPC] Licencia actualizada:', resultado.success);
+      return resultado;
+    } catch (error) {
+      console.error('[IPC] Error actualizando licencia:', error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  // Eliminar licencia
+  ipcMain.handle('eliminar-licencia', async (event, idLicencia) => {
+    try {
+      console.log('[IPC] Eliminando licencia:', idLicencia);
+      const resultado = await licenciasService.eliminarLicencia(idLicencia);
+      console.log('[IPC] Licencia eliminada:', resultado.success);
+      return resultado;
+    } catch (error) {
+      console.error('[IPC] Error eliminando licencia:', error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  // Actualizar estado de licencia
+  ipcMain.handle('actualizar-estado-licencia', async (event, idLicencia, nuevoEstado) => {
+    try {
+      console.log('[IPC] Actualizando estado de licencia:', idLicencia, nuevoEstado);
+      const resultado = await licenciasService.actualizarEstadoLicencia(idLicencia, nuevoEstado);
+      console.log('[IPC] Estado actualizado:', resultado.success);
+      return resultado;
+    } catch (error) {
+      console.error('[IPC] Error actualizando estado:', error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  // Obtener tipos de licencia
+  ipcMain.handle('obtener-tipos-licencia', async () => {
+    try {
+      console.log('[IPC] Obteniendo tipos de licencia');
+      const resultado = await licenciasService.obtenerTiposLicencia();
+      console.log('[IPC] Tipos obtenidos:', resultado.tipos?.length || 0);
+      return resultado;
+    } catch (error) {
+      console.error('[IPC] Error obteniendo tipos de licencia:', error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  // Obtener estadísticas de licencias
+  ipcMain.handle('obtener-estadisticas-licencias', async () => {
+    try {
+      console.log('[IPC] Obteniendo estadísticas de licencias');
+      const resultado = await licenciasService.obtenerEstadisticas();
+      console.log('[IPC] Estadísticas obtenidas:', resultado.success);
+      return resultado;
+    } catch (error) {
+      console.error('[IPC] Error obteniendo estadísticas:', error);
+      return { success: false, error: error.message };
     }
   });
 
