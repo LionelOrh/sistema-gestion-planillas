@@ -1,11 +1,222 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <link rel="stylesheet" href="gratificaciones.css">
 </head>
 <body>
-    <h1>holi esto es grafitaciones </h1>
+    <div class="container">
+        <div class="header">
+            <div>Gratificaciones</div>
+        </div>
+
+        <div class="main-content">
+            <div class="section">
+                <div class="section-title">Régimen laboral</div>
+                <div class="form-row">
+                    <div class="form-group" style="flex: 0 0 80px;">
+                        <select id="regimen">
+                            <option value="16">16</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" value="MICROEMPRESA" readonly>
+                    </div>
+                    <div class="form-group" style="flex: 0 0 120px;">
+                        <label>Gratificaciones</label>
+                        <select id="gratificaciones">
+                            <option value="JULIO">JULIO</option>
+                            <option value="DICIEMBRE">DICIEMBRE</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="section-title" style="margin-top: 15px;">Trabajador</div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <select id="trabajador">
+                            <option value="">Seleccionar trabajador...</option>
+                        </select>
+                    </div>
+                    <button class="search-icon">🔍</button>
+                    <div class="form-group">
+                        <input type="text" id="trabajador-nombre" placeholder="Nombre del trabajador">
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="rem-fija">
+                        <label for="rem-fija" style="font-size: 10px;">Rem. Fija</label>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Rem. Básica</label>
+                        <input type="number" id="rem-basica" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label>F. Registro</label>
+                        <input type="date" id="f-registro">
+                    </div>
+                    <div class="form-group">
+                        <label>Moneda</label>
+                        <select id="moneda">
+                            <option value="PEN">PEN</option>
+                            <option value="USD">USD</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>T.Cambio</label>
+                        <input type="number" id="t-cambio" step="0.001">
+                    </div>
+                    <div class="currency-symbol">S/</div>
+                    <div class="form-group">
+                        <label>C. Costo</label>
+                        <select id="c-costo">
+                            <option value="">Seleccionar...</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="liquidacion-section">
+                <div class="liquidacion-header">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="liquidacion">
+                        <label for="liquidacion">Liquidación</label>
+                    </div>
+                    <div class="liquidacion-number">12106-0001</div>
+                    <button class="btn">Visar</button>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>F. Ingreso</label>
+                        <input type="date" id="f-ingreso">
+                    </div>
+                    <div class="form-group">
+                        <label>Fecha Inicio</label>
+                        <input type="date" id="fecha-inicio">
+                    </div>
+                    <div class="form-group">
+                        <label>Fecha Fin</label>
+                        <input type="date" id="fecha-fin">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Período Comp. Meses Lab.</label>
+                        <input type="number" id="periodo-meses" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Días Lab.</label>
+                        <input type="number" id="dias-lab" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Faltas, Alt.</label>
+                        <input type="number" id="faltas" value="0">
+                    </div>
+                </div>
+
+                <div class="calculation-grid">
+                    <div class="calculation-left">
+                        <div class="calc-row">
+                            <div class="calc-label">Total Gratificación</div>
+                            <input type="number" class="calc-input" id="total-gratif" value="0" readonly>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <div class="section-title" style="margin-top: 10px; margin-left: 5px;">Conceptos computables fijos y variables</div>
+            <div class="table-header">
+                <div>CÓDIGO</div>
+                <div>CONCEPTO</div>
+                <div>IMPORTE</div>
+                <div>🔄</div>
+            </div>
+            <div class="table-content" id="conceptos-content">
+                <!-- Los conceptos se cargarán aquí dinámicamente -->
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="section">
+                <div class="section-title">Sistema de Salud</div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Total Ingresos</label>
+                        <input type="number" id="total-ingresos" readonly>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Rem. Computable</label>
+                        <input type="number" id="rem-computable" value="0" readonly>
+                    </div>
+                </div>
+
+                <div style="margin-top: 20px;">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Creado</label>
+                            <input type="text" id="creado" readonly>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Modificado</label>
+                            <input type="text" id="modificado" readonly>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="calculation-right">
+                    <div class="calc-row">
+                        <div class="calc-label">Rem. Comp. / P. Comp. x Meses</div>
+                        <input type="number" class="calc-input" id="rem-comp-meses" value="0" readonly>
+                    </div>
+                    <div class="calc-row">
+                        <div class="calc-label">Descto. por Faltas</div>
+                        <input type="number" class="calc-input" id="descto-faltas" value="0" readonly>
+                    </div>
+                    <div class="calc-row">
+                        <div class="calc-label">Rem. Comp. / P. Comp. /30 x</div>
+                        <input type="number" class="calc-input" id="rem-comp-30" value="0" readonly>
+                    </div>
+                    <div class="calc-row">
+                        <div class="calc-label">Gratificación Neta</div>
+                        <input type="number" class="calc-input" id="gratif-neta" value="0" readonly>
+                    </div>
+                    <div class="calc-row">
+                        <div class="calc-label">Total Gratif. - Descto. por Faltas</div>
+                        <input type="number" class="calc-input" id="total-gratif-desc" value="0" readonly>
+                    </div>
+                    <div class="calc-row">
+                        <div class="calc-label">Bonificación Extr.</div>
+                        <input type="number" class="calc-input" id="bonif-extr" value="0" readonly>
+                    </div>
+                    <div class="calc-row">
+                        <div class="calc-label">Gratif. neta x 9%</div>
+                        <input type="number" class="calc-input" id="gratif-9" value="0" readonly>
+                    </div>
+                    <div class="calc-row">
+                        <div class="calc-label">Total x 9 Meses</div>
+                        <input type="number" class="calc-input" id="total-9-meses" value="0" readonly>
+                    </div>
+                    <div class="calc-row">
+                        <div class="calc-label">Gratif. Neta + Bonif. Extr.</div>
+                        <input type="number" class="calc-input" id="gratif-bonif" value="0" readonly>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>  
 </body>
+<script src="gratificaciones.js"></script>
 </html>
