@@ -506,7 +506,7 @@ class TrabajadoresManager {
       }
     }
   }
-
+  
   validarCamposRequeridos() {
     const camposRequeridos = [
       'nombres',
@@ -576,6 +576,28 @@ class TrabajadoresManager {
     }, 3000);
   }
 
+  mostrarError(mensaje) {
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'error-toast';
+    errorDiv.textContent = mensaje;
+    errorDiv.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #e74c3c;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 8px;
+      z-index: 10001;
+    `;
+    
+    document.body.appendChild(errorDiv);
+    
+    setTimeout(() => {
+      errorDiv.remove();
+    }, 5000);
+  }
+
   async cargarTrabajadores() {
     try {
       const trabajadores = await window.electronAPI.obtenerTrabajadores();
@@ -626,8 +648,28 @@ class TrabajadoresManager {
           </span>
         </td>
         <td>
-          <button class="btn-accion btn-detalle" data-id="${trabajador.id_trabajador}" title="Ver Detalle">👁️</button>
-          <button class="btn-accion btn-editar" data-id="${trabajador.id_trabajador}">Editar</button>
+          <div class="acciones-container">
+            <div class="dropdown-menu-container">
+              <button class="btn-menu-opciones" data-id="${trabajador.id_trabajador}" title="Opciones">
+                <span class="dots">⋮</span>
+              </button>
+              <div class="dropdown-menu" data-id="${trabajador.id_trabajador}">
+                <button class="dropdown-item" data-accion="detalle" data-id="${trabajador.id_trabajador}">
+                  👁️ Ver Detalle
+                </button>
+                <button class="dropdown-item" data-accion="editar" data-id="${trabajador.id_trabajador}">
+                  ✏️ Editar Trabajador
+                </button>
+                <div class="dropdown-divider"></div>
+                <button class="dropdown-item" data-accion="constancia" data-id="${trabajador.id_trabajador}">
+                  📄 Generar Constancia
+                </button>
+                <button class="dropdown-item" data-accion="historial" data-id="${trabajador.id_trabajador}">
+                  📊 Ver Historial
+                </button>
+              </div>
+            </div>
+          </div>
         </td>
       `;
       tbody.appendChild(fila);
@@ -639,28 +681,49 @@ class TrabajadoresManager {
   }
 
   initActionButtons() {
-    const botonesDetalle = document.querySelectorAll('.btn-detalle');
-    const botonesEditar = document.querySelectorAll('.btn-editar');
-    const botonesEliminar = document.querySelectorAll('.btn-eliminar');
+    const botonesMenu = document.querySelectorAll('.btn-menu-opciones');
+    const dropdownItems = document.querySelectorAll('.dropdown-item');
 
-    botonesDetalle.forEach(btn => {
+    // Event listeners para el menú de opciones
+    botonesMenu.forEach(btn => {
       btn.addEventListener('click', (e) => {
+        e.stopPropagation();
         const id = e.currentTarget.getAttribute('data-id');
-        this.mostrarDetalleTrabajador(id);
+        const dropdown = document.querySelector(`.dropdown-menu[data-id="${id}"]`);
+        
+        // Cerrar todos los otros dropdowns
+        document.querySelectorAll('.dropdown-menu').forEach(menu => {
+          if (menu !== dropdown) {
+            menu.classList.remove('show');
+          }
+        });
+        
+        // Toggle del dropdown actual
+        dropdown.classList.toggle('show');
       });
     });
 
-    botonesEditar.forEach(btn => {
-      btn.addEventListener('click', (e) => {
+    // Event listeners para las opciones del menú
+    dropdownItems.forEach(item => {
+      item.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const accion = e.currentTarget.getAttribute('data-accion');
         const id = e.currentTarget.getAttribute('data-id');
-        this.editarTrabajador(id);
+        
+        // Cerrar dropdown
+        document.querySelectorAll('.dropdown-menu').forEach(menu => {
+          menu.classList.remove('show');
+        });
+        
+        // Ejecutar acción
+        this.ejecutarAccionTrabajador(accion, id);
       });
     });
 
-    botonesEliminar.forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const id = e.currentTarget.getAttribute('data-id');
-        this.eliminarTrabajador(id);
+    // Cerrar dropdowns al hacer click fuera
+    document.addEventListener('click', () => {
+      document.querySelectorAll('.dropdown-menu').forEach(menu => {
+        menu.classList.remove('show');
       });
     });
   }
@@ -711,26 +774,292 @@ class TrabajadoresManager {
     }
   }
 
-  mostrarError(mensaje) {
-    const errorDiv = document.createElement('div');
-    errorDiv.className = 'error-toast';
-    errorDiv.textContent = mensaje;
-    errorDiv.style.cssText = `
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: #e74c3c;
-      color: white;
-      padding: 12px 20px;
-      border-radius: 8px;
-      z-index: 10000;
+  async ejecutarAccionTrabajador(accion, id) {
+    try {
+      console.log(`Ejecutando acción: ${accion} para trabajador ID: ${id}`);
+      
+      switch (accion) {
+        case 'detalle':
+          await this.mostrarDetalleTrabajador(id);
+          break;
+          
+        case 'editar':
+          await this.editarTrabajador(id);
+          break;
+          
+        case 'constancia':
+          await this.generarConstanciaTrabajo(id);
+          break;
+          
+        case 'historial':
+          this.mostrarHistorialTrabajador(id);
+          break;
+          
+        default:
+          console.log(`Acción no reconocida: ${accion}`);
+          this.mostrarInfo(`Función "${accion}" en desarrollo`);
+      }
+      
+    } catch (error) {
+      console.error('Error ejecutando acción:', error);
+      this.mostrarError('Error al ejecutar la acción: ' + error.message);
+    }
+  }
+
+  async generarConstanciaTrabajo(id) {
+    try {
+      console.log('Generando constancia de trabajo para trabajador:', id);
+      
+      // Obtener datos del trabajador
+      const trabajador = await window.electronAPI.obtenerTrabajadorPorId(id);
+      
+      // Abrir modal de constancia
+      this.abrirModalConstancia(trabajador);
+      
+    } catch (error) {
+      console.error('Error generando constancia:', error);
+      this.mostrarError('Error al generar la constancia: ' + error.message);
+    }
+  }
+
+  async abrirModalConstancia(trabajador) {
+    try {
+      console.log('Abriendo modal de constancia para:', trabajador);
+      
+      // Crear el modal si no existe
+      let modalConstancia = document.getElementById('modalConstanciaTrabajo');
+      if (!modalConstancia) {
+        modalConstancia = this.crearModalConstancia();
+        document.body.appendChild(modalConstancia);
+      }
+      
+      // Rellenar datos del trabajador en la constancia
+      this.llenarDatosConstancia(trabajador);
+      
+      // Mostrar el modal
+      modalConstancia.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+      
+    } catch (error) {
+      console.error('Error abriendo modal de constancia:', error);
+      this.mostrarError('Error al abrir el modal de constancia');
+    }
+  }
+
+  crearModalConstancia() {
+    const modal = document.createElement('div');
+    modal.id = 'modalConstanciaTrabajo';
+    modal.className = 'modal-overlay';
+    
+    modal.innerHTML = `
+      <div class="modal-constancia-container">
+        <div class="modal-header">
+          <h2>📄 Constancia de Trabajo</h2>
+          <button class="modal-close" id="btnCerrarModalConstancia">&times;</button>
+        </div>
+        
+        <div class="modal-constancia-content">
+          <!-- Vista previa de la constancia -->
+          <div class="constancia-preview">
+            <div class="constancia-documento" id="constanciaDocumento">
+              <div class="constancia-header">
+                <div class="empresa-info">
+                  <h1>TIC-TECHNOLOGIES</h1>
+                  <p class="empresa-subtitulo">R.U.C. 20XXXXXXXXX</p>
+                </div>
+              </div>
+              
+              <div class="constancia-body">
+                <h2 class="constancia-titulo">CONSTANCIA DE TRABAJO</h2>
+                
+                <div class="constancia-contenido">
+                  <p>Por medio de la presente, se deja constancia que <strong id="nombreCompleto">[NOMBRE COMPLETO]</strong>, identificado(a) con D.N.I. N° <strong id="dniTrabajador">[DNI]</strong>, labora en nuestra empresa <strong>TIC-TECHNOLOGIES</strong> desde el <strong id="fechaIngresoConstancia">[FECHA INGRESO]</strong>, desempeñando el cargo de <strong id="cargoTrabajador">[CARGO]</strong>.</p>
+                  
+                  <p>Durante su permanencia en la empresa, ha demostrado ser una persona responsable, eficiente y con gran disposición para las tareas encomendadas.</p>
+                  
+                  <p>Se expide la presente constancia a solicitud del interesado(a) para los fines que estime convenientes.</p>
+                  
+                  <div class="constancia-fecha-lugar">
+                    <p>Lima, <span id="fechaActual">[FECHA ACTUAL]</span></p>
+                  </div>
+                  
+                  <div class="constancia-firma">
+                    <div class="firma-linea">_________________________</div>
+                    <div class="firma-texto">
+                      <p><strong>Firma del Representante Legal</strong></p>
+                      <p>TIC-TECHNOLOGIES</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Botones del Modal -->
+        <div class="modal-footer">
+          <button type="button" class="btn-cancelar" id="btnCancelarConstancia">Cancelar</button>
+          <button type="button" class="btn-descargar-pdf" id="btnDescargarConstancia">📁 Descargar PDF</button>
+        </div>
+      </div>
     `;
     
-    document.body.appendChild(errorDiv);
-    
+    // Agregar event listeners
     setTimeout(() => {
-      errorDiv.remove();
-    }, 5000);
+      const btnCerrar = modal.querySelector('#btnCerrarModalConstancia');
+      const btnCancelar = modal.querySelector('#btnCancelarConstancia');
+      const btnDescargar = modal.querySelector('#btnDescargarConstancia');
+      
+      if (btnCerrar) {
+        btnCerrar.addEventListener('click', () => this.cerrarModalConstancia());
+      }
+      
+      if (btnCancelar) {
+        btnCancelar.addEventListener('click', () => this.cerrarModalConstancia());
+      }
+      
+      if (btnDescargar) {
+        btnDescargar.addEventListener('click', () => this.descargarConstanciaPDF());
+      }
+      
+      // Cerrar modal al hacer clic en el overlay
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+          this.cerrarModalConstancia();
+        }
+      });
+    }, 100);
+    
+    return modal;
+  }
+
+  llenarDatosConstancia(trabajador) {
+    try {
+      console.log('Llenando datos de constancia con trabajador:', trabajador);
+      
+      // Rellenar nombre completo
+      const nombreCompleto = document.getElementById('nombreCompleto');
+      if (nombreCompleto) {
+        nombreCompleto.textContent = `${trabajador.nombres} ${trabajador.apellidos}`;
+      }
+      
+      // Rellenar DNI
+      const dniTrabajador = document.getElementById('dniTrabajador');
+      if (dniTrabajador) {
+        dniTrabajador.textContent = trabajador.numero_documento;
+      }
+      
+      // Rellenar fecha de ingreso con debugging
+      const fechaIngresoConstancia = document.getElementById('fechaIngresoConstancia');
+      if (fechaIngresoConstancia) {
+        console.log('Fecha ingreso raw:', trabajador.fecha_ingreso);
+        console.log('Tipo de fecha ingreso:', typeof trabajador.fecha_ingreso);
+        
+        const fecha = new Date(trabajador.fecha_ingreso);
+        console.log('Fecha objeto:', fecha);
+        
+        const fechaFormateada = fecha.toLocaleDateString('es-PE', {
+          day: '2-digit',
+          month: 'long',
+          year: 'numeric'
+        });
+        console.log('Fecha formateada:', fechaFormateada);
+        
+        fechaIngresoConstancia.textContent = fechaFormateada;
+      } else {
+        console.error('No se encontró el elemento fechaIngresoConstancia');
+      }
+      
+      // Rellenar cargo
+      const cargoTrabajador = document.getElementById('cargoTrabajador');
+      if (cargoTrabajador) {
+        cargoTrabajador.textContent = trabajador.cargo;
+      }
+      
+      // Rellenar fecha actual
+      const fechaActual = document.getElementById('fechaActual');
+      if (fechaActual) {
+        const hoy = new Date();
+        const fechaFormateada = hoy.toLocaleDateString('es-PE', {
+          day: '2-digit',
+          month: 'long',
+          year: 'numeric'
+        });
+        fechaActual.textContent = fechaFormateada;
+      }
+      
+      // Guardar datos del trabajador para la descarga del PDF
+      this.trabajadorConstancia = trabajador;
+      
+    } catch (error) {
+      console.error('Error llenando datos de constancia:', error);
+      this.mostrarError('Error al llenar los datos de la constancia');
+    }
+  }
+
+  cerrarModalConstancia() {
+    const modal = document.getElementById('modalConstanciaTrabajo');
+    if (modal) {
+      modal.style.display = 'none';
+      document.body.style.overflow = '';
+      this.trabajadorConstancia = null;
+    }
+  }
+
+  async descargarConstanciaPDF() {
+    try {
+      if (!this.trabajadorConstancia) {
+        this.mostrarError('No hay datos de trabajador para generar el PDF');
+        return;
+      }
+      
+      console.log('Descargando constancia PDF para:', this.trabajadorConstancia);
+      
+      // Cambiar texto del botón
+      const btnDescargar = document.getElementById('btnDescargarConstancia');
+      const textoOriginal = btnDescargar.textContent;
+      btnDescargar.textContent = '⏳ Generando PDF...';
+      btnDescargar.disabled = true;
+      
+      try {
+        // Preparar datos para el PDF
+        const datosConstancia = {
+          nombreCompleto: `${this.trabajadorConstancia.nombres} ${this.trabajadorConstancia.apellidos}`,
+          dni: this.trabajadorConstancia.numero_documento,
+          fechaIngreso: new Date(this.trabajadorConstancia.fecha_ingreso).toLocaleDateString('es-PE', {
+            day: '2-digit',
+            month: 'long',
+            year: 'numeric'
+          }),
+          cargo: this.trabajadorConstancia.cargo,
+          fechaActual: new Date().toLocaleDateString('es-PE', {
+            day: '2-digit',
+            month: 'long',
+            year: 'numeric'
+          })
+        };
+        
+        // Llamar al servicio para generar el PDF
+        const resultado = await window.electronAPI.generarConstanciaPDF(datosConstancia);
+        
+        if (resultado.success) {
+          this.mostrarExito(resultado.mensaje || 'Constancia generada exitosamente');
+          // Opcionalmente cerrar el modal después de generar
+          // this.cerrarModalConstancia();
+        } else {
+          throw new Error(resultado.error || 'Error al generar el PDF');
+        }
+        
+      } finally {
+        // Restaurar botón
+        btnDescargar.textContent = textoOriginal;
+        btnDescargar.disabled = false;
+      }
+      
+    } catch (error) {
+      console.error('Error descargando constancia PDF:', error);
+      this.mostrarError('Error al descargar la constancia: ' + error.message);
+    }
   }
 
   async cargarUbigeos() {
@@ -1042,11 +1371,17 @@ class TrabajadoresManager {
     try {
       console.log('Cargando conceptos para asignación...');
       
-      // Obtener conceptos activos desde la API
-      const conceptos = await window.electronAPI.obtenerConceptos({ activo: true });
-      console.log('Conceptos cargados:', conceptos);
-      
-      const conceptoSelect = document.getElementById('concepto-select');
+        // Obtener conceptos activos desde la API
+        const conceptos = await window.electronAPI.obtenerConceptos({ activo: true });
+        console.log('Conceptos cargados:', conceptos);
+        
+        // Filtrar conceptos para excluir "Asignación Familiar" (se maneja automáticamente)
+        const conceptosFiltrados = conceptos.filter(concepto => {
+          // Excluir Asignación Familiar ya que se maneja en la sección anterior del formulario
+          return concepto.codigo !== "022" && concepto.nombre !== "Asignación Familiar";
+        });
+        
+        console.log('Conceptos filtrados (sin Asignación Familiar):', conceptosFiltrados);      const conceptoSelect = document.getElementById('concepto-select');
       if (conceptoSelect) {
         // Limpiar opciones existentes
         conceptoSelect.innerHTML = '<option value="">Seleccionar concepto...</option>';
@@ -1059,7 +1394,7 @@ class TrabajadoresManager {
           'aporte-empleador': []
         };
         
-        conceptos.forEach(concepto => {
+        conceptosFiltrados.forEach(concepto => {
           conceptosPorTipo[concepto.tipo].push(concepto);
         });
         

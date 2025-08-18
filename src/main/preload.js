@@ -66,5 +66,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   obtenerRMV: () => ipcRenderer.invoke('obtener-rmv'),
   
   // Obtener parámetro por código
-  obtenerParametro: (codigo) => ipcRenderer.invoke('obtener-parametro', codigo)
+  obtenerParametro: (codigo) => ipcRenderer.invoke('obtener-parametro', codigo),
+
+  // Función para generar constancia de trabajo en PDF
+  generarConstanciaPDF: (datosConstancia) => ipcRenderer.invoke('generar-constancia-pdf', datosConstancia),
 });

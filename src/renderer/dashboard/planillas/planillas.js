@@ -1,4 +1,4 @@
-// Gestión de Planillas - Implementación simplificada y directa
+// Gestión de Planillas - Implementación simplificada y directa con reinicialización automática
 (function() {
     'use strict';
     
@@ -9,7 +9,353 @@
     let planillasData = []; // Array de planillas cargadas
     let vistaPreviaCalculada = false; // Estado de la vista previa
     let datosVistaPreviaGuardados = null; // Datos guardados de vista previa
+    
+    // ============================================
+    // SISTEMA DE INICIALIZACIÓN AUTOMÁTICA
+    // ============================================
+    
+    // Variable para mantener la instancia única
+    let planillasManagerInstance = null;
+    
+    // Observer para detectar cambios en la interfaz
+    let interfaceObserver = null;
 
+    // ============================================
+    // SISTEMA DE INICIALIZACIÓN AUTOMÁTICA CON DETECCIÓN DE CAMBIOS
+    // ============================================
+    
+    // Función para verificar si la interfaz de planillas está visible
+    function verificarVisibilidadPlanillas() {
+        const planillasContainer = document.querySelector('.planillas-gestion');
+        return planillasContainer && planillasContainer.offsetParent !== null;
+    }
+    
+    // Función para inicializar el manager de planillas
+    function inicializarPlanillasManager() {
+        // Solo inicializar si la interfaz está visible
+        if (!verificarVisibilidadPlanillas()) {
+            console.log('[PlanillasManager] Interfaz no visible, omitiendo inicialización');
+            return;
+        }
+        
+        // SIEMPRE reconfigurar event listeners para evitar problemas de navegación
+        console.log('[PlanillasManager] Reconfigurando PlanillasManager...');
+        
+        // Marcar como inicializado
+        if (!planillasManagerInstance) {
+            planillasManagerInstance = {
+                inicializado: true,
+                timestamp: Date.now()
+            };
+            console.log('[PlanillasManager] Inicializando por primera vez...');
+            // Ejecutar inicialización completa la primera vez
+            inicializar();
+        } else {
+            console.log('[PlanillasManager] Reinicializando después de cambio de interfaz...');
+            // En reinicializaciones, solo reconfigurar lo esencial
+            reconfigurarEventListeners();
+            cargarDatosIniciales();
+        }
+        
+        // Actualizar timestamp
+        planillasManagerInstance.timestamp = Date.now();
+    }
+    
+    // Función para configurar el observer de cambios en la interfaz
+    function configurarInterfaceObserver() {
+        // Limpiar observer previo si existe
+        if (interfaceObserver) {
+            interfaceObserver.disconnect();
+        }
+        
+        // Crear nuevo observer
+        interfaceObserver = new MutationObserver((mutations) => {
+            let shouldReinitialize = false;
+            
+            mutations.forEach((mutation) => {
+                // Detectar si se agregaron nodos
+                if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+                    mutation.addedNodes.forEach((node) => {
+                        if (node.nodeType === Node.ELEMENT_NODE) {
+                            // Verificar si es la interfaz de planillas
+                            if (node.classList && node.classList.contains('planillas-gestion')) {
+                                shouldReinitialize = true;
+                            }
+                            // También verificar hijos
+                            if (node.querySelector && node.querySelector('.planillas-gestion')) {
+                                shouldReinitialize = true;
+                            }
+                        }
+                    });
+                }
+                
+                // Detectar cambios de atributos (como display: block/none)
+                if (mutation.type === 'attributes' && mutation.target.classList && 
+                    mutation.target.classList.contains('planillas-gestion')) {
+                    
+                    // Solo reinicializar si la interfaz se volvió visible
+                    const isVisible = mutation.target.offsetParent !== null;
+                    if (isVisible) {
+                        shouldReinitialize = true;
+                    }
+                }
+            });
+            
+            // Reinicializar si es necesario con un pequeño delay para asegurar estabilidad del DOM
+            if (shouldReinitialize) {
+                console.log('[PlanillasManager] Detectado cambio en la interfaz, reinicializando...');
+                setTimeout(inicializarPlanillasManager, 150);
+            }
+        });
+        
+        // Configurar observación en el contenedor principal del dashboard
+        const targetNode = document.body;
+        interfaceObserver.observe(targetNode, {
+            childList: true,
+            subtree: true,
+            attributes: true,
+            attributeFilter: ['style', 'class']
+        });
+        
+        console.log('[PlanillasManager] Observer de interfaz configurado');
+    }
+    
+    // Función de inicialización global
+    function inicializarSistemaPlanillas() {
+        console.log('[PlanillasManager] Iniciando sistema de gestión de planillas...');
+        
+        // Configurar observer para detectar cambios
+        configurarInterfaceObserver();
+        
+        // Intentar inicialización inmediata
+        inicializarPlanillasManager();
+        
+        // Verificación periódica como respaldo (cada 3 segundos)
+        setInterval(() => {
+            if (verificarVisibilidadPlanillas()) {
+                // Si no hay instancia o no está inicializada, reinicializar
+                if (!planillasManagerInstance || !planillasManagerInstance.inicializado) {
+                    console.log('[PlanillasManager] Verificación periódica: reinicializando...');
+                    inicializarPlanillasManager();
+                } else {
+                    // Verificar si el botón agregar está presente y funcional
+                    const btnAgregar = document.getElementById('btnAgregarPlanilla');
+                    if (btnAgregar && !btnAgregar._planillasListenerConfigured) {
+                        console.log('[PlanillasManager] Verificación periódica: reconfigurar botón perdido...');
+                        reconfigurarEventListeners();
+                    }
+                }
+            }
+        }, 3000);
+    }
+    
+    // Función para reconfigurar event listeners después de cambios de interfaz
+    function reconfigurarEventListeners() {
+        console.log('[PlanillasManager] Reconfigurando event listeners...');
+        
+        // Reconfigurar botón agregar planilla con limpieza previa
+        const btnAgregar = document.getElementById('btnAgregarPlanilla');
+        if (btnAgregar) {
+            // Clonar el botón para eliminar todos los event listeners previos
+            const nuevoBtn = btnAgregar.cloneNode(true);
+            btnAgregar.parentNode.replaceChild(nuevoBtn, btnAgregar);
+            
+            // Agregar nuevo event listener
+            nuevoBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('[PlanillasManager] Click en botón agregar (reconfigurado)');
+                abrirModalPlanilla();
+            });
+            
+            // Marcar como configurado
+            nuevoBtn._planillasListenerConfigured = true;
+            console.log('[PlanillasManager] Botón agregar reconfigurado exitosamente');
+        } else {
+            console.warn('[PlanillasManager] Botón agregar no encontrado para reconfigurar');
+        }
+        
+        // Reconfigurar botón recargar si existe
+        const btnRecargar = document.getElementById('btnRecargar');
+        if (btnRecargar) {
+            // Clonar para eliminar listeners previos
+            const nuevoBtnRecargar = btnRecargar.cloneNode(true);
+            btnRecargar.parentNode.replaceChild(nuevoBtnRecargar, btnRecargar);
+            
+            nuevoBtnRecargar.addEventListener('click', async function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('[PlanillasManager] Recargando planillas manualmente (reconfigurado)');
+                await cargarDatosIniciales();
+            });
+            console.log('[PlanillasManager] Botón recargar reconfigurado');
+        }
+        
+        // *** RECONFIGURAR TODOS LOS BOTONES DEL MODAL DE PLANILLA ***
+        reconfigurarBotonesModal();
+        
+        // Reconfigurar filtros de la tabla
+        configurarFiltrosPlanillas();
+        
+        // *** RECONFIGURAR FUNCIONES GLOBALES (MUY IMPORTANTE) ***
+        reconfigurarFuncionesGlobales();
+        
+        console.log('[PlanillasManager] Event listeners reconfigurados exitosamente');
+    }
+    
+    // Nueva función para reconfigurar específicamente los botones del modal
+    function reconfigurarBotonesModal() {
+        console.log('[PlanillasManager] Reconfigurando botones del modal...');
+        
+        // Botón cancelar del modal
+        const btnCancelar = document.getElementById('btnCancelarPlanilla');
+        if (btnCancelar) {
+            const nuevoBtnCancelar = btnCancelar.cloneNode(true);
+            btnCancelar.parentNode.replaceChild(nuevoBtnCancelar, btnCancelar);
+            
+            nuevoBtnCancelar.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                cerrarModalPlanilla();
+            });
+            console.log('[PlanillasManager] Botón cancelar reconfigurado');
+        }
+        
+        // *** BOTÓN CREAR PLANILLA (EL PROBLEMA PRINCIPAL) ***
+        const btnCrearPlanilla = document.getElementById('btnCrearPlanilla');
+        if (btnCrearPlanilla) {
+            const nuevoBtnCrear = btnCrearPlanilla.cloneNode(true);
+            btnCrearPlanilla.parentNode.replaceChild(nuevoBtnCrear, btnCrearPlanilla);
+            
+            nuevoBtnCrear.addEventListener('click', async function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                console.log('[PlanillasManager] Botón crear planilla clickeado (reconfigurado)');
+                
+                // Validar que haya trabajadores seleccionados
+                const trabajadoresSeleccionados = obtenerTrabajadoresSeleccionados();
+                if (trabajadoresSeleccionados.length === 0) {
+                    alert('Debe seleccionar al menos un trabajador para crear la planilla.');
+                    return;
+                }
+                
+                // Obtener datos del formulario
+                const datosFormulario = obtenerDatosFormularioPlanilla();
+                if (!datosFormulario) {
+                    return; // Error en validación
+                }
+                
+                try {
+                    // Deshabilitar botón para evitar doble click
+                    nuevoBtnCrear.disabled = true;
+                    nuevoBtnCrear.textContent = 'Creando...';
+                    
+                    console.log('[PlanillasManager] Creando planilla con datos:', {
+                        ...datosFormulario,
+                        trabajadores: trabajadoresSeleccionados.length
+                    });
+                    
+                    // Crear planilla en la base de datos
+                    const response = await window.electronAPI.crearPlanilla({
+                        ...datosFormulario,
+                        trabajadoresSeleccionados
+                    });
+                    
+                    if (response.success) {
+                        console.log('[PlanillasManager] Planilla creada exitosamente:', response.id_planilla);
+                        
+                        // Guardar ID de planilla para uso posterior
+                        planillaActualId = response.id_planilla;
+                        
+                        // Cerrar modal actual y abrir calculadora
+                        cerrarModalPlanilla();
+                        abrirModalCalculadora(trabajadoresSeleccionados, response.id_planilla);
+                        
+                        // Recargar lista de planillas
+                        await cargarPlanillas();
+                        
+                    } else {
+                        throw new Error(response.error || 'Error creando planilla');
+                    }
+                    
+                } catch (error) {
+                    console.error('[PlanillasManager] Error creando planilla:', error);
+                    alert('Error al crear la planilla: ' + error.message);
+                } finally {
+                    // Rehabilitar botón
+                    nuevoBtnCrear.disabled = false;
+                    nuevoBtnCrear.textContent = 'Crear Planilla';
+                }
+            });
+            
+            // Marcar como configurado
+            nuevoBtnCrear._planillasListenerConfigured = true;
+            console.log('[PlanillasManager] Botón crear planilla reconfigurado exitosamente');
+        } else {
+            console.warn('[PlanillasManager] Botón crear planilla no encontrado');
+        }
+        
+        // Botón limpiar selecciones
+        const btnLimpiar = document.querySelector('#modalCrearPlanilla .planilla-modal-limpiar-btn');
+        if (btnLimpiar) {
+            const nuevoBtnLimpiar = btnLimpiar.cloneNode(true);
+            btnLimpiar.parentNode.replaceChild(nuevoBtnLimpiar, btnLimpiar);
+            
+            nuevoBtnLimpiar.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                limpiarSelecciones();
+            });
+            console.log('[PlanillasManager] Botón limpiar reconfigurado');
+        }
+        
+        // Reconfigurar eventos del modal (click fuera y escape)
+        reconfigurarEventosModal();
+        
+        console.log('[PlanillasManager] Todos los botones del modal reconfigurados');
+    }
+    
+    // Nueva función para reconfigurar eventos generales del modal
+    function reconfigurarEventosModal() {
+        console.log('[PlanillasManager] Reconfigurando eventos generales del modal...');
+        
+        // Click fuera del modal
+        const modal = document.getElementById('modalCrearPlanilla');
+        if (modal) {
+            // Limpiar listeners previos clonando
+            const nuevoModal = modal.cloneNode(true);
+            modal.parentNode.replaceChild(nuevoModal, modal);
+            
+            nuevoModal.addEventListener('click', function(e) {
+                if (e.target === nuevoModal) {
+                    cerrarModalPlanilla();
+                }
+            });
+            console.log('[PlanillasManager] Eventos del modal reconfigurados');
+        }
+        
+        // Nota: Los eventos de tecla Escape se configuran a nivel documento y no necesitan reconfiguración
+    }
+    
+    // Nueva función para reconfigurar funciones globales
+    function reconfigurarFuncionesGlobales() {
+        console.log('[PlanillasManager] Reconfigurando funciones globales...');
+        
+        // Reconfigurar funciones globales para los botones onclick en la tabla
+        window.abrirCalculadoraPlanilla = abrirCalculadoraPlanilla;
+        window.abrirModalCalculadora = abrirModalCalculadora;
+        window.verDetallePlanilla = verDetallePlanilla;
+        window.mostrarMenuPlanilla = mostrarMenuPlanilla;
+        window.cerrarModalDetalle = cerrarModalDetalle;
+        window.cerrarModalCalculadora = cerrarModalCalculadora;
+        window.mostrarMensajeTemporalInfo = mostrarMensajeTemporalInfo;
+        window.abrirModalPlanilla = abrirModalPlanilla;
+        window.cerrarModalPlanilla = cerrarModalPlanilla;
+        
+        console.log('[PlanillasManager] Funciones globales reconfiguradas exitosamente');
+    }
+    
     // ============================================
     // FUNCIONES DE CARGA INICIAL
     // ============================================
@@ -1007,22 +1353,22 @@
                             <div class="calculadora-asistencia-columna-campos">
                                 <div class="calculadora-campo">
                                     <label class="calculadora-label">Días Laborados</label>
-                                    <input type="number" class="calculadora-input" value="30" min="0" max="31" data-trabajador="${trabajador.id_trabajador}" data-campo="dias_laborados">
+                                    <input type="text" class="calculadora-input" value="30" data-trabajador="${trabajador.id_trabajador}" data-campo="dias_laborados">
                                 </div>
                                 
                                 <div class="calculadora-campo">
                                     <label class="calculadora-label">Horas Extras 25%</label>
-                                    <input type="number" class="calculadora-input" value="0" min="0" step="0.5" data-trabajador="${trabajador.id_trabajador}" data-campo="horas_extras_25">
+                                    <input type="text" class="calculadora-input" value="0" data-trabajador="${trabajador.id_trabajador}" data-campo="horas_extras_25">
                                 </div>
                                 
                                 <div class="calculadora-campo">
                                     <label class="calculadora-label">Horas Extras 35%</label>
-                                    <input type="number" class="calculadora-input" value="0" min="0" step="0.5" data-trabajador="${trabajador.id_trabajador}" data-campo="horas_extras_35">
+                                    <input type="text" class="calculadora-input" value="0" data-trabajador="${trabajador.id_trabajador}" data-campo="horas_extras_35">
                                 </div>
                                 
                                 <div class="calculadora-campo">
                                     <label class="calculadora-label">Faltas</label>
-                                    <input type="number" class="calculadora-input" value="0" min="0" max="31" data-trabajador="${trabajador.id_trabajador}" data-campo="faltas">
+                                    <input type="text" class="calculadora-input" value="0" data-trabajador="${trabajador.id_trabajador}" data-campo="faltas">
                                 </div>
                             </div>
                             
@@ -1044,6 +1390,56 @@
                 
             </div>
         `;
+        
+        // *** AGREGAR EVENT LISTENERS PARA RECÁLCULO AUTOMÁTICO ***
+        setTimeout(() => {
+            const inputsRecalculo = seccion.querySelectorAll('input[data-campo]');
+            inputsRecalculo.forEach(input => {
+                input.addEventListener('input', function() {
+                    console.log(`[PlanillasManager] Cambio en ${input.dataset.campo} para trabajador ${trabajadorId}`);
+                    
+                    // Recalcular todo el trabajador después de un pequeño delay
+                    setTimeout(() => {
+                        // 1. Calcular descuentos por faltas
+                        calcularDescuentosPorFaltas(seccion, trabajadorId);
+                        
+                        // 2. Calcular horas extras
+                        calcularHorasExtras(seccion, trabajadorId);
+                        
+                        // 3. Recalcular aportes del empleador (incluye horas extras)
+                        recalcularAportesEmpleador(seccion, trabajadorId);
+                        
+                        // 4. Recalcular neto del trabajador
+                        const conceptosIngresos = [];
+                        const conceptosDinamicos = seccion.querySelectorAll('.calculadora-concepto-dinamico');
+                        conceptosDinamicos.forEach(concepto => {
+                            conceptosIngresos.push({
+                                id_concepto: concepto.dataset.conceptoId,
+                                monto_calculado: parseFloat(concepto.dataset.montoCalculado) || 0
+                            });
+                        });
+                        
+                        const aportesTrabajador = [];
+                        const conceptosAportes = seccion.querySelectorAll('.calculadora-conceptos-lista[data-tipo="aportes-trabajador"] .calculadora-concepto-aporte');
+                        conceptosAportes.forEach(aporte => {
+                            aportesTrabajador.push({
+                                concepto: aporte.dataset.concepto,
+                                monto: parseFloat(aporte.dataset.monto) || 0
+                            });
+                        });
+                        
+                        const calculosNeto = calcularNetoTrabajador(trabajadorId, conceptosIngresos, aportesTrabajador);
+                        actualizarNetoTrabajador(trabajadorId, calculosNeto);
+                        
+                        // 5. Actualizar tarjetas de resumen
+                        actualizarTarjetasResumen();
+                        actualizarResumenPorConceptos();
+                        
+                        console.log(`[PlanillasManager] Recálculo completado para trabajador ${trabajadorId}`);
+                    }, 100);
+                });
+            });
+        }, 200);
         
         return seccion;
     }
@@ -1404,13 +1800,81 @@
             modal.classList.remove('active');
             document.body.style.overflow = ''; // Restaurar scroll del body
             
-            // Limpiar datos de la planilla actual si no se guardó
-            // planillaActualId = null; // Comentado para mantener el estado
+            // *** LIMPIAR ESTADO DE LA CALCULADORA ***
+            limpiarEstadoCalculadora();
+            
         } else {
             console.error('[PlanillasManager] Modal calculadora no encontrado para cerrar');
         }
         
         console.log('[PlanillasManager] Modal calculadora cerrado');
+    }
+    
+    // Nueva función para limpiar el estado de la calculadora
+    function limpiarEstadoCalculadora() {
+        try {
+            console.log('[PlanillasManager] Limpiando estado de calculadora...');
+            
+            // Limpiar variables globales
+            planillaActualId = null;
+            vistaPreviaCalculada = false;
+            datosVistaPreviaGuardados = null;
+            
+            // Limpiar contenedor de trabajadores
+            const contenedorTrabajadores = document.getElementById('trabajadoresContainer');
+            if (contenedorTrabajadores) {
+                contenedorTrabajadores.innerHTML = '';
+            }
+            
+            // Resetear navegación a la primera pestaña
+            const navButtons = document.querySelectorAll('.calculadora-nav-btn');
+            const interfaces = document.querySelectorAll('.calculadora-interface');
+            
+            navButtons.forEach(btn => btn.classList.remove('active'));
+            interfaces.forEach(interfaz => interfaz.classList.remove('active'));
+            
+            // Activar primera pestaña (trabajadores)
+            const primerBtn = document.querySelector('.calculadora-nav-btn[data-interface="trabajadores"]');
+            const primeraInterfaz = document.getElementById('interfazTrabajadores');
+            
+            if (primerBtn) primerBtn.classList.add('active');
+            if (primeraInterfaz) primeraInterfaz.classList.add('active');
+            
+            // Resetear vista previa a estado bloqueado
+            const btnVistaPrevia = document.getElementById('btnVistaPrevia');
+            if (btnVistaPrevia) {
+                btnVistaPrevia.classList.add('disabled');
+            }
+            
+            const vistaBloqueada = document.getElementById('vistaPreviaBloqueado');
+            const vistaDesbloqueada = document.getElementById('vistaPreviewDesbloqueado');
+            
+            if (vistaBloqueada) {
+                vistaBloqueada.style.display = 'flex';
+            }
+            
+            if (vistaDesbloqueada) {
+                vistaDesbloqueada.style.display = 'none';
+            }
+            
+            // Limpiar tarjetas de resumen
+            const tarjetasResumen = document.querySelectorAll('#totalIngresos, #totalDescuentos, #totalAportes, #totalNeto');
+            tarjetasResumen.forEach(tarjeta => {
+                if (tarjeta) {
+                    tarjeta.textContent = 'S/ 0.00';
+                }
+            });
+            
+            // Limpiar tabla de resumen por conceptos
+            const tablaResumen = document.getElementById('resumenConceptosBody');
+            if (tablaResumen) {
+                tablaResumen.innerHTML = '';
+            }
+            
+            console.log('[PlanillasManager] Estado de calculadora limpiado exitosamente');
+        } catch (error) {
+            console.error('[PlanillasManager] Error limpiando estado de calculadora:', error);
+        }
     }
 
     // Función para habilitar vista previa
@@ -1696,6 +2160,9 @@
             
             document.body.style.overflow = 'hidden';
             
+            // *** RECONFIGURAR BOTONES DEL MODAL ANTES DE ABRIR ***
+            reconfigurarBotonesModalAlAbrir();
+            
             // Inicializar valores del formulario
             setTimeout(inicializarFormulario, 100);
             
@@ -1748,6 +2215,143 @@
         }
     }
     
+    // Nueva función para reconfigurar botones del modal específicamente al abrir
+    function reconfigurarBotonesModalAlAbrir() {
+        console.log('[PlanillasManager] Reconfigurando botones del modal al abrir...');
+        
+        // Esperar un momento para que el DOM se estabilice
+        setTimeout(() => {
+            // *** BOTÓN CREAR PLANILLA (CRÍTICO) ***
+            const btnCrearPlanilla = document.getElementById('btnCrearPlanilla');
+            if (btnCrearPlanilla && !btnCrearPlanilla._planillasListenerConfigured) {
+                console.log('[PlanillasManager] Configurando botón crear planilla en apertura...');
+                
+                // Limpiar listeners previos
+                const nuevoBtnCrear = btnCrearPlanilla.cloneNode(true);
+                btnCrearPlanilla.parentNode.replaceChild(nuevoBtnCrear, btnCrearPlanilla);
+                
+                nuevoBtnCrear.addEventListener('click', async function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    console.log('[PlanillasManager] Botón crear planilla clickeado (configurado al abrir)');
+                    
+                    // Validar que haya trabajadores seleccionados
+                    const trabajadoresSeleccionados = obtenerTrabajadoresSeleccionados();
+                    if (trabajadoresSeleccionados.length === 0) {
+                        alert('Debe seleccionar al menos un trabajador para crear la planilla.');
+                        return;
+                    }
+                    
+                    // Obtener datos del formulario
+                    const datosFormulario = obtenerDatosFormularioPlanilla();
+                    if (!datosFormulario) {
+                        return; // Error en validación
+                    }
+                    
+                    try {
+                        // Deshabilitar botón para evitar doble click
+                        nuevoBtnCrear.disabled = true;
+                        nuevoBtnCrear.textContent = 'Creando...';
+                        
+                        console.log('[PlanillasManager] Creando planilla con datos:', {
+                            ...datosFormulario,
+                            trabajadores: trabajadoresSeleccionados.length
+                        });
+                        
+                        // Crear planilla en la base de datos
+                        const response = await window.electronAPI.crearPlanilla({
+                            ...datosFormulario,
+                            trabajadoresSeleccionados
+                        });
+                        
+                        if (response.success) {
+                            console.log('[PlanillasManager] Planilla creada exitosamente:', response.id_planilla);
+                            
+                            // Guardar ID de planilla para uso posterior
+                            planillaActualId = response.id_planilla;
+                            
+                            // Cerrar modal actual y abrir calculadora
+                            cerrarModalPlanilla();
+                            abrirModalCalculadora(trabajadoresSeleccionados, response.id_planilla);
+                            
+                            // Recargar lista de planillas
+                            await cargarPlanillas();
+                            
+                        } else {
+                            throw new Error(response.error || 'Error creando planilla');
+                        }
+                        
+                    } catch (error) {
+                        console.error('[PlanillasManager] Error creando planilla:', error);
+                        alert('Error al crear la planilla: ' + error.message);
+                    } finally {
+                        // Rehabilitar botón
+                        nuevoBtnCrear.disabled = false;
+                        nuevoBtnCrear.textContent = 'Crear Planilla';
+                    }
+                });
+                
+                // Marcar como configurado
+                nuevoBtnCrear._planillasListenerConfigured = true;
+                console.log('[PlanillasManager] Botón crear planilla configurado al abrir modal');
+                
+            } else if (btnCrearPlanilla && btnCrearPlanilla._planillasListenerConfigured) {
+                console.log('[PlanillasManager] Botón crear planilla ya está configurado');
+            } else {
+                console.warn('[PlanillasManager] Botón crear planilla no encontrado al abrir modal');
+            }
+            
+            // *** BOTÓN CANCELAR ***
+            const btnCancelar = document.getElementById('btnCancelarPlanilla');
+            if (btnCancelar && !btnCancelar._planillasListenerConfigured) {
+                const nuevoBtnCancelar = btnCancelar.cloneNode(true);
+                btnCancelar.parentNode.replaceChild(nuevoBtnCancelar, btnCancelar);
+                
+                nuevoBtnCancelar.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    cerrarModalPlanilla();
+                });
+                
+                nuevoBtnCancelar._planillasListenerConfigured = true;
+                console.log('[PlanillasManager] Botón cancelar configurado al abrir modal');
+            }
+            
+            // *** BOTÓN LIMPIAR ***
+            const btnLimpiar = document.querySelector('#modalCrearPlanilla .planilla-modal-limpiar-btn');
+            if (btnLimpiar && !btnLimpiar._planillasListenerConfigured) {
+                const nuevoBtnLimpiar = btnLimpiar.cloneNode(true);
+                btnLimpiar.parentNode.replaceChild(nuevoBtnLimpiar, btnLimpiar);
+                
+                nuevoBtnLimpiar.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    limpiarSelecciones();
+                });
+                
+                nuevoBtnLimpiar._planillasListenerConfigured = true;
+                console.log('[PlanillasManager] Botón limpiar configurado al abrir modal');
+            }
+            
+            // *** EVENTOS DEL MODAL ***
+            const modal = document.getElementById('modalCrearPlanilla');
+            if (modal && !modal._planillasEventsConfigured) {
+                // Click fuera del modal
+                modal.addEventListener('click', function(e) {
+                    if (e.target === modal) {
+                        cerrarModalPlanilla();
+                    }
+                });
+                
+                modal._planillasEventsConfigured = true;
+                console.log('[PlanillasManager] Eventos del modal configurados al abrir');
+            }
+            
+            console.log('[PlanillasManager] Reconfiguración de botones al abrir modal completada');
+        }, 150);
+    }
+    
     // Función para cerrar modal
     function cerrarModalPlanilla() {
         console.log('[PlanillasManager] Cerrando modal...');
@@ -1757,7 +2361,58 @@
             modal.style.display = 'none';
             modal.classList.remove('active');
             document.body.style.overflow = '';
+            
+            // *** LIMPIAR ESTADO DEL FORMULARIO AL CERRAR ***
+            limpiarFormularioPlanilla();
+            
             console.log('[PlanillasManager] Modal cerrado');
+        }
+    }
+    
+    // Nueva función para limpiar completamente el formulario
+    function limpiarFormularioPlanilla() {
+        console.log('[PlanillasManager] Limpiando formulario de planilla...');
+        
+        try {
+            // Limpiar y habilitar todos los campos del formulario
+            const formularioInputs = document.querySelectorAll('#modalCrearPlanilla input, #modalCrearPlanilla select, #modalCrearPlanilla textarea');
+            formularioInputs.forEach(input => {
+                // Habilitar el campo
+                input.disabled = false;
+                input.readOnly = false;
+                
+                // Limpiar valores según el tipo
+                if (input.type === 'checkbox' || input.type === 'radio') {
+                    input.checked = false;
+                } else if (input.tagName === 'SELECT') {
+                    input.selectedIndex = 0;
+                } else {
+                    // Para inputs de texto, textarea, etc.
+                    if (input.id === 'inputAno') {
+                        // Mantener año actual para este campo específico
+                        input.value = new Date().getFullYear();
+                    } else if (input.id === 'selectMes') {
+                        // Mantener mes actual
+                        input.value = (new Date().getMonth() + 1).toString();
+                    } else {
+                        input.value = '';
+                    }
+                }
+                
+                // Remover cualquier estilo que pueda estar causando problemas
+                input.style.removeProperty('pointer-events');
+                input.style.removeProperty('opacity');
+            });
+            
+            // Limpiar selecciones de trabajadores
+            limpiarSelecciones();
+            
+            // Reinicializar formulario con valores por defecto
+            setTimeout(inicializarFormulario, 100);
+            
+            console.log('[PlanillasManager] Formulario limpiado exitosamente');
+        } catch (error) {
+            console.error('[PlanillasManager] Error limpiando formulario:', error);
         }
     }
     
@@ -1780,6 +2435,9 @@
                 console.log('[PlanillasManager] Click en botón agregar');
                 abrirModalPlanilla();
             });
+            
+            // Marcar como configurado
+            btnAgregar._planillasListenerConfigured = true;
             console.log('[PlanillasManager] Event listener agregado al botón');
         } else {
             console.error('[PlanillasManager] Botón agregar no encontrado');
@@ -1804,17 +2462,24 @@
                 e.stopPropagation();
                 cerrarModalPlanilla();
             });
+            // Marcar como configurado
+            btnCancelar._planillasListenerConfigured = true;
         }
         
-        // Botón crear
+        // Botón crear (este evento listener queda como respaldo)
         const btnCrear = document.getElementById('btnCrearPlanilla');
         if (btnCrear) {
-            btnCrear.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                alert('Planilla creada (funcionalidad en desarrollo)');
-                cerrarModalPlanilla();
-            });
+            // Solo agregar si no está ya configurado
+            if (!btnCrear._planillasListenerConfigured) {
+                btnCrear.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('[PlanillasManager] Botón crear clickeado desde inicializar() - respaldo');
+                    alert('Planilla creada (funcionalidad en desarrollo)');
+                    cerrarModalPlanilla();
+                });
+                btnCrear._planillasListenerConfigured = true;
+            }
         }
         
         // Click fuera del modal
@@ -1827,82 +2492,32 @@
             });
         }
         
-        // Tecla Escape
+        // Tecla Escape para cerrar modales
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
-                const modal = document.getElementById('modalCrearPlanilla');
-                if (modal && modal.style.display === 'flex') {
+                // Cerrar modal crear planilla
+                const modalCrear = document.getElementById('modalCrearPlanilla');
+                if (modalCrear && modalCrear.style.display === 'flex') {
                     cerrarModalPlanilla();
+                    return;
+                }
+                
+                // Cerrar modal calculadora
+                const modalCalculadora = document.getElementById('modalCalculadoraPlanilla');
+                if (modalCalculadora && modalCalculadora.style.display === 'flex') {
+                    cerrarModalCalculadora();
+                    return;
+                }
+                
+                // Cerrar modal detalle
+                const modalDetalle = document.getElementById('modalDetallePlanilla');
+                if (modalDetalle && modalDetalle.style.display === 'block') {
+                    cerrarModalDetalle();
+                    return;
                 }
             }
         });
         
-        // Botón crear planilla
-        const btnCrearPlanilla = document.getElementById('btnCrearPlanilla');
-        if (btnCrearPlanilla) {
-            btnCrearPlanilla.addEventListener('click', async function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                
-                console.log('[PlanillasManager] Botón crear planilla clickeado');
-                
-                // Validar que haya trabajadores seleccionados
-                const trabajadoresSeleccionados = obtenerTrabajadoresSeleccionados();
-                if (trabajadoresSeleccionados.length === 0) {
-                    alert('Debe seleccionar al menos un trabajador para crear la planilla.');
-                    return;
-                }
-                
-                // Obtener datos del formulario
-                const datosFormulario = obtenerDatosFormularioPlanilla();
-                if (!datosFormulario) {
-                    return; // Error en validación
-                }
-                
-                try {
-                    // Deshabilitar botón para evitar doble click
-                    btnCrearPlanilla.disabled = true;
-                    btnCrearPlanilla.textContent = 'Creando...';
-                    
-                    console.log('[PlanillasManager] Creando planilla con datos:', {
-                        ...datosFormulario,
-                        trabajadores: trabajadoresSeleccionados.length
-                    });
-                    
-                    // Crear planilla en la base de datos
-                    const response = await window.electronAPI.crearPlanilla({
-                        ...datosFormulario,
-                        trabajadoresSeleccionados
-                    });
-                    
-                    if (response.success) {
-                        console.log('[PlanillasManager] Planilla creada exitosamente:', response.id_planilla);
-                        
-                        // Guardar ID de planilla para uso posterior
-                        planillaActualId = response.id_planilla;
-                        
-                        // Cerrar modal actual y abrir calculadora
-                        cerrarModalPlanilla();
-                        abrirModalCalculadora(trabajadoresSeleccionados, response.id_planilla);
-                        
-                        // Recargar lista de planillas
-                        await cargarPlanillas();
-                        
-                    } else {
-                        throw new Error(response.error || 'Error creando planilla');
-                    }
-                    
-                } catch (error) {
-                    console.error('[PlanillasManager] Error creando planilla:', error);
-                    alert('Error al crear la planilla: ' + error.message);
-                } finally {
-                    // Rehabilitar botón
-                    btnCrearPlanilla.disabled = false;
-                    btnCrearPlanilla.textContent = 'Crear Planilla';
-                }
-            });
-        }
-
         // Botón limpiar
         const btnLimpiar = document.querySelector('#modalCrearPlanilla .planilla-modal-limpiar-btn');
         if (btnLimpiar) {
@@ -1911,6 +2526,8 @@
                 e.stopPropagation();
                 limpiarSelecciones();
             });
+            // Marcar como configurado
+            btnLimpiar._planillasListenerConfigured = true;
         }
         
         // Configurar modal calculadora
@@ -1932,32 +2549,21 @@
         console.log('[PlanillasManager] Inicialización completada');
     }
     
-    // Múltiples formas de inicialización para asegurar que funcione
+    // MÚLTIPLES SISTEMAS DE INICIALIZACIÓN PARA MÁXIMA COMPATIBILIDAD
+    
+    // Sistema 1: DOMContentLoaded
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', inicializar);
+        document.addEventListener('DOMContentLoaded', inicializarSistemaPlanillas);
     } else {
-        inicializar();
+        // Si el DOM ya está listo, inicializar inmediatamente
+        inicializarSistemaPlanillas();
     }
     
-    window.addEventListener('load', function() {
-        // Verificar nuevamente después de que todo esté cargado
-        const btnAgregar = document.getElementById('btnAgregarPlanilla');
-        if (btnAgregar && !btnAgregar.hasAttribute('data-initialized')) {
-            btnAgregar.setAttribute('data-initialized', 'true');
-            btnAgregar.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                abrirModalPlanilla();
-            });
-            console.log('[PlanillasManager] Event listener de respaldo agregado');
-        }
-        
-        // Asegurar que se carguen los datos si no se han cargado aún
-        if (planillasData.length === 0) {
-            console.log('[PlanillasManager] Cargando datos como respaldo...');
-            cargarDatosIniciales();
-        }
-    });
+    // Sistema 2: window.load como respaldo
+    window.addEventListener('load', inicializarSistemaPlanillas);
+    
+    // Sistema 3: Timeout como último recurso
+    setTimeout(inicializarSistemaPlanillas, 500);
     
     // Función global para pruebas
     window.abrirModalPlanilla = abrirModalPlanilla;
@@ -1992,37 +2598,59 @@ document.addEventListener('DOMContentLoaded', function() {
     // Función para calcular el neto a pagar de un trabajador específico
     function calcularNetoTrabajador(trabajadorId, conceptosIngresos, aportesTrabajador) {
         try {
-            // 1. Calcular total de ingresos desde el DOM
-            let totalIngresos = 0;
+            // 1. Calcular total de ingresos remunerativos desde el DOM
+            let totalIngresosRemunerativos = 0;
             
             // Obtener sueldo básico del DOM
             const seccionTrabajador = document.querySelector(`[data-trabajador-id="${trabajadorId}"]`);
             if (seccionTrabajador) {
-                // Sueldo básico
+                // Sueldo básico (siempre remunerativo)
                 const sueldoBasicoElement = seccionTrabajador.querySelector('[data-concepto="sueldo_basico"] .calculadora-concepto-monto');
                 if (sueldoBasicoElement) {
                     const sueldoTexto = sueldoBasicoElement.textContent.replace('S/', '').replace(',', '').trim();
-                    totalIngresos += parseFloat(sueldoTexto) || 0;
+                    totalIngresosRemunerativos += parseFloat(sueldoTexto) || 0;
                 }
                 
-                // Sumar conceptos de ingresos dinámicos
+                // Sumar conceptos de ingresos dinámicos (remunerativos)
                 if (conceptosIngresos && Array.isArray(conceptosIngresos)) {
                     conceptosIngresos.forEach(concepto => {
                         const montoCalculado = parseFloat(concepto.monto_calculado) || 0;
-                        totalIngresos += montoCalculado;
+                        totalIngresosRemunerativos += montoCalculado;
                     });
                 }
                 
-                // Sumar horas extras calculadas desde el DOM
+                // *** IMPORTANTE: Sumar horas extras (son remunerativas) ***
                 const horasExtras = seccionTrabajador.querySelectorAll('.calculadora-concepto-calculado .calculadora-concepto-monto');
                 horasExtras.forEach(extra => {
                     const montoTexto = extra.textContent.replace('S/', '').replace(',', '').trim();
                     const monto = parseFloat(montoTexto) || 0;
-                    totalIngresos += monto;
+                    totalIngresosRemunerativos += monto;
                 });
             }
             
-            // 2. Calcular total de descuentos desde el DOM
+            // 2. Recalcular aportes del trabajador con la nueva base remunerativa
+            let totalAportesRecalculados = 0;
+            if (seccionTrabajador && totalIngresosRemunerativos > 0) {
+                // Recalcular aportes del trabajador basándose en ingresos remunerativos
+                const conceptosAportes = seccionTrabajador.querySelectorAll('.calculadora-conceptos-lista[data-tipo="aportes-trabajador"] .calculadora-concepto-aporte');
+                conceptosAportes.forEach(aporte => {
+                    const porcentaje = parseFloat(aporte.dataset.porcentaje) || 0;
+                    const montoRecalculado = (totalIngresosRemunerativos * porcentaje) / 100;
+                    
+                    // Actualizar el DOM con el nuevo monto calculado
+                    aporte.dataset.monto = montoRecalculado.toFixed(2);
+                    aporte.dataset.baseCalculo = totalIngresosRemunerativos.toFixed(2);
+                    
+                    const montoElement = aporte.querySelector('.calculadora-concepto-monto');
+                    if (montoElement) {
+                        montoElement.textContent = `S/ ${montoRecalculado.toFixed(2)}`;
+                    }
+                    
+                    totalAportesRecalculados += montoRecalculado;
+                });
+            }
+            
+            // 3. Calcular total de descuentos desde el DOM
             let totalDescuentos = 0;
             if (seccionTrabajador) {
                 const descuentos = seccionTrabajador.querySelectorAll('.calculadora-conceptos-lista[data-tipo="descuentos"] .calculadora-concepto-item .calculadora-concepto-monto');
@@ -2033,28 +2661,20 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             }
             
-            // 3. Calcular total de aportes del trabajador
-            let totalAportes = 0;
-            if (aportesTrabajador && Array.isArray(aportesTrabajador)) {
-                aportesTrabajador.forEach(aporte => {
-                    totalAportes += parseFloat(aporte.monto) || 0;
-                });
-            }
-            
-            // 4. Calcular neto (Ingresos - Descuentos - Aportes)
-            const neto = totalIngresos - totalDescuentos - totalAportes;
+            // 4. Calcular neto (Ingresos Remunerativos - Descuentos - Aportes)
+            const neto = totalIngresosRemunerativos - totalDescuentos - totalAportesRecalculados;
             
             console.log(`[PlanillasManager] Cálculo neto trabajador ${trabajadorId}:`, {
-                totalIngresos,
+                totalIngresosRemunerativos,
                 totalDescuentos,
-                totalAportes,
+                totalAportesRecalculados,
                 neto
             });
             
             return {
-                totalIngresos: totalIngresos || 0,
+                totalIngresos: totalIngresosRemunerativos || 0,
                 totalDescuentos: totalDescuentos || 0,
-                totalAportes: totalAportes || 0,
+                totalAportes: totalAportesRecalculados || 0,
                 neto: neto || 0
             };
         } catch (error) {
@@ -2078,7 +2698,8 @@ function actualizarTarjetasResumen() {
     try {
         let totalIngresosPlanilla = 0;
         let totalDescuentosPlanilla = 0;
-        let totalAportesPlanilla = 0;
+        let totalAportesTrabajadorPlanilla = 0;
+        let totalAportesEmpleadorPlanilla = 0; // *** NUEVO: Total aportes del empleador ***
         let totalNetoPlanilla = 0;
         
         // Recorrer todos los trabajadores y sumar sus totales
@@ -2092,8 +2713,18 @@ function actualizarTarjetasResumen() {
             
             totalIngresosPlanilla += ingresos;
             totalDescuentosPlanilla += descuentos;
-            totalAportesPlanilla += aportes;
+            totalAportesTrabajadorPlanilla += aportes;
             totalNetoPlanilla += neto;
+        });
+        
+        // *** CALCULAR TOTAL APORTES DEL EMPLEADOR ***
+        const seccionesTrabajadores = document.querySelectorAll('.calculadora-trabajador-section');
+        seccionesTrabajadores.forEach(seccion => {
+            const aportesEmpleador = seccion.querySelectorAll('.calculadora-conceptos-lista[data-tipo="aportes-empleador"] .calculadora-concepto-aporte');
+            aportesEmpleador.forEach(aporte => {
+                const monto = parseFloat(aporte.dataset.monto) || 0;
+                totalAportesEmpleadorPlanilla += monto;
+            });
         });
         
         // Actualizar las tarjetas en el DOM
@@ -2111,7 +2742,7 @@ function actualizarTarjetasResumen() {
         }
         
         if (totalAportesElement) {
-            totalAportesElement.textContent = `S/ ${totalAportesPlanilla.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            totalAportesElement.textContent = `S/ ${totalAportesTrabajadorPlanilla.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
         }
         
         if (totalNetoElement) {
@@ -2121,7 +2752,8 @@ function actualizarTarjetasResumen() {
         console.log('[PlanillasManager] Totales de planilla actualizados:', {
             totalIngresosPlanilla,
             totalDescuentosPlanilla,
-            totalAportesPlanilla,
+            totalAportesTrabajadorPlanilla,
+            totalAportesEmpleadorPlanilla, // *** NUEVO ***
             totalNetoPlanilla
         });
         
@@ -2280,7 +2912,7 @@ function recalcularAportesEmpleador(seccionTrabajador, trabajadorId) {
             totalRemunerativo += monto;
         });
         
-        // 3. Sumar horas extras calculadas (son remunerativas)
+        // 3. *** CRÍTICO: Sumar horas extras calculadas (son remunerativas) ***
         const horasExtras = seccionTrabajador.querySelectorAll('.calculadora-concepto-item[data-ingreso]');
         horasExtras.forEach(extra => {
             const montoTexto = extra.querySelector('.calculadora-concepto-monto')?.textContent || 'S/ 0';
@@ -2554,6 +3186,25 @@ function actualizarResumenPorConceptos() {
                     if (!resumenConceptos[nombreAporte]) {
                         resumenConceptos[nombreAporte] = {
                             tipo: 'aporte-trabajador',
+                            cantidadTrabajadores: 0,
+                            montoTotal: 0
+                        };
+                    }
+                    resumenConceptos[nombreAporte].cantidadTrabajadores++;
+                    resumenConceptos[nombreAporte].montoTotal += monto;
+                }
+            });
+            
+            // 6. *** APORTES DEL EMPLEADOR (EsSalud, etc.) ***
+            const aportesEmpleador = seccion.querySelectorAll('.calculadora-conceptos-lista[data-tipo="aportes-empleador"] .calculadora-concepto-aporte');
+            aportesEmpleador.forEach(aporte => {
+                const nombreAporte = aporte.dataset.concepto;
+                const monto = parseFloat(aporte.dataset.monto) || 0;
+                
+                if (monto > 0 && nombreAporte) {
+                    if (!resumenConceptos[nombreAporte]) {
+                        resumenConceptos[nombreAporte] = {
+                            tipo: 'aporte-empleador',
                             cantidadTrabajadores: 0,
                             montoTotal: 0
                         };
@@ -3367,30 +4018,55 @@ function configurarModalCalculadora() {
 
 // Función para configurar los filtros de la tabla
 function configurarFiltrosPlanillas() {
-    // Filtro de búsqueda
-    const searchInput = document.querySelector('.search-input');
-    if (searchInput) {
-        searchInput.addEventListener('input', function(e) {
-            const busqueda = e.target.value.trim();
-            cargarPlanillas({ busqueda });
-        });
-    }
-    
-    // Filtros de select
-    const estadoSelect = document.querySelector('.filter-select');
-    const anoSelect = document.querySelectorAll('.filter-select')[1];
-    
-    if (estadoSelect) {
-        estadoSelect.addEventListener('change', function(e) {
-            const estado = e.target.value;
-            cargarPlanillas({ estado: estado || undefined });
-        });
-    }
-    
-    if (anoSelect) {
-        anoSelect.addEventListener('change', function(e) {
-            const ano = e.target.value;
-            cargarPlanillas({ ano: ano ? parseInt(ano) : undefined });
-        });
+    try {
+        console.log('[PlanillasManager] Configurando filtros de tabla...');
+        
+        // Filtro de búsqueda con reconfiguración robusta
+        const searchInput = document.querySelector('.search-input');
+        if (searchInput) {
+            // Clonar para eliminar listeners previos
+            const nuevoSearchInput = searchInput.cloneNode(true);
+            searchInput.parentNode.replaceChild(nuevoSearchInput, searchInput);
+            
+            nuevoSearchInput.addEventListener('input', function(e) {
+                const busqueda = e.target.value.trim();
+                cargarPlanillas({ busqueda });
+            });
+            console.log('[PlanillasManager] Filtro de búsqueda configurado');
+        } else {
+            console.warn('[PlanillasManager] Input de búsqueda no encontrado');
+        }
+        
+        // Filtros de select con reconfiguración robusta
+        const estadoSelect = document.querySelector('.filter-select');
+        if (estadoSelect) {
+            // Clonar para eliminar listeners previos
+            const nuevoEstadoSelect = estadoSelect.cloneNode(true);
+            estadoSelect.parentNode.replaceChild(nuevoEstadoSelect, estadoSelect);
+            
+            nuevoEstadoSelect.addEventListener('change', function(e) {
+                const estado = e.target.value;
+                cargarPlanillas({ estado: estado || undefined });
+            });
+            console.log('[PlanillasManager] Filtro de estado configurado');
+        }
+        
+        const anoSelects = document.querySelectorAll('.filter-select');
+        const anoSelect = anoSelects[1];
+        if (anoSelect) {
+            // Clonar para eliminar listeners previos
+            const nuevoAnoSelect = anoSelect.cloneNode(true);
+            anoSelect.parentNode.replaceChild(nuevoAnoSelect, anoSelect);
+            
+            nuevoAnoSelect.addEventListener('change', function(e) {
+                const ano = e.target.value;
+                cargarPlanillas({ ano: ano ? parseInt(ano) : undefined });
+            });
+            console.log('[PlanillasManager] Filtro de año configurado');
+        }
+        
+        console.log('[PlanillasManager] Todos los filtros configurados exitosamente');
+    } catch (error) {
+        console.error('[PlanillasManager] Error configurando filtros:', error);
     }
 }

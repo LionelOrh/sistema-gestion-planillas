@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const path = require('path');
 const { login } = require('../services/loginService');
 const { obtenerTrabajadores, obtenerTrabajadorPorId, crearTrabajador, actualizarTrabajador, obtenerTrabajadoresParaPlanilla, obtenerTrabajadoresPorArea } = require('../services/trabajadoresService');
@@ -7,6 +7,7 @@ const conceptosService = require('../services/conceptosService');
 const trabajadorConceptosService = require('../services/trabajadorConceptosService');
 const planillasService = require('../services/planillasService');
 const parametrosService = require('../services/parametrosService');
+const trabajadoresService = require('../services/trabajadoresService');
 
 let loginWindow = null;
 let dashboardWindow = null;
@@ -492,6 +493,19 @@ app.whenReady().then(() => {
     } catch (error) {
       console.error('[IPC] Error obteniendo parámetro:', error);
       return { success: false, error: error.message };
+    }
+  });
+
+  // Handler para generar constancia de trabajo en PDF
+  ipcMain.handle('generar-constancia-pdf', async (event, datosConstancia) => {
+    try {
+      console.log('Handler: Generando constancia PDF para trabajador:', datosConstancia);
+      const resultado = await trabajadoresService.generarConstanciaPDF(datosConstancia);
+      console.log('Handler: Resultado de generación PDF:', resultado);
+      return resultado;
+    } catch (error) {
+      console.error('Handler: Error al generar constancia PDF:', error);
+      throw error;
     }
   });
 
