@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', function () {
     inicializarFechas();
     configurarEventos();
     cargarTrabajadores();
-
+// hola lio
     const regimenSelect = document.getElementById('regimen');
     const codigoInput = document.getElementById('regimen-codigo');
     const nombreInput = document.getElementById('regimen-nombre');
