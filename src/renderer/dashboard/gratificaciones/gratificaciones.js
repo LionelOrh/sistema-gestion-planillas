@@ -3,11 +3,29 @@
 let trabajadorActual = null;
 let conceptos = [];
 
-// Inicialización
 document.addEventListener('DOMContentLoaded', function () {
     inicializarFechas();
     configurarEventos();
     cargarTrabajadores();
+
+    const regimenSelect = document.getElementById('regimen');
+    const codigoInput = document.getElementById('regimen-codigo');
+    const nombreInput = document.getElementById('regimen-nombre');
+
+    function actualizarRegimenInputs() {
+        if (regimenSelect && codigoInput && nombreInput) {
+            const valor = regimenSelect.value;
+            const nombre = regimenSelect.selectedOptions[0].dataset.nombre || '';
+            codigoInput.value = valor;
+            nombreInput.value = nombre;
+        }
+    }
+
+    if (regimenSelect) {
+        regimenSelect.addEventListener('change', actualizarRegimenInputs);
+        // Inicializa al cargar
+        actualizarRegimenInputs();
+    }
 });
 
 function inicializarFechas() {
@@ -36,6 +54,9 @@ function configurarEventos() {
 
     // Evento para tipo de cambio automático
     document.getElementById('moneda').addEventListener('change', actualizarTipoCambio);
+    // ...existing code...
+    // ...existing code...
+
 }
 
 function cargarTrabajadores() {
