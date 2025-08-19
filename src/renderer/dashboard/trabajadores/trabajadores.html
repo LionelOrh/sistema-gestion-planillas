@@ -7,6 +7,7 @@
         <div>
             <input type="button" class="button-exportar" value="Exportar" id="btnExportar">
             <input type="button" class="button-agregar" value="Agregar Trabajador" id="btnAgregarTrabajador">
+            <input type="button" class="button-asistencia" value="Ver Asistencia" id="btnVerAsistencia">
         </div>
     </header>
     <hr>
@@ -570,6 +571,54 @@
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Asistencia de Trabajadores -->
+<div class="modal-overlay" id="modalAsistenciaTrabajadores" style="display: none;">
+    <div class="modal-container" style="max-width: 700px;">
+        <div class="modal-header">
+            <h2>Registro de Asistencia de Trabajadores</h2>
+            <button class="modal-close" id="btnCerrarModalAsistencia">&times;</button>
+        </div>
+        <div class="modal-form" style="padding: 24px;">
+            <table class="asistencia-tabla" style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr>
+                        <th>ID Asistencia</th>
+                        <th>Trabajador</th>
+                        <th>Régimen Laboral</th>
+                        <th>Entrada/Salida</th>
+                        <th>Hora de Registro</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Aquí puedes agregar filas de ejemplo si lo deseas -->
+                    <tr>
+                        <td>1</td>
+                        <td>Juan Pérez</td>
+                        <td>General</td>
+                        <td>Entrada</td>
+                        <td>08:00</td>
+                        <td>Registrado</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>María López</td>
+                        <td>Micro Empresa</td>
+                        <td>Salida</td>
+                        <td>17:30</td>
+                        <td>Registrado</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn-cancelar" id="btnCerrarModalAsistenciaFooter">Cerrar</button>
+            <button type="button" class="btn-exportarexcel" id="btnExportarExcelAsistencia">Exportar a Excel</button>
+
         </div>
     </div>
 </div>

@@ -13,6 +13,39 @@ class TrabajadoresManager {
 
   async init() {
     await this.cargarTrabajadores();
+    // Inicializar botón de asistencia
+    const btnVerAsistencia = document.getElementById('btnVerAsistencia');
+    if (btnVerAsistencia) {
+      btnVerAsistencia.addEventListener('click', () => {
+        const modal = document.getElementById('modalAsistenciaTrabajadores');
+        if (modal) {
+          modal.style.display = 'flex';
+          document.body.style.overflow = 'hidden';
+        }
+      });
+    }
+    // Cerrar modal asistencia
+    const btnCerrar1 = document.getElementById('btnCerrarModalAsistencia');
+    const btnCerrar2 = document.getElementById('btnCerrarModalAsistenciaFooter');
+    const modalAsistencia = document.getElementById('modalAsistenciaTrabajadores');
+    [btnCerrar1, btnCerrar2].forEach(btn => {
+      if (btn) {
+        btn.addEventListener('click', () => {
+          if (modalAsistencia) {
+            modalAsistencia.style.display = 'none';
+            document.body.style.overflow = '';
+          }
+        });
+      }
+    });
+    if (modalAsistencia) {
+      modalAsistencia.addEventListener('click', (e) => {
+        if (e.target === modalAsistencia) {
+          modalAsistencia.style.display = 'none';
+          document.body.style.overflow = '';
+        }
+      });
+    }
   }
 
   async initModal() {
@@ -630,7 +663,6 @@ class TrabajadoresManager {
     trabajadores.forEach(trabajador => {
       const fila = document.createElement('tr');
       const nombreCompleto = `${trabajador.nombres} ${trabajador.apellidos}`;
-      
       fila.innerHTML = `
         <td>
           <div class="trabajador-info">
@@ -664,8 +696,8 @@ class TrabajadoresManager {
                 <button class="dropdown-item" data-accion="constancia" data-id="${trabajador.id_trabajador}">
                   📄 Generar Constancia
                 </button>
-                <button class="dropdown-item" data-accion="historial" data-id="${trabajador.id_trabajador}">
-                  📊 Ver Historial
+                <button class="dropdown-item" data-accion="asistencia" data-id="${trabajador.id_trabajador}">
+                  🕒 Registrar Asistencia
                 </button>
               </div>
             </div>
@@ -791,8 +823,8 @@ class TrabajadoresManager {
           await this.generarConstanciaTrabajo(id);
           break;
           
-        case 'historial':
-          this.mostrarHistorialTrabajador(id);
+        case 'asistencia':
+          await this.abrirModalAsistencia(id);
           break;
           
         default:
@@ -869,6 +901,7 @@ class TrabajadoresManager {
                 </div>
               </div>
               
+
               <div class="constancia-body">
                 <h2 class="constancia-titulo">CONSTANCIA DE TRABAJO</h2>
                 
@@ -1370,41 +1403,33 @@ class TrabajadoresManager {
   async cargarConceptosParaAsignacion() {
     try {
       console.log('Cargando conceptos para asignación...');
-      
-        // Obtener conceptos activos desde la API
-        const conceptos = await window.electronAPI.obtenerConceptos({ activo: true });
-        console.log('Conceptos cargados:', conceptos);
-        
-        // Filtrar conceptos para excluir "Asignación Familiar" (se maneja automáticamente)
-        const conceptosFiltrados = conceptos.filter(concepto => {
-          // Excluir Asignación Familiar ya que se maneja en la sección anterior del formulario
-          return concepto.codigo !== "022" && concepto.nombre !== "Asignación Familiar";
-        });
-        
-        console.log('Conceptos filtrados (sin Asignación Familiar):', conceptosFiltrados);      const conceptoSelect = document.getElementById('concepto-select');
+      // Obtener conceptos activos desde la API
+      const conceptos = await window.electronAPI.obtenerConceptos({ activo: true });
+      console.log('Conceptos cargados:', conceptos);
+
+      // Filtrar para excluir "Asignación Familiar" (por código o nombre)
+      const conceptosFiltrados = conceptos.filter(concepto =>
+        concepto.codigo !== "022" &&
+        concepto.nombre.toLowerCase() !== "asignación familiar"
+      );
+
+      // Agrupar conceptos por tipo para mejor organización
+      const conceptoSelect = document.getElementById('concepto-select');
       if (conceptoSelect) {
-        // Limpiar opciones existentes
         conceptoSelect.innerHTML = '<option value="">Seleccionar concepto...</option>';
-        
-        // Agrupar conceptos por tipo para mejor organización
         const conceptosPorTipo = {
           'ingreso': [],
           'descuento': [],
           'aporte-trabajador': [],
           'aporte-empleador': []
         };
-        
         conceptosFiltrados.forEach(concepto => {
           conceptosPorTipo[concepto.tipo].push(concepto);
         });
-        
-        // Agregar opciones agrupadas por tipo
         Object.keys(conceptosPorTipo).forEach(tipo => {
           if (conceptosPorTipo[tipo].length > 0) {
-            // Crear grupo
             const optgroup = document.createElement('optgroup');
             optgroup.label = this.formatearTipoConcepto(tipo);
-            
             conceptosPorTipo[tipo].forEach(concepto => {
               const option = document.createElement('option');
               option.value = concepto.id_concepto;
@@ -1414,17 +1439,13 @@ class TrabajadoresManager {
               option.dataset.valor = concepto.valor;
               optgroup.appendChild(option);
             });
-            
             conceptoSelect.appendChild(optgroup);
           }
         });
-        
-        // Agregar evento change para manejar selección
         conceptoSelect.addEventListener('change', (e) => {
           this.manejarSeleccionConcepto(e);
         });
       }
-      
     } catch (error) {
       console.error('Error al cargar conceptos:', error);
       
@@ -1504,8 +1525,6 @@ class TrabajadoresManager {
           await this.cargarConceptosAsignados();
           
           this.mostrarExito('Concepto asignado exitosamente');
-        } else {
-          throw new Error(resultado.message || 'Error al asignar el concepto');
         }
         
       } finally {
@@ -1535,9 +1554,14 @@ class TrabajadoresManager {
       // Llamar a la API para obtener los conceptos asignados
       const conceptosAsignados = await window.electronAPI.obtenerConceptosAsignadosTrabajador(this.trabajadorIdDetalle);
       
-      console.log('Conceptos asignados obtenidos:', conceptosAsignados);
-      this.renderizarConceptosAsignados(conceptosAsignados);
-      
+      // Filtrar para excluir "Asignación Familiar" (por código o nombre)
+      const conceptosFiltrados = conceptosAsignados.filter(concepto =>
+        concepto.codigo !== "022" &&
+        concepto.nombre.toLowerCase() !== "asignación familiar"
+      );
+
+      console.log('Conceptos asignados obtenidos:', conceptosFiltrados);
+      this.renderizarConceptosAsignados(conceptosFiltrados);
     } catch (error) {
       console.error('Error al cargar conceptos asignados:', error);
       
@@ -1652,8 +1676,103 @@ class TrabajadoresManager {
     // Por ahora usamos alert, pero podrías implementar un toast
     alert('✅ ' + mensaje);
   }
+
+  async abrirModalAsistencia(idTrabajador) {
+    const trabajador = await window.electronAPI.obtenerTrabajadorPorId(idTrabajador);
+    let modalAsistencia = document.getElementById('modalRegistrarAsistencia');
+    const horaActual = new Date();
+    const horaStr = horaActual.toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit', hour12: false });
+
+    if (!modalAsistencia) {
+      modalAsistencia = document.createElement('div');
+      modalAsistencia.id = 'modalRegistrarAsistencia';
+      modalAsistencia.className = 'modal-overlay active';
+      modalAsistencia.innerHTML = `
+        <div class="modal-asistencia-box">
+          <div class="modal-header">
+            <h2>Registrar Asistencia</h2>
+            <button class="modal-close" id="btnCerrarModalAsistencia">&times;</button>
+          </div>
+          <form id="formAsistencia" class="modal-form">
+            <div class="form-group">
+              <label>Trabajador</label>
+              <input type="text" value="${trabajador.nombres} ${trabajador.apellidos}" disabled>
+            </div>
+            <div class="form-group">
+              <label for="horaRegistro">Hora de Registro</label>
+              <input type="time" id="horaRegistro" name="horaRegistro" value="${horaStr}" readonly>
+            </div>
+            <div class="form-group">
+              <label>Tipo de Registro</label>
+              <div class="asistencia-btn-group">
+                <button type="button" class="btn-entrada" id="btnEntrada">Entrada</button>
+                <button type="button" class="btn-salida" id="btnSalida">Salida</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      `;
+      document.body.appendChild(modalAsistencia);
+    } else {
+      // Si ya existe, actualiza la hora y trabajador
+      modalAsistencia.querySelector('input[type="text"]').value = `${trabajador.nombres} ${trabajador.apellidos}`;
+      const horaInput = modalAsistencia.querySelector('#horaRegistro');
+      if (horaInput) horaInput.value = horaStr;
+      modalAsistencia.style.display = 'flex';
+      modalAsistencia.classList.add('active');
+    }
+
+    modalAsistencia.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+
+    setTimeout(() => {
+      const btnCerrar = document.getElementById('btnCerrarModalAsistencia');
+      if (btnCerrar) {
+        btnCerrar.onclick = () => {
+          modalAsistencia.style.display = 'none';
+          modalAsistencia.classList.remove('active');
+          document.body.style.overflow = '';
+        };
+      }
+      modalAsistencia.onclick = (e) => {
+        if (e.target === modalAsistencia) {
+          modalAsistencia.style.display = 'none';
+          modalAsistencia.classList.remove('active');
+          document.body.style.overflow = '';
+        }
+      };
+      const btnEntrada = document.getElementById('btnEntrada');
+      const btnSalida = document.getElementById('btnSalida');
+      const horaInput = document.getElementById('horaRegistro');
+      btnEntrada.onclick = async () => {
+        await this.registrarAsistencia(trabajador.id_trabajador, horaInput.value, 'entrada');
+        modalAsistencia.style.display = 'none';
+        modalAsistencia.classList.remove('active');
+        document.body.style.overflow = '';
+      };
+      btnSalida.onclick = async () => {
+        await this.registrarAsistencia(trabajador.id_trabajador, horaInput.value, 'salida');
+        modalAsistencia.style.display = 'none';
+        modalAsistencia.classList.remove('active');
+        document.body.style.overflow = '';
+      };
+    }, 100);
+  }
+
+  async registrarAsistencia(idTrabajador, hora, tipo) {
+    // Aquí puedes implementar la lógica de guardar la asistencia (por ahora solo muestra un toast)
+    this.mostrarExito(`Asistencia registrada: ${tipo === 'entrada' ? 'Entrada' : 'Salida'} a las ${hora}`);
+    // Ejemplo: await window.electronAPI.registrarAsistencia({ idTrabajador, hora, tipo });
+  }
 }
 
+// Hacer la clase disponible globalmente
+window.TrabajadoresManager = TrabajadoresManager;
+
+// Inicializar cuando se carga la vista de trabajadores
+if (document.querySelector('.trabajadores-gestion')) {
+  new TrabajadoresManager();
+}
 // Hacer la clase disponible globalmente
 window.TrabajadoresManager = TrabajadoresManager;
 

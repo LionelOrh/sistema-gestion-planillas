@@ -15,6 +15,7 @@ class LicenciasService {
           l.dias,
           l.motivo,
           l.estado,
+          l.con_gose, -- <-- Asegura que se obtenga el campo con_gose
           CONCAT(t.nombres, ' ', t.apellidos) as trabajador_nombre,
           t.codigo as trabajador_codigo,
           t.area as trabajador_area,
@@ -73,6 +74,7 @@ class LicenciasService {
           l.dias,
           l.motivo,
           l.estado,
+          l.con_gose, -- <-- Asegura que se obtenga el campo con_gose
           CONCAT(t.nombres, ' ', t.apellidos) as trabajador_nombre,
           t.codigo as trabajador_codigo,
           tl.nombre as tipo_licencia_nombre,
@@ -101,17 +103,16 @@ class LicenciasService {
   // Crear nueva licencia
   async crearLicencia(datosLicencia) {
     const connection = await pool.getConnection();
-    
     try {
       await connection.beginTransaction();
-      
       const {
         idTrabajador,
         idTipoLicencia,
         fechaInicio,
         fechaFin,
         motivo,
-        estado = 'PENDIENTE'
+        estado = 'PENDIENTE',
+        conGose // <-- puede venir como undefined/null/0/1
       } = datosLicencia;
       
       // Validar datos requeridos
@@ -125,6 +126,10 @@ class LicenciasService {
         throw new Error('La fecha de fin debe ser posterior a la fecha de inicio');
       }
       
+      const conGoseFinal = (typeof conGose === 'number' || typeof conGose === 'string')
+        ? Number(conGose) === 1 ? 1 : 0
+        : 1; // Si no viene, usa el default 1
+
       // Insertar nueva licencia
       const [result] = await connection.execute(`
         INSERT INTO licencia (
@@ -133,15 +138,17 @@ class LicenciasService {
           fecha_inicio,
           fecha_fin,
           motivo,
-          estado
-        ) VALUES (?, ?, ?, ?, ?, ?)
+          estado,
+          con_gose
+        ) VALUES (?, ?, ?, ?, ?, ?, ?)
       `, [
         idTrabajador,
         idTipoLicencia,
         fechaInicio,
         fechaFin,
         motivo || null,
-        estado
+        estado,
+        conGoseFinal // <-- SIEMPRE envía 0 o 1
       ]);
       
       await connection.commit();
@@ -164,17 +171,16 @@ class LicenciasService {
   // Actualizar licencia
   async actualizarLicencia(idLicencia, datosLicencia) {
     const connection = await pool.getConnection();
-    
     try {
       await connection.beginTransaction();
-      
       const {
         idTrabajador,
         idTipoLicencia,
         fechaInicio,
         fechaFin,
         motivo,
-        estado
+        estado,
+        conGose
       } = datosLicencia;
       
       // Validar que la fecha de fin sea posterior a la de inicio
@@ -182,6 +188,10 @@ class LicenciasService {
         throw new Error('La fecha de fin debe ser posterior a la fecha de inicio');
       }
       
+      const conGoseFinal = (typeof conGose === 'number' || typeof conGose === 'string')
+        ? Number(conGose) === 1 ? 1 : 0
+        : 1; // Si no viene, usa el default 1
+
       const [result] = await connection.execute(`
         UPDATE licencia SET
           id_trabajador = ?,
@@ -189,7 +199,8 @@ class LicenciasService {
           fecha_inicio = ?,
           fecha_fin = ?,
           motivo = ?,
-          estado = ?
+          estado = ?,
+          con_gose = ?
         WHERE id_licencia = ?
       `, [
         idTrabajador,
@@ -198,6 +209,7 @@ class LicenciasService {
         fechaFin,
         motivo || null,
         estado,
+        conGoseFinal, // <-- SIEMPRE envía 0 o 1
         idLicencia
       ]);
       

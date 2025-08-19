@@ -49,6 +49,41 @@ body {
 .button-exportar:hover{
     background-color: #e0e0e0;
 }
+.button-asistencia {
+  background-color: #ff9800;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 16px;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-left: 8px;
+  transition: background-color 0.2s;
+}
+.button-asistencia:hover {
+  background-color: #e67e22;
+}
+
+.btn-exportarexcel {
+  background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-left: 8px;
+  box-shadow: 0 2px 8px rgba(44, 62, 80, 0.08);
+  transition: background 0.2s, transform 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.btn-exportarexcel:hover {
+  background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+  transform: translateY(-2px) scale(1.04);
+}
 
 .trabajadores-filtros, .trabajadores-filtros * {
   box-sizing: border-box;
@@ -1693,4 +1728,158 @@ body {
     background: white;
     padding: 0;
   }
+}
+
+/* Modal de asistencia personalizado */
+.modal-asistencia-box {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 12px 40px rgba(44,62,80,0.18);
+  max-width: 400px;
+  width: 95vw;
+  padding: 32px 28px 24px 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  animation: fadeInDown 0.3s;
+}
+
+.modal-asistencia-box .modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.modal-asistencia-box h2 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 600;
+  color: #34495e;
+}
+
+.modal-asistencia-box .modal-close {
+  background: none;
+  border: none;
+  color: #34495e;
+  font-size: 28px;
+  cursor: pointer;
+  padding: 0;
+  border-radius: 50%;
+  transition: background 0.2s;
+}
+
+.modal-asistencia-box .modal-close:hover {
+  background: #f2f2f2;
+}
+
+.modal-asistencia-box .modal-form {
+  margin-top: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.modal-asistencia-box .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.modal-asistencia-box label {
+  font-weight: 500;
+  color: #34495e;
+  font-size: 14px;
+}
+
+.modal-asistencia-box input[type="text"] {
+  background: #f8f9fa;
+  border: 1.5px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 15px;
+  color: #2c3e50;
+}
+
+.modal-asistencia-box input[type="time"] {
+  background: #f8f9fa;
+  border: 1.5px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 15px;
+  color: #2c3e50;
+  width: 140px;
+  letter-spacing: 2px;
+}
+
+.asistencia-btn-group {
+  display: flex;
+  gap: 16px;
+  margin-top: 6px;
+}
+
+.btn-entrada, .btn-salida {
+  flex: 1;
+  padding: 12px 0;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.btn-entrada {
+  background: linear-gradient(135deg, #27ae60 0%, #43cea2 100%);
+  color: white;
+}
+
+.btn-entrada:hover {
+  background: linear-gradient(135deg, #219150 0%, #2bc4ad 100%);
+  transform: translateY(-2px);
+}
+
+.btn-salida {
+  background: linear-gradient(135deg, #e74c3c 0%, #f7971e 100%);
+  color: white;
+}
+
+.btn-salida:hover {
+  background: linear-gradient(135deg, #c0392b 0%, #f7971e 100%);
+  transform: translateY(-2px);
+}
+
+/* Responsive para el modal de asistencia */
+@media (max-width: 600px) {
+  .modal-asistencia-box {
+    max-width: 98vw;
+    padding: 18px 8px 14px 8px;
+  }
+  .modal-asistencia-box h2 {
+    font-size: 18px;
+  }
+  .btn-entrada, .btn-salida {
+    font-size: 14px;
+    padding: 10px 0;
+  }
+}
+
+/* Estilos para la tabla de asistencia */
+.asistencia-tabla th, .asistencia-tabla td {
+  border: 1px solid #e0e0e0;
+  padding: 10px 8px;
+  text-align: center;
+  font-size: 15px;
+}
+.asistencia-tabla th {
+  background: #34495e;
+  color: #fff;
+  font-weight: 600;
+}
+.asistencia-tabla tbody tr:nth-child(even) td {
+  background: #f9f9f9;
+}
+.asistencia-tabla tbody tr td {
+  background: #fff;
 }

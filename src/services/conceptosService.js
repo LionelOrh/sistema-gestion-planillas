@@ -47,12 +47,12 @@ class ConceptosService {
           fecha_fin
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `, [
-        codigo || null,
-        nombre || null,
-        tipo || null,
-        tipoCalculo || null,
+        (codigo !== undefined && codigo !== null) ? codigo : '', // <-- nunca null
+        nombre || '',
+        tipo || '',
+        tipoCalculo || '',
         parseFloat(valor) || 0,
-        codigoContable || null,
+        codigoContable || '',
         esRemunerativo ? 1 : 0,
         activo !== false ? 1 : 0,
         fechaInicio || null,
@@ -249,12 +249,12 @@ class ConceptosService {
           fecha_actualizacion = CURRENT_TIMESTAMP
         WHERE id_concepto = ?
       `, [
-        codigo || null,
-        nombre || null,
-        tipo || null,
-        tipoCalculo || null,
+        (codigo !== undefined && codigo !== null) ? codigo : '', // <-- nunca null
+        nombre || '',
+        tipo || '',
+        tipoCalculo || '',
         parseFloat(valor) || 0,
-        codigoContable || null,
+        codigoContable || '',
         esRemunerativo ? 1 : 0,
         activo !== false ? 1 : 0,
         fechaInicio || null,

@@ -358,10 +358,8 @@ class LicenciasManager {
     async editarLicencia(idLicencia) {
         try {
             const resultado = await window.electronAPI.obtenerLicenciaPorId(idLicencia);
-            
             if (resultado.success) {
                 this.licenciaEnEdicion = resultado.licencia;
-                
                 document.getElementById('modalTitle').textContent = 'Editar Licencia';
                 
                 // Llenar formulario con validaciones
@@ -394,6 +392,12 @@ class LicenciasManager {
                 
                 if (textareaMotivo) {
                     textareaMotivo.value = this.licenciaEnEdicion.motivo || '';
+                }
+                
+                // Switch "Con goce de haber"
+                const switchConGose = document.getElementById('switchConGose');
+                if (switchConGose) {
+                    switchConGose.checked = resultado.licencia.con_gose == 1;
                 }
                 
                 // Calcular días después de establecer las fechas
@@ -472,23 +476,39 @@ class LicenciasManager {
         }
     }
     
+    procesarDatosFormularioLicencia(formData) {
+        const data = Object.fromEntries(formData);
+
+        // Mapeo de campos
+        const licenciaData = {
+            idTrabajador: parseInt(data['idTrabajador']) || null,
+            idTipoLicencia: parseInt(data['idTipoLicencia']) || null,
+            fechaInicio: data['fechaInicio'] || null,
+            fechaFin: data['fechaFin'] || null,
+            motivo: data['motivo']?.trim() || null,
+            estado: data['estado'] || 'PENDIENTE',
+            dias: parseInt(data['dias']) || null,
+            // Switch "Con goce de haber"
+            conGose: data['conGose'] === '1' || data['conGose'] === 'on' ? 1 : 0
+        };
+
+        // Si el checkbox no está en FormData, buscar el input manualmente
+        if (!('conGose' in data)) {
+            const switchConGose = document.getElementById('switchConGose');
+            licenciaData.conGose = switchConGose && switchConGose.checked ? 1 : 0;
+        }
+
+        return licenciaData;
+    }
+    
     async guardarLicencia() {
         try {
             const form = document.getElementById('formLicencia');
             const formData = new FormData(form);
-            
-            const datosLicencia = {
-                idTrabajador: parseInt(formData.get('idTrabajador')),
-                idTipoLicencia: parseInt(formData.get('idTipoLicencia')),
-                fechaInicio: formData.get('fechaInicio'),
-                fechaFin: formData.get('fechaFin'),
-                motivo: formData.get('motivo'),
-                estado: formData.get('estado')
-            };
-            
+            const datosLicencia = this.procesarDatosFormularioLicencia(formData);
+
             console.log('[LicenciasManager] Datos a guardar:', datosLicencia);
-            console.log('[LicenciasManager] Licencia en edición:', this.licenciaEnEdicion);
-            
+
             // Validaciones
             if (!datosLicencia.idTrabajador || isNaN(datosLicencia.idTrabajador)) {
                 this.mostrarError('Debe seleccionar un empleado');
@@ -511,20 +531,15 @@ class LicenciasManager {
             }
             
             let resultado;
-            
             if (this.licenciaEnEdicion && this.licenciaEnEdicion.id_licencia) {
-                // Actualizar licencia existente
-                console.log('[LicenciasManager] Actualizando licencia ID:', this.licenciaEnEdicion.id_licencia);
                 resultado = await window.electronAPI.actualizarLicencia(
-                    this.licenciaEnEdicion.id_licencia, 
+                    this.licenciaEnEdicion.id_licencia,
                     datosLicencia
                 );
             } else {
-                // Crear nueva licencia
-                console.log('[LicenciasManager] Creando nueva licencia');
                 resultado = await window.electronAPI.crearLicencia(datosLicencia);
             }
-            
+
             if (resultado.success) {
                 this.mostrarExito(resultado.message);
                 this.cerrarModalLicencia();
@@ -754,3 +769,4 @@ if (document.readyState === 'loading') {
 } else {
     licenciasManager = new LicenciasManager();
 }
+

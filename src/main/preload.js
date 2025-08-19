@@ -80,7 +80,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
   
   // Crear licencia
   crearLicencia: (datosLicencia) => ipcRenderer.invoke('crear-licencia', datosLicencia),
-  
   // Actualizar licencia
   actualizarLicencia: (idLicencia, datosLicencia) => ipcRenderer.invoke('actualizar-licencia', idLicencia, datosLicencia),
   
@@ -95,6 +94,25 @@ contextBridge.exposeInMainWorld('electronAPI', {
   
   // Obtener estadísticas de licencias
   obtenerEstadisticasLicencias: () => ipcRenderer.invoke('obtener-estadisticas-licencias'),
+
+  // ============================================
+  // API PARA UTILIDADES
+  // ============================================
+  
+  // Obtener trabajadores para cálculo de utilidades
+  getTrabajadores: () => ipcRenderer.invoke('obtener-trabajadores-utilidades'),
+  
+  // Obtener trabajadores elegibles para un año específico
+  obtenerTrabajadoresElegibles: (año) => ipcRenderer.invoke('obtener-trabajadores-elegibles', año),
+  
+  // Calcular utilidades
+  calcularUtilidades: (parametros) => ipcRenderer.invoke('calcular-utilidades', parametros),
+  
+  // Exportar utilidades a Excel
+  exportarUtilidadesExcel: (datosUtilidades) => ipcRenderer.invoke('exportar-utilidades-excel', datosUtilidades),
+  
+  // Exportar utilidades a PDF
+  exportarUtilidadesPDF: (datosUtilidades) => ipcRenderer.invoke('exportar-utilidades-pdf', datosUtilidades),
 
   // Función para generar constancia de trabajo en PDF
   generarConstanciaPDF: (datosConstancia) => ipcRenderer.invoke('generar-constancia-pdf', datosConstancia),

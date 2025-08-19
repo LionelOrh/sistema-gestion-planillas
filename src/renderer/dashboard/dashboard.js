@@ -150,6 +150,36 @@ document.addEventListener('DOMContentLoaded', () => {
 						new window.LicenciasManager();
 					}
 				}
+			} else if (section === 'utilidades') {
+				// Cargar la vista de utilidades y su CSS
+				const res = await fetch('utilidades/utilidades.html');
+				const html = await res.text();
+				main.innerHTML = html;
+
+				// Cargar CSS solo si no está ya cargado
+				if (!document.getElementById('utilidades-css')) {
+					const link = document.createElement('link');
+					link.rel = 'stylesheet';
+					link.href = 'utilidades/utilidades.css';
+					link.id = 'utilidades-css';
+					document.head.appendChild(link);
+				}
+
+				// Elimina el script previo si existe para forzar recarga
+				const prevScript = document.getElementById('utilidades-script');
+				if (prevScript) prevScript.remove();
+
+				// Cargar y ejecutar el script de utilidades SIEMPRE
+				const script = document.createElement('script');
+				script.src = 'utilidades/utilidades.js';
+				script.id = 'utilidades-script';
+				script.onload = () => {
+					// Expón la clase en window para reinicialización manual si es necesario
+					if (window.UtilidadesManager) {
+						new window.UtilidadesManager();
+					}
+				};
+				document.head.appendChild(script);
 			} else {
 				main.innerHTML = `<h1>${link.textContent}</h1><p>En construcción...</p>`;
 			}
