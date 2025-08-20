@@ -620,5 +620,3 @@ document.addEventListener('DOMContentLoaded', () => {
     window.utilidadesManager = new UtilidadesManager();
 });
 
-// Expón la clase para reinicialización manual desde dashboard.js
-window.UtilidadesManager = UtilidadesManager;

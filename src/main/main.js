@@ -112,6 +112,9 @@ app.whenReady().then(() => {
       throw error;
     }
   });
+  ipcMain.handle('obtener-boletas-por-planilla', async (event, idPlanilla) => {
+    return await planillasService.obtenerBoletasPorPlanilla(idPlanilla);
+  });
 
   // IPC handlers para trabajadores en planillas
   ipcMain.handle('obtener-trabajadores-planilla', async () => {
@@ -313,11 +316,11 @@ app.whenReady().then(() => {
   ipcMain.handle('get-trabajador-conceptos', async (event, idTrabajador, tipoConcepto = null) => {
     try {
       console.log(`[IPC] Obteniendo conceptos del trabajador ${idTrabajador}, tipo: ${tipoConcepto || 'todos'}`);
-      
+
       const resultado = await trabajadorConceptosService.obtenerConceptosPorTrabajador(idTrabajador, tipoConcepto);
-      
+
       console.log(`[IPC] Conceptos obtenidos para trabajador ${idTrabajador}:`, resultado.conceptos?.length || 0);
-      
+
       return resultado;
     } catch (error) {
       console.error('[IPC] Error en get-trabajador-conceptos:', error);
@@ -329,11 +332,11 @@ app.whenReady().then(() => {
   ipcMain.handle('get-trabajador-aportes', async (event, idTrabajador) => {
     try {
       console.log(`[IPC] Calculando aportes del trabajador ${idTrabajador}`);
-      
+
       const resultado = await trabajadorConceptosService.obtenerAportesTrabajador(idTrabajador);
-      
+
       console.log(`[IPC] Aportes calculados para trabajador ${idTrabajador}:`, resultado.aportes?.length || 0);
-      
+
       return resultado;
     } catch (error) {
       console.error('[IPC] Error en get-trabajador-aportes:', error);
@@ -345,11 +348,11 @@ app.whenReady().then(() => {
   ipcMain.handle('get-aportes-empleador', async (event, idTrabajador) => {
     try {
       console.log(`[IPC] Obteniendo aportes del empleador para trabajador ${idTrabajador}`);
-      
+
       const resultado = await trabajadorConceptosService.obtenerConceptosPorTrabajador(idTrabajador, 'aporte-empleador');
-      
+
       console.log(`[IPC] Aportes del empleador obtenidos para trabajador ${idTrabajador}:`, resultado.conceptos?.length || 0);
-      
+
       return resultado;
     } catch (error) {
       console.error('[IPC] Error en get-aportes-empleador:', error);
@@ -360,16 +363,16 @@ app.whenReady().then(() => {
   // ============================================
   // HANDLERS PARA PLANILLAS
   // ============================================
-  
+
   // Handler para crear nueva planilla
   ipcMain.handle('crear-planilla', async (event, planillaData) => {
     try {
       console.log('[IPC] Creando nueva planilla:', planillaData);
-      
+
       const resultado = await planillasService.crearPlanilla(planillaData);
-      
+
       console.log('[IPC] Planilla creada exitosamente:', resultado.id_planilla);
-      
+
       return resultado;
     } catch (error) {
       console.error('[IPC] Error creando planilla:', error);
@@ -381,11 +384,11 @@ app.whenReady().then(() => {
   ipcMain.handle('guardar-calculos-planilla', async (event, idPlanilla, datosCalculados) => {
     try {
       console.log(`[IPC] Guardando cálculos para planilla ${idPlanilla}`);
-      
+
       const resultado = await planillasService.guardarCalculosPlanilla(idPlanilla, datosCalculados);
-      
+
       console.log(`[IPC] Cálculos guardados exitosamente para planilla ${idPlanilla}`);
-      
+
       return resultado;
     } catch (error) {
       console.error('[IPC] Error guardando cálculos:', error);
@@ -397,11 +400,11 @@ app.whenReady().then(() => {
   ipcMain.handle('listar-planillas', async (event, filtros = {}) => {
     try {
       console.log('[IPC] Listando planillas con filtros:', filtros);
-      
+
       const resultado = await planillasService.listarPlanillas(filtros);
-      
+
       console.log(`[IPC] Planillas obtenidas: ${resultado.planillas?.length || 0}`);
-      
+
       return resultado;
     } catch (error) {
       console.error('[IPC] Error listando planillas:', error);
@@ -413,11 +416,11 @@ app.whenReady().then(() => {
   ipcMain.handle('obtener-estadisticas-planillas', async (event) => {
     try {
       console.log('[IPC] Obteniendo estadísticas de planillas');
-      
+
       const resultado = await planillasService.obtenerEstadisticas();
-      
+
       console.log('[IPC] Estadísticas obtenidas:', resultado.estadisticas);
-      
+
       return resultado;
     } catch (error) {
       console.error('[IPC] Error obteniendo estadísticas:', error);
@@ -429,11 +432,11 @@ app.whenReady().then(() => {
   ipcMain.handle('obtener-detalle-planilla', async (event, idPlanilla) => {
     try {
       console.log(`[IPC] Obteniendo detalle de planilla ${idPlanilla}`);
-      
+
       const resultado = await planillasService.obtenerDetallePlanilla(idPlanilla);
-      
+
       console.log(`[IPC] Detalle obtenido para planilla ${idPlanilla}`);
-      
+
       return resultado;
     } catch (error) {
       console.error('[IPC] Error obteniendo detalle:', error);
@@ -445,11 +448,11 @@ app.whenReady().then(() => {
   ipcMain.handle('actualizar-estado-planilla', async (event, idPlanilla, nuevoEstado) => {
     try {
       console.log(`[IPC] Actualizando estado de planilla ${idPlanilla} a ${nuevoEstado}`);
-      
+
       const resultado = await planillasService.actualizarEstadoPlanilla(idPlanilla, nuevoEstado);
-      
+
       console.log(`[IPC] Estado actualizado para planilla ${idPlanilla}`);
-      
+
       return resultado;
     } catch (error) {
       console.error('[IPC] Error actualizando estado:', error);
@@ -460,37 +463,37 @@ app.whenReady().then(() => {
   // ============================================
   // HANDLERS PARA PARAMETROS DEL SISTEMA
   // ============================================
-  
+
   // Handler para obtener RMV
   ipcMain.handle('obtener-rmv', async () => {
     try {
       console.log('[IPC] Obteniendo RMV del sistema');
-      
+
       const resultado = await parametrosService.obtenerRMV();
-      
+
       console.log('[IPC] RMV obtenido:', resultado);
-      
+
       return resultado;
     } catch (error) {
       console.error('[IPC] Error obteniendo RMV:', error);
-      return { 
-        success: true, 
-        valor: 1130.00, 
-        esRespaldo: true, 
-        mensaje: 'RMV de respaldo' 
+      return {
+        success: true,
+        valor: 1130.00,
+        esRespaldo: true,
+        mensaje: 'RMV de respaldo'
       };
     }
   });
-  
+
   // Handler para obtener parámetro por código
   ipcMain.handle('obtener-parametro', async (event, codigo) => {
     try {
       console.log(`[IPC] Obteniendo parámetro: ${codigo}`);
-      
+
       const resultado = await parametrosService.obtenerParametroPorCodigo(codigo);
-      
+
       console.log(`[IPC] Parámetro ${codigo} obtenido:`, resultado);
-      
+
       return resultado;
     } catch (error) {
       console.error('[IPC] Error obteniendo parámetro:', error);
@@ -514,7 +517,7 @@ app.whenReady().then(() => {
   // ============================================
   // HANDLERS PARA LICENCIAS
   // ============================================
-  
+
   // Obtener todas las licencias
   ipcMain.handle('obtener-licencias', async (event, filtros = {}) => {
     try {
@@ -651,7 +654,7 @@ app.whenReady().then(() => {
   ipcMain.handle('calcular-utilidades', async (event, parametros) => {
     try {
       console.log('[IPC] Calculando utilidades con parámetros:', parametros);
-      
+
       // Validar parámetros
       const errores = utilidadesService.validarParametrosCalculo(parametros);
       if (errores.length > 0) {
@@ -664,7 +667,7 @@ app.whenReady().then(() => {
         montoTotal: resultado.totales.montoTotal,
         totalDistribuido: resultado.totales.totalDistribuido
       });
-      
+
       return resultado;
     } catch (error) {
       console.error('[IPC] Error calculando utilidades:', error);
@@ -676,7 +679,7 @@ app.whenReady().then(() => {
   ipcMain.handle('exportar-utilidades-excel', async (event, datosUtilidades) => {
     try {
       console.log('[IPC] Exportando utilidades a Excel');
-      
+
       // Mostrar diálogo para seleccionar ubicación
       const result = await dialog.showSaveDialog({
         title: 'Exportar Utilidades a Excel',
@@ -693,11 +696,11 @@ app.whenReady().then(() => {
       // Aquí se implementaría la lógica de exportación a Excel
       // Por ahora solo simularemos la exportación
       console.log(`[IPC] Archivo Excel guardado en: ${result.filePath}`);
-      
-      return { 
-        success: true, 
+
+      return {
+        success: true,
         filePath: result.filePath,
-        message: 'Archivo Excel exportado exitosamente' 
+        message: 'Archivo Excel exportado exitosamente'
       };
 
     } catch (error) {
@@ -710,7 +713,7 @@ app.whenReady().then(() => {
   ipcMain.handle('exportar-utilidades-pdf', async (event, datosUtilidades) => {
     try {
       console.log('[IPC] Exportando utilidades a PDF');
-      
+
       // Mostrar diálogo para seleccionar ubicación
       const result = await dialog.showSaveDialog({
         title: 'Exportar Utilidades a PDF',
@@ -727,11 +730,11 @@ app.whenReady().then(() => {
       // Aquí se implementaría la lógica de exportación a PDF
       // Por ahora solo simularemos la exportación
       console.log(`[IPC] Archivo PDF guardado en: ${result.filePath}`);
-      
-      return { 
-        success: true, 
+
+      return {
+        success: true,
         filePath: result.filePath,
-        message: 'Archivo PDF exportado exitosamente' 
+        message: 'Archivo PDF exportado exitosamente'
       };
 
     } catch (error) {
