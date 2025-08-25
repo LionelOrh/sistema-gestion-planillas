@@ -2,6 +2,69 @@
 document.addEventListener('DOMContentLoaded', () => {
 	const main = document.getElementById('dashboardMain');
 	const links = document.querySelectorAll('.sidebar-link');
+	/**
+ * Elimina los estilos CSS de todos los módulos excepto el que se va a cargar
+ * @param {string} idCssActual - El id del CSS que se va a cargar (ej: 'planillas-css')
+ */
+	function renderDashboard() {
+		return `
+      <div class="dashboard-welcome">
+        <div class="dashboard-header">
+          <img src="../../assent/LOGO TIC-TECHNOLOGIES 1 (1).svg" alt="Logo TIC-TECHNOLOGIES" class="dashboard-logo">
+          <div>
+            <h1>Bienvenido a TIC-TECHNOLOGIES</h1>
+            <p>
+              Sistema de Gestión de Planillas desarrollado por <strong>TIC-TECHNOLOGIES</strong> para facilitar la
+              administración de tu empresa.<br>
+              Gestiona trabajadores, conceptos, planillas, licencias y más desde un solo lugar, de forma segura y
+              eficiente.
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="dashboard-cards">
+        <div class="dashboard-card">
+          <div class="dashboard-card-icon">&#128188;</div>
+          <h3>Trabajadores</h3>
+          <p>Registra y administra la información de tus empleados de manera centralizada.</p>
+        </div>
+        <div class="dashboard-card">
+          <div class="dashboard-card-icon">&#128179;</div>
+          <h3>Planillas</h3>
+          <p>Genera y consulta planillas de pago de forma rápida y sencilla.</p>
+        </div>
+        <div class="dashboard-card">
+          <div class="dashboard-card-icon">&#128197;</div>
+          <h3>Licencias</h3>
+          <p>Gestiona permisos y licencias de tus trabajadores con control total.</p>
+        </div>
+        <div class="dashboard-card">
+          <div class="dashboard-card-icon">&#127942;</div>
+          <h3>Utilidades</h3>
+          <p>Calcula utilidades y gratificaciones automáticamente y sin errores.</p>
+        </div>
+      </div>
+    `;
+	}
+	main.innerHTML = renderDashboard();
+
+	function limpiarCssModulos(idCssActual) {
+		const idsCss = [
+			'utilidades-css',
+			'planillas-css',
+			'trabajadores-css',
+			'conceptos-css',
+			'sistema-pensiones-css',
+			'licencias-css',
+			'gratificaciones-css'
+		];
+		idsCss.forEach(id => {
+			if (id !== idCssActual) {
+				const link = document.getElementById(id);
+				if (link) link.remove();
+			}
+		});
+	}
 
 	links.forEach(link => {
 		link.addEventListener('click', async (e) => {
@@ -11,11 +74,9 @@ document.addEventListener('DOMContentLoaded', () => {
 			const section = link.getAttribute('data-section');
 
 			if (section === 'dashboard') {
-				main.innerHTML = `
-					<h1>Bienvenido al Dashboard</h1>
-					<p>Panel principal del sistema de planillas</p>
-				`;
+				main.innerHTML = renderDashboard();
 			} else if (section === 'trabajadores') {
+				limpiarCssModulos('trabajadores-css');
 				// Cargar la vista de trabajadores y su CSS
 				const res = await fetch('trabajadores/trabajadores.html');
 				const html = await res.text();
@@ -43,6 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
 					}
 				}
 			} else if (section === 'conceptos') {
+				limpiarCssModulos('conceptos-css');
 				// Cargar la vista de conceptos y su CSS
 				const res = await fetch('conceptos/conceptos.html');
 				const html = await res.text();
@@ -70,6 +132,7 @@ document.addEventListener('DOMContentLoaded', () => {
 					}
 				}
 			} else if (section === 'sistema-pensiones') {
+				limpiarCssModulos('sistema-pensiones-css');
 				// Cargar la vista de sistema de pensiones
 				const res = await fetch('sistema-pensiones/sistema-pensiones.html');
 				const html = await res.text();
@@ -97,6 +160,7 @@ document.addEventListener('DOMContentLoaded', () => {
 					}
 				}
 			} else if (section === 'planillas') {
+				limpiarCssModulos('planillas-css');
 				// Cargar la vista de planillas y su CSS
 				const res = await fetch('planillas/planillas.html');
 				const html = await res.text();
@@ -124,11 +188,12 @@ document.addEventListener('DOMContentLoaded', () => {
 					}
 				}
 			} else if (section === 'licencias') {
+				limpiarCssModulos('licencias-css');
 				// Cargar la vista de licencias y su CSS
 				const res = await fetch('licencias/licencias.html');
 				const html = await res.text();
 				main.innerHTML = html;
-				
+
 				// Cargar CSS solo si no está ya cargado
 				if (!document.getElementById('licencias-css')) {
 					const link = document.createElement('link');
@@ -137,7 +202,7 @@ document.addEventListener('DOMContentLoaded', () => {
 					link.id = 'licencias-css';
 					document.head.appendChild(link);
 				}
-				
+
 				// Cargar y ejecutar el script de licencias
 				if (!document.getElementById('licencias-script')) {
 					const script = document.createElement('script');
@@ -151,6 +216,7 @@ document.addEventListener('DOMContentLoaded', () => {
 					}
 				}
 			} else if (section === 'utilidades') {
+				limpiarCssModulos('utilidades-css');
 				// Cargar la vista de utilidades y su CSS
 				const res = await fetch('utilidades/utilidades.html');
 				const html = await res.text();
@@ -183,6 +249,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 				// ...existing code...
 			} else if (section === 'gratificaciones') {
+				limpiarCssModulos('gratificaciones-css');
 				// Cargar la vista de gratificaciones y su CSS
 				const res = await fetch('gratificaciones/gratificaciones.html');
 				const html = await res.text();

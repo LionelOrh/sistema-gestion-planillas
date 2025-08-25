@@ -131,18 +131,6 @@ async function crearTrabajador(datosFormulario) {
     
   } catch (err) {
     console.error('Error al crear trabajador:', err);
-    
-    // Manejar errores específicos
-    if (err.code === 'ER_DUP_ENTRY') {
-      if (err.sqlMessage.includes('numero_documento')) {
-        throw new Error('El número de documento ya existe');
-      }
-      if (err.sqlMessage.includes('codigo')) {
-        throw new Error('El código de trabajador ya existe');
-      }
-    }
-    
-    throw new Error('Error al crear el trabajador: ' + err.message);
   }
 }
 
@@ -208,10 +196,20 @@ async function obtenerTrabajadorPorId(id) {
   }
 }
 
+// ...existing code...
 async function actualizarTrabajador(id, datosFormulario) {
   try {
     console.log('Actualizando trabajador ID:', id, 'con datos:', datosFormulario);
-    
+
+    // Verificar si el número de documento ya existe en otro trabajador
+    const [existeDocumento] = await pool.query(
+      'SELECT id_trabajador FROM trabajadores WHERE numero_documento = ? AND id_trabajador != ?',
+      [datosFormulario.numeroDocumento, id]
+    );
+    if (existeDocumento.length > 0) {
+      throw new Error('El número de documento ya existe');
+    }
+
     const query = `
       UPDATE trabajadores SET
         nombres = ?,
@@ -278,8 +276,8 @@ async function actualizarTrabajador(id, datosFormulario) {
       datosFormulario.cci || null,
       datosFormulario.sistemaPension ? parseInt(datosFormulario.sistemaPension) : null,
       datosFormulario.numeroAfiliacion || null,
-      datosFormulario.asignacionFamiliar === 'on' ? 1 : 0, // Convertir checkbox a booleano
-      parseInt(datosFormulario.cantidadHijos) || 0, // Asegurar que sea número
+      datosFormulario.asignacionFamiliar === 'on' ? 1 : 0,
+      parseInt(datosFormulario.cantidadHijos) || 0,
       id
     ];
     
@@ -289,15 +287,13 @@ async function actualizarTrabajador(id, datosFormulario) {
       throw new Error('Trabajador no encontrado');
     }
 
-    // **Gestión de Asignación Familiar en actualización**
+    // Gestión de Asignación Familiar en actualización
     const tieneAsignacion = datosFormulario.asignacionFamiliar === 'on';
     const cantidadHijos = parseInt(datosFormulario.cantidadHijos) || 0;
     
     if (tieneAsignacion && cantidadHijos > 0) {
-      // Asignar asignación familiar si no la tiene
       await asignarAsignacionFamiliar(id);
     } else {
-      // Remover asignación familiar si no cumple condiciones
       await removerAsignacionFamiliar(id);
     }
     
@@ -310,18 +306,15 @@ async function actualizarTrabajador(id, datosFormulario) {
     
   } catch (err) {
     console.error('Error al actualizar trabajador:', err);
-    
-    // Manejar errores específicos
     if (err.code === 'ER_DUP_ENTRY') {
       if (err.sqlMessage.includes('numero_documento')) {
         throw new Error('El número de documento ya existe');
       }
     }
-    
     throw new Error('Error al actualizar el trabajador: ' + err.message);
   }
 }
-
+// ...existing code...
 async function obtenerSiguienteCodigo() {
   try {
     const [rows] = await pool.query(

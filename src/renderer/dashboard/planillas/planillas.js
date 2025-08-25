@@ -618,15 +618,15 @@
                     <span class="badge badge-estado badge-${planilla.estado}">${obtenerTextoEstado(planilla.estado)}</span>
                 </td>
                 <td>
-    <div class="acciones-grupo">
-        ${planilla.estado === 'borrador' ? `
+                    <div class="acciones-grupo">
+                        ${planilla.estado === 'borrador' ? `
             <button class="btn-accion btn-calcular" onclick="abrirCalculadoraPlanilla(${planilla.id})" title="Calcular">
                 ...
             </button>
         ` : ''}
         ${planilla.estado !== 'borrador' ? `
             <button class="btn-accion btn-ver" onclick="verDetallePlanilla(${planilla.id})" title="Ver detalle">
-                ...
+                👁️
             </button>
             <button class="btn-accion btn-boletas" onclick="abrirListaBoletas(${planilla.id})" title="Boletas">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
@@ -638,8 +638,8 @@
         <button class="btn-accion btn-menu" onclick="mostrarMenuPlanilla(${planilla.id})" title="Más opciones">
             ...
         </button>
-    </div>
-</td>
+                    </div>
+                </td>
             </tr>
         `).join('');
 
@@ -2578,6 +2578,41 @@
     window.cerrarModalDetalle = cerrarModalDetalle;
     window.cerrarModalCalculadora = cerrarModalCalculadora;
     window.mostrarMensajeTemporalInfo = mostrarMensajeTemporalInfo;
+    // Reasignar listeners de cierre de modales de boletas
+    setTimeout(() => {
+        const btnCerrarBoleta = document.getElementById('btnCerrarBoleta');
+        if (btnCerrarBoleta) {
+            btnCerrarBoleta.onclick = function () {
+                document.getElementById('modalBoletaTrabajador').style.display = 'none';
+                document.body.style.overflow = '';
+            };
+        }
+        const modalBoletaTrabajador = document.getElementById('modalBoletaTrabajador');
+        if (modalBoletaTrabajador) {
+            modalBoletaTrabajador.onclick = function (e) {
+                if (e.target === modalBoletaTrabajador) {
+                    modalBoletaTrabajador.style.display = 'none';
+                    document.body.style.overflow = '';
+                }
+            };
+        }
+        const btnCerrarListaBoletas = document.getElementById('btnCerrarListaBoletas');
+        if (btnCerrarListaBoletas) {
+            btnCerrarListaBoletas.onclick = function () {
+                document.getElementById('modalListaBoletas').style.display = 'none';
+                document.body.style.overflow = '';
+            };
+        }
+        const modalListaBoletas = document.getElementById('modalListaBoletas');
+        if (modalListaBoletas) {
+            modalListaBoletas.onclick = function (e) {
+                if (e.target === modalListaBoletas) {
+                    modalListaBoletas.style.display = 'none';
+                    document.body.style.overflow = '';
+                }
+            };
+        }
+    }, 200);
 
 })();
 
@@ -2676,7 +2711,7 @@ function calcularNetoTrabajador(trabajadorId, conceptosIngresos, aportesTrabajad
             totalIngresos: totalIngresosRemunerativos || 0,
             totalDescuentos: totalDescuentos || 0,
             totalAportes: totalAportesRecalculados || 0,
-            netoAPagar: neto || 0
+            neto: neto || 0
         };
     } catch (error) {
         console.error('[PlanillasManager] Error calculando neto del trabajador:', error);
@@ -4070,32 +4105,33 @@ function configurarFiltrosPlanillas() {
     } catch (error) {
         console.error('[PlanillasManager] Error configurando filtros:', error);
     }
-}
-window.abrirListaBoletas = async function (idPlanilla) {
-    // Mostrar modal de lista de boletas
-    document.getElementById('modalListaBoletas').style.display = 'flex';
-    document.body.style.overflow = 'hidden';
 
-    // Limpiar contenido previo
-    const tabla = document.getElementById('tablaBoletasTrabajadores');
-    tabla.innerHTML = '<div style="padding:20px; text-align:center;">Cargando trabajadores...</div>';
 
-    // Obtener boletas de la planilla y sus trabajadores
-    let resultado;
-    try {
-        resultado = await window.electronAPI.obtenerBoletasPorPlanilla(idPlanilla);
-    } catch (err) {
-        tabla.innerHTML = '<div style="color:red; padding:20px;">Error al cargar trabajadores</div>';
-        return;
-    }
+    window.abrirListaBoletas = async function (idPlanilla) {
+        // Mostrar modal de lista de boletas
+        document.getElementById('modalListaBoletas').style.display = 'flex';
+        document.body.style.overflow = 'hidden';
 
-    if (!resultado || !resultado.trabajadores || resultado.trabajadores.length === 0) {
-        tabla.innerHTML = '<div style="padding:20px; color:#666;">No hay trabajadores en esta planilla</div>';
-        return;
-    }
+        // Limpiar contenido previo
+        const tabla = document.getElementById('tablaBoletasTrabajadores');
+        tabla.innerHTML = '<div style="padding:20px; text-align:center;">Cargando trabajadores...</div>';
 
-    // Renderizar tabla de trabajadores
-    tabla.innerHTML = `
+        // Obtener boletas de la planilla y sus trabajadores
+        let resultado;
+        try {
+            resultado = await window.electronAPI.obtenerBoletasPorPlanilla(idPlanilla);
+        } catch (err) {
+            tabla.innerHTML = '<div style="color:red; padding:20px;">Error al cargar trabajadores</div>';
+            return;
+        }
+
+        if (!resultado || !resultado.trabajadores || resultado.trabajadores.length === 0) {
+            tabla.innerHTML = '<div style="padding:20px; color:#666;">No hay trabajadores en esta planilla</div>';
+            return;
+        }
+
+        // Renderizar tabla de trabajadores
+        tabla.innerHTML = `
         <table style="width:100%; border-collapse:collapse;">
             <thead>
                 <tr style="background:#f5f5f5;">
@@ -4118,90 +4154,175 @@ window.abrirListaBoletas = async function (idPlanilla) {
                                 onclick="verBoletaTrabajadorPlanilla(${trab.id_planilla_trabajador})">Ver Boleta</button>
                         </td>
                     </tr>
-                `).join('')} 
+                `).join('')}
             </tbody>
         </table>
     `;
 
-    // Guardar los datos para uso en el modal de boleta
-    window._boletasTrabajadoresData = resultado.trabajadores;
-};
+        // Guardar los datos para uso en el modal de boleta
+        window._boletasTrabajadoresData = resultado.trabajadores;
+    };
 
-// Cerrar modal de lista de boletas
-document.getElementById('btnCerrarListaBoletas').onclick = function () {
-    document.getElementById('modalListaBoletas').style.display = 'none';
-    document.body.style.overflow = '';
-};
-document.getElementById('modalListaBoletas').onclick = function (e) {
-    if (e.target === this) {
-        this.style.display = 'none';
+    // Cerrar modal de lista de boletas
+    document.getElementById('btnCerrarListaBoletas').onclick = function () {
+        document.getElementById('modalListaBoletas').style.display = 'none';
         document.body.style.overflow = '';
-    }
-};
-window.verBoletaTrabajadorPlanilla = function (idPlanillaTrabajador) {
-    const trabajadores = window._boletasTrabajadoresData || [];
-    const trabajador = trabajadores.find(t => t.id_planilla_trabajador === idPlanillaTrabajador);
-    if (!trabajador) return;
+    };
+    document.getElementById('modalListaBoletas').onclick = function (e) {
+        if (e.target === this) {
+            this.style.display = 'none';
+            document.body.style.overflow = '';
+        }
+    };
+    window.verBoletaTrabajadorPlanilla = function (idPlanillaTrabajador) {
+        const trabajadores = window._boletasTrabajadoresData || [];
+        const trabajador = trabajadores.find(t => t.id_planilla_trabajador === idPlanillaTrabajador);
+        if (!trabajador) return;
 
-    const conceptos = trabajador.conceptos || [];
+        const conceptos = trabajador.conceptos || [];
 
-    // Recalcular totales desde los conceptos
-    let totalDescuentos = 0, totalAportesTrabajador = 0, totalAportesEmpleador = 0;
-    conceptos.forEach(c => {
-        if (c.concepto_tipo === 'descuento') totalDescuentos += parseFloat(c.monto_calculado || 0);
-        if (c.concepto_tipo === 'aporte-trabajador' || c.concepto_tipo === 'aporte') totalAportesTrabajador += parseFloat(c.monto_calculado || 0);
-        if (c.concepto_tipo === 'aporte-empleador') totalAportesEmpleador += parseFloat(c.monto_calculado || 0);
-    });
+        // Separar conceptos por tipo
+        let ingresos = conceptos.filter(c => c.concepto_tipo === 'ingreso');
+        const descuentos = conceptos.filter(c => c.concepto_tipo === 'descuento');
+        const aportesTrabajador = conceptos.filter(c => c.concepto_tipo === 'aporte-trabajador' || c.concepto_tipo === 'aporte');
+        const aportesEmpleador = conceptos.filter(c => c.concepto_tipo === 'aporte-empleador');
 
-    // Usar los valores recalculados en la boleta
-    const html = `
-        <h2 style="margin-bottom:8px; color:#2196F3;">Boleta de Pago</h2>
-        <hr>
-        <div style="margin-bottom:12px;">
-            <strong>Trabajador:</strong> ${trabajador.trabajador_nombres} ${trabajador.trabajador_apellidos}<br>
-            <strong>Área:</strong> ${trabajador.trabajador_area}<br>
-            <strong>Cargo:</strong> ${trabajador.trabajador_cargo}<br>
-            <strong>Días laborados:</strong> ${trabajador.dias_laborados}<br>
-            <strong>Horas extras 25%:</strong> ${trabajador.horas_extras_25}<br>
-            <strong>Horas extras 35%:</strong> ${trabajador.horas_extras_35}<br>
-            <strong>Faltas:</strong> ${trabajador.faltas}
-        </div>
-        <div style="margin-bottom:12px;">
-            <strong>Ingresos:</strong> S/ ${parseFloat(trabajador.total_ingresos || 0).toLocaleString('es-PE', { minimumFractionDigits: 2 })}<br>
-            <strong>Descuentos:</strong> S/ ${totalDescuentos.toLocaleString('es-PE', { minimumFractionDigits: 2 })}<br>
-            <strong>Aportes Trabajador:</strong> S/ ${totalAportesTrabajador.toLocaleString('es-PE', { minimumFractionDigits: 2 })}<br>
-            <strong>Aportes Empleador:</strong> S/ ${totalAportesEmpleador.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
-        </div>
-        <div style="margin-bottom:12px;">
-            <strong>Neto a Pagar:</strong> <span style="color:#388e3c; font-size:18px;">S/ ${parseFloat(trabajador.neto_a_pagar || 0).toLocaleString('es-PE', { minimumFractionDigits: 2 })}</span>
-        </div>
-        <hr>
+        // *** AGREGAR SUELDO BASE COMO PRIMER INGRESO ***
+        ingresos = [
+            {
+                concepto_nombre: 'Sueldo Base',
+                monto_calculado: parseFloat(trabajador.sueldo_basico || 0)
+            },
+            ...ingresos
+        ];
+
+        // Sumar totales
+        const totalIngresos = ingresos.reduce((sum, c) => sum + (parseFloat(c.monto_calculado) || 0), 0);
+        const totalDescuentos = descuentos.reduce((sum, c) => sum + (parseFloat(c.monto_calculado) || 0), 0);
+        const totalAportesTrabajador = aportesTrabajador.reduce((sum, c) => sum + (parseFloat(c.monto_calculado) || 0), 0);
+        const totalAportesEmpleador = aportesEmpleador.reduce((sum, c) => sum + (parseFloat(c.monto_calculado) || 0), 0);
+
+        // Datos principales
+        const neto = parseFloat(trabajador.neto_a_pagar || 0);
+
+        // HTML mejorado tipo Excel Negocios
+        // ...dentro de verBoletaTrabajadorPlanilla...
+        const html = `
+<div class="boleta-formal-container">
+    <div class="boleta-header">
         <div>
-            <strong>Conceptos:</strong>
-            <ul style="padding-left:18px;">
-                ${conceptos.map(c => `
-                    <li>
-                        ${c.concepto_nombre} (${c.concepto_tipo}) 
-                        - S/ ${parseFloat(c.monto_calculado || 0).toLocaleString('es-PE', { minimumFractionDigits: 2 })}
-                    </li>
-                `).join('')}
-            </ul>
+            <h2>BOLETA DE PAGO</h2>
+            <div class="boleta-periodo">MES DE AGOSTO</div>
         </div>
-    `;
+    </div>
+    <hr>
+    <table class="boleta-datos-empresa">
+        <tr>
+            <td><strong>RUC:</strong>20610684727</td>
+            <td><strong>Razón Social:</strong>TIC-TECHNOLOGIES E.I.R.L</td>
+            <td><strong>Dirección:</strong> Av. Canadá 110 Of. 605 Urb. El Remanso - Callao, Callao.</td>
+        </tr>
+    </table>
+    <table class="boleta-datos-trabajador">
+        <tr>
+            <td><strong>Código:</strong> ${trabajador.trabajador_codigo || ''}</td>
+            <td><strong>Nombre:</strong> ${trabajador.trabajador_nombres} ${trabajador.trabajador_apellidos}</td>
+            <td><strong>DNI:</strong> ${trabajador.trabajador_dni || ''}</td>
+            <td><strong>Cargo:</strong> ${trabajador.trabajador_cargo || ''}</td>
+        </tr>
+        <tr>
+            <td><strong>Área:</strong> ${trabajador.trabajador_area || ''}</td>
+            <td><strong>Días Laborados:</strong> ${trabajador.dias_laborados}</td>
+            <td><strong>Horas Extras 25%:</strong> ${trabajador.horas_extras_25}</td>
+            <td><strong>Horas Extras 35%:</strong> ${trabajador.horas_extras_35}</td>
+        </tr>
+        <tr>
+            <td><strong>Faltas:</strong> ${trabajador.faltas}</td>
+            <td colspan="3"></td>
+        </tr>
+    </table>
+    <hr>
+    <div class="boleta-secciones">
+        <div class="boleta-col">
+            <h4>Remuneraciones</h4>
+            <table>
+                ${ingresos.map(c => `
+                    <tr>
+                        <td>${c.concepto_nombre}</td>
+                        <td class="boleta-monto">S/ ${parseFloat(c.monto_calculado || 0).toLocaleString('es-PE', { minimumFractionDigits: 2 })}</td>
+                    </tr>
+                `).join('')}
+                <tr class="boleta-total">
+                    <td>Total Remuneraciones</td>
+                    <td class="boleta-monto">S/ ${totalIngresos.toLocaleString('es-PE', { minimumFractionDigits: 2 })}</td>
+                </tr>
+            </table>
+        </div>
+        <div class="boleta-col">
+            <h4>Descuentos</h4>
+            <table>
+                ${descuentos.map(c => `
+                    <tr>
+                        <td>${c.concepto_nombre}</td>
+                        <td class="boleta-monto">S/ ${parseFloat(c.monto_calculado || 0).toLocaleString('es-PE', { minimumFractionDigits: 2 })}</td>
+                    </tr>
+                `).join('')}
+                <tr class="boleta-total">
+                    <td>Total Descuentos</td>
+                    <td class="boleta-monto">S/ ${totalDescuentos.toLocaleString('es-PE', { minimumFractionDigits: 2 })}</td>
+                </tr>
+            </table>
+            <h4>Aportes Trabajador</h4>
+            <table>
+                ${aportesTrabajador.map(c => `
+                    <tr>
+                        <td>${c.concepto_nombre}</td>
+                        <td class="boleta-monto">S/ ${parseFloat(c.monto_calculado || 0).toLocaleString('es-PE', { minimumFractionDigits: 2 })}</td>
+                    </tr>
+                `).join('')}
+                <tr class="boleta-total">
+                    <td>Total Aportes Trabajador</td>
+                    <td class="boleta-monto">S/ ${totalAportesTrabajador.toLocaleString('es-PE', { minimumFractionDigits: 2 })}</td>
+                </tr>
+            </table>
+        </div>
+        <div class="boleta-col">
+            <h4>Aportes Empleador</h4>
+            <table>
+                ${aportesEmpleador.map(c => `
+                    <tr>
+                        <td>${c.concepto_nombre}</td>
+                        <td class="boleta-monto">S/ ${parseFloat(c.monto_calculado || 0).toLocaleString('es-PE', { minimumFractionDigits: 2 })}</td>
+                    </tr>
+                `).join('')}
+                <tr class="boleta-total">
+                    <td>Total Aportes Empleador</td>
+                    <td class="boleta-monto">S/ ${totalAportesEmpleador.toLocaleString('es-PE', { minimumFractionDigits: 2 })}</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <hr>
+    <div class="boleta-neto-final">
+        Neto a Pagar: <span>S/ ${neto.toLocaleString('es-PE', { minimumFractionDigits: 2 })}</span>
+    </div>
+</div>
+`;
 
-    document.getElementById('boletaContenido').innerHTML = html;
-    document.getElementById('modalBoletaTrabajador').style.display = 'flex';
-    document.body.style.overflow = 'hidden';
-};
+        document.getElementById('boletaContenido').innerHTML = html;
+        document.getElementById('modalBoletaTrabajador').style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    };
 
-// Cerrar modal de boleta
-document.getElementById('btnCerrarBoleta').onclick = function () {
-    document.getElementById('modalBoletaTrabajador').style.display = 'none';
-    document.body.style.overflow = '';
-};
-document.getElementById('modalBoletaTrabajador').onclick = function (e) {
-    if (e.target === this) {
-        this.style.display = 'none';
+    // Cerrar modal de boleta
+    document.getElementById('btnCerrarBoleta').onclick = function () {
+        document.getElementById('modalBoletaTrabajador').style.display = 'none';
         document.body.style.overflow = '';
-    }
-};
+    };
+    document.getElementById('modalBoletaTrabajador').onclick = function (e) {
+        if (e.target === this) {
+            this.style.display = 'none';
+            document.body.style.overflow = '';
+        }
+    };
+}

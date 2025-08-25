@@ -18,6 +18,8 @@ function createLoginWindow() {
   loginWindow = new BrowserWindow({
     width: 500,
     height: 600,
+    icon: path.join(__dirname, '../assent/logo.png'), // <-- aquí agregas el icono
+
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
@@ -38,6 +40,7 @@ function createDashboardWindow() {
     maximizable: true,
     minimizable: true,
     frame: true, // muestra los controles nativos de la ventana
+    icon: path.join(__dirname, '../assent/logo.png'), // <-- aquí agregas el icono
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
