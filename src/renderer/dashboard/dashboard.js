@@ -269,7 +269,17 @@ document.addEventListener('DOMContentLoaded', () => {
 					const script = document.createElement('script');
 					script.src = 'gratificaciones/gratificaciones.js';
 					script.id = 'gratificaciones-script';
+					script.onload = () => {
+						if (window.GratificacionesManager) {
+							new window.GratificacionesManager();
+						}
+					};
 					document.head.appendChild(script);
+				} else {
+					// Si el script ya está cargado, reinicializar manualmente
+					if (window.GratificacionesManager) {
+						new window.GratificacionesManager();
+					}
 				}
 			} else {
 				main.innerHTML = `<h1>${link.textContent}</h1><p>En construcción...</p>`;

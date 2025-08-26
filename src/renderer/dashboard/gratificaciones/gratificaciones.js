@@ -1,213 +1,226 @@
+class GratificacionesManager {
+    constructor() {
+        this.init();
+    }
 
-// Variables globales
-let trabajadorActual = null;
-let conceptos = [];
+    async init() {
+        // Inicializa solo si el modo individual está visible
+        const individualContent = document.getElementById('mode-individual-content');
+        if (individualContent && !individualContent.classList.contains('hidden')) {
+            await this.cargarTrabajadoresEnSelect();
+        }
 
-document.addEventListener('DOMContentLoaded', function () {
-    inicializarFechas();
-    configurarEventos();
-    cargarTrabajadores();
-// hola lio
-    const regimenSelect = document.getElementById('regimen');
-    const codigoInput = document.getElementById('regimen-codigo');
-    const nombreInput = document.getElementById('regimen-nombre');
+        const semesterSelect = document.getElementById('semester-select');
+        const yearSelect = document.getElementById('year-select');
+        const employeeSelect = document.getElementById('employee-select');
 
-    function actualizarRegimenInputs() {
-        if (regimenSelect && codigoInput && nombreInput) {
-            const valor = regimenSelect.value;
-            const nombre = regimenSelect.selectedOptions[0].dataset.nombre || '';
-            codigoInput.value = valor;
-            nombreInput.value = nombre;
+        const actualizarDatos = () => {
+            const id = employeeSelect ? employeeSelect.value : '';
+            if (id) this.mostrarDatosTrabajador(id);
+        };
+
+        if (semesterSelect) semesterSelect.addEventListener('change', actualizarDatos);
+        if (yearSelect) yearSelect.addEventListener('change', actualizarDatos);
+
+        // Listener para cambio de trabajador
+        if (employeeSelect) {
+            employeeSelect.addEventListener('change', (e) => {
+                const id = e.target.value;
+                this.mostrarDatosTrabajador(id);
+            });
+        }
+
+        // Listeners para tabs y modalidad
+        document.addEventListener('click', async (e) => {
+            // Tabs
+            if (e.target.classList.contains('tab-trigger')) {
+                const tabTriggers = document.querySelectorAll('.tab-trigger');
+                const tabContents = document.querySelectorAll('.tab-content');
+                tabTriggers.forEach(t => t.classList.remove('active'));
+                tabContents.forEach(c => c.classList.add('hidden'));
+
+                e.target.classList.add('active');
+                const tabId = e.target.getAttribute('data-tab');
+                const tabContent = document.getElementById(tabId);
+                if (tabContent) tabContent.classList.remove('hidden');
+            }
+
+            const select = document.getElementById('employee-select');
+            if (select) {
+                select.addEventListener('change', (e) => {
+                    const id = e.target.value;
+                    this.mostrarDatosTrabajador(id);
+                });
+            }
+
+
+
+            // Modalidad de cálculo
+            if (e.target.closest('.mode-card')) {
+                const selectedCard = e.target.closest('.mode-card');
+                const mode = selectedCard.getAttribute('data-mode');
+                const allCards = document.querySelectorAll('.mode-card');
+                const allContents = document.querySelectorAll('.mode-content');
+                allCards.forEach(card => card.classList.remove('active'));
+                selectedCard.classList.add('active');
+                allContents.forEach(content => content.classList.add('hidden'));
+                const contentToShow = document.getElementById('mode-' + mode + '-content');
+                if (contentToShow) {
+                    contentToShow.classList.remove('hidden');
+                    // Solo cargar trabajadores si es individual
+                    // ...dentro del listener de modalidad...
+                    if (mode === 'individual' || mode === 'massive') {
+                        await this.cargarTrabajadoresEnSelect();
+                    }
+                }
+            }
+        });
+    }
+    calcularMesesDias(fechaIngreso, fechaCorte, semestre) {
+        // Determina el inicio del semestre
+        const anio = fechaCorte.slice(0, 4);
+        let inicioSemestre;
+        let finSemestre;
+        if (semestre === '1') {
+            // Julio: semestre de enero a junio
+            inicioSemestre = `${anio}-01-01`;
+            finSemestre = `${anio}-06-30`;
+        } else {
+            // Diciembre: semestre de julio a diciembre
+            inicioSemestre = `${anio}-07-01`;
+            finSemestre = `${anio}-12-31`;
+        }
+
+        // Fecha real de inicio para el cálculo
+        const inicio = new Date(Math.max(new Date(fechaIngreso), new Date(inicioSemestre)));
+        // La fecha de corte nunca puede ser después del fin del semestre
+        const corte = new Date(fechaCorte) > new Date(finSemestre) ? new Date(finSemestre) : new Date(fechaCorte);
+
+        // Si la fecha de ingreso es después de la fecha de corte, no hay gratificación
+        if (inicio > corte) return { meses: 0, dias: 0 };
+
+        // Sumar 1 día para incluir el último día del semestre
+        const corteIncluido = new Date(corte);
+        corteIncluido.setDate(corteIncluido.getDate() + 1);
+
+        // Diferencia total en días
+        const diffTime = corteIncluido - inicio;
+        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+        // Calcula meses completos y días adicionales
+        const meses = Math.floor(diffDays / 30);
+        const dias = diffDays % 30;
+
+        return { meses, dias };
+    }
+
+    obtenerFechaCorteReal() {
+        const semestre = document.getElementById('semester-select').value;
+        const anio = document.getElementById('year-select').value;
+        let fechaCorte;
+        if (semestre === '1') {
+            fechaCorte = `${anio}-06-30`;
+        } else {
+            fechaCorte = `${anio}-12-31`;
+        }
+        const hoy = new Date();
+        const corte = new Date(fechaCorte);
+        // Usa la menor entre la fecha de corte y hoy
+        return hoy < corte ? hoy : corte;
+    }
+
+
+    async mostrarDatosTrabajador(id) {
+        const datosRow = document.getElementById('datos-trabajador-row');
+        datosRow.innerHTML = '';
+        if (!id) return;
+        try {
+            const trabajador = await window.electronAPI.obtenerTrabajadorPorId(id);
+            if (trabajador) {
+                // Obtén la fecha de corte del select
+                const fechaCorteReal = this.obtenerFechaCorteReal();
+                const semestre = document.getElementById('semester-select').value;
+                const { meses, dias } = this.calcularMesesDias(trabajador.fecha_ingreso, fechaCorteReal.toISOString().slice(0, 10), semestre);
+                // Obtén sueldo base
+                const sueldoBase = parseFloat(trabajador.sueldo) || 0;
+
+                // Calcula gratificación proporcional
+                const gratificacion = sueldoBase * ((meses + (dias / 30)) / 6);
+                datosRow.innerHTML = `
+        <div class="datos-row">
+            <span><strong>Trabajador:</strong> ${trabajador.nombres} ${trabajador.apellidos}</span>
+            <span><strong>Área:</strong> ${trabajador.area || '-'}</span>
+            <span><strong>Sueldo base:</strong> S/ ${trabajador.sueldo || '-'}</span>
+        </div>
+        <div class="parametros-calculo">
+            <h4>Parámetros de Cálculo</h4>
+            <div class="parametros-row">
+                <input type="text" placeholder="Meses Completos" value="${meses}" readonly>
+                <input type="text" placeholder="Días Adicionales" value="${dias}" readonly>
+                <input type="text" placeholder="Otros Conceptos (S/)" >
+            </div>
+            <hr>
+            <div class="vista-previa-label">Vista Previa del Cálculo:</div>
+            <div class="vista-previa-row">
+                <div class="vista-card card-azul">
+                    <div class="vista-title">Gratificación Proporcional</div>
+                    <div class="vista-valor">S/ ${gratificacion.toFixed(2)}</div>
+
+                    <div class="vista-desc">Periodo: ${meses}m y ${dias}d</div>
+                </div>
+                <div class="vista-card card-verde">
+                    <div class="vista-title">Bonificación 9%</div>
+                    <div class="vista-valor">S/ ----</div>
+                    <div class="vista-desc">(9% sobre gratificación)</div>
+                </div>
+                <div class="vista-card card-morado">
+                    <div class="vista-title">Total Bruto</div>
+                    <div class="vista-valor">S/ ----</div>
+                    <div class="vista-desc">(antes de descuentos)</div>
+                </div>
+            </div>
+        </div>
+    `;
+            }
+        } catch (error) {
+            datosRow.innerHTML = '<span>Error al cargar datos</span>';
         }
     }
 
-    if (regimenSelect) {
-        regimenSelect.addEventListener('change', actualizarRegimenInputs);
-        // Inicializa al cargar
-        actualizarRegimenInputs();
-    }
-});
+    // ...dentro de la clase GratificacionesManager...
 
-function inicializarFechas() {
-    const hoy = new Date();
-    const fechaStr = hoy.toISOString().split('T')[0];
+    async cargarTrabajadoresEnSelect() {
 
-    document.getElementById('f-registro').value = fechaStr;
-    document.getElementById('f-ingreso').value = fechaStr;
-    document.getElementById('fecha-inicio').value = fechaStr;
-    document.getElementById('fecha-fin').value = fechaStr;
 
-    // Establecer fechas de creación y modificación
-    document.getElementById('creado').value = fechaStr + ' ' + hoy.toTimeString().slice(0, 8);
-    document.getElementById('modificado').value = fechaStr + ' ' + hoy.toTimeString().slice(0, 8);
-}
 
-function configurarEventos() {
-    // Eventos para cálculos automáticos
-    document.getElementById('rem-basica').addEventListener('input', calcularGratificacion);
-    document.getElementById('periodo-meses').addEventListener('input', calcularGratificacion);
-    document.getElementById('dias-lab').addEventListener('input', calcularGratificacion);
-    document.getElementById('faltas').addEventListener('input', calcularGratificacion);
-
-    // Evento para selección de trabajador
-    document.getElementById('trabajador').addEventListener('change', seleccionarTrabajador);
-
-    // Evento para tipo de cambio automático
-    document.getElementById('moneda').addEventListener('change', actualizarTipoCambio);
-    // ...existing code...
-    // ...existing code...
-
-}
-
-function cargarTrabajadores() {
-    const trabajadores = [
-        { id: '001', nombre: 'JUAN PÉREZ GARCÍA', remBasica: 1025 },
-        { id: '002', nombre: 'MARÍA LÓPEZ SILVA', remBasica: 1200 },
-        { id: '003', nombre: 'CARLOS MENDOZA RUIZ', remBasica: 950 },
-        { id: '004', nombre: 'ANA TORRES VEGA', remBasica: 1100 }
-    ];
-
-    const select = document.getElementById('trabajador');
-    trabajadores.forEach(trabajador => {
-        const option = document.createElement('option');
-        option.value = trabajador.id;
-        option.textContent = `${trabajador.id} - ${trabajador.nombre}`;
-        option.dataset.nombre = trabajador.nombre;
-        option.dataset.remBasica = trabajador.remBasica;
-        select.appendChild(option);
-    });
-}
-
-function seleccionarTrabajador() {
-    const select = document.getElementById('trabajador');
-    const selectedOption = select.selectedOptions[0];
-
-    if (selectedOption && selectedOption.value) {
-        document.getElementById('trabajador-nombre').value = selectedOption.dataset.nombre;
-        document.getElementById('rem-basica').value = selectedOption.dataset.remBasica;
-
-        // Establecer datos por defecto
-        document.getElementById('periodo-meses').value = 6;
-        document.getElementById('dias-lab').value = 180;
-        document.getElementById('faltas').value = 0;
-
-        calcularGratificacion();
-    }
-}
-
-function actualizarTipoCambio() {
-    const moneda = document.getElementById('moneda').value;
-    if (moneda === 'USD') {
-        document.getElementById('t-cambio').value = '3.750';
-    } else {
-        document.getElementById('t-cambio').value = '1.000';
-    }
-}
-
-function calcularGratificacion() {
-    const remBasica = parseFloat(document.getElementById('rem-basica').value) || 0;
-    const periodoMeses = parseFloat(document.getElementById('periodo-meses').value) || 0;
-    const diasLab = parseFloat(document.getElementById('dias-lab').value) || 0;
-    const faltas = parseFloat(document.getElementById('faltas').value) || 0;
-
-    if (remBasica === 0) return;
-
-    // Cálculos principales
-    const remComputable = remBasica;
-    const remCompMeses = (remComputable / 6) * periodoMeses;
-    const desctoFaltas = (remComputable / 30) * faltas;
-    const gratifNeta = remCompMeses - desctoFaltas;
-    const bonifExtr = gratifNeta * 0.09; // 9%
-    const totalGratif = gratifNeta + bonifExtr;
-
-    // Actualizar campos calculados
-    document.getElementById('rem-computable').value = remComputable.toFixed(2);
-    document.getElementById('total-ingresos').value = remBasica.toFixed(2);
-    document.getElementById('rem-comp-meses').value = remCompMeses.toFixed(2);
-    document.getElementById('descto-faltas').value = desctoFaltas.toFixed(2);
-    document.getElementById('rem-comp-30').value = (remComputable / 30).toFixed(2);
-    document.getElementById('gratif-neta').value = gratifNeta.toFixed(2);
-    document.getElementById('total-gratif-desc').value = gratifNeta.toFixed(2);
-    document.getElementById('bonif-extr').value = bonifExtr.toFixed(2);
-    document.getElementById('gratif-9').value = bonifExtr.toFixed(2);
-    document.getElementById('total-9-meses').value = (bonifExtr * 9).toFixed(2);
-    document.getElementById('gratif-bonif').value = totalGratif.toFixed(2);
-    document.getElementById('total-gratif').value = totalGratif.toFixed(2);
-
-    // Actualizar fecha de modificación
-    const ahora = new Date();
-    document.getElementById('modificado').value = ahora.toISOString().split('T')[0] + ' ' + ahora.toTimeString().slice(0, 8);
-}
-
-// Funciones de botones
-function guardarDatos() {
-    const datos = {
-        trabajador: document.getElementById('trabajador').value,
-        remBasica: document.getElementById('rem-basica').value,
-        gratificacion: document.getElementById('total-gratif').value
-    };
-
-    alert('Datos guardados correctamente\n\nTrabajador: ' + document.getElementById('trabajador-nombre').value + '\nGratificación: S/ ' + datos.gratificacion);
-}
-
-function verGraficos() {
-    alert('Abriendo módulo de gráficos y reportes estadísticos...');
-}
-
-function generarReporte() {
-    if (!document.getElementById('trabajador').value) {
-        alert('Debe seleccionar un trabajador primero');
-        return;
+        const select = document.getElementById('employee-select');
+        let cantidad = 0;
+        if (window.electronAPI && select) {
+            try {
+                const trabajadores = await window.electronAPI.obtenerTrabajadores();
+                cantidad = trabajadores.length;
+                select.innerHTML = '';
+                // Opción por defecto
+                const defaultOption = document.createElement('option');
+                defaultOption.value = '';
+                defaultOption.textContent = 'Seleccione...';
+                select.appendChild(defaultOption);
+                // Opciones de trabajadores
+                trabajadores.forEach(trabajador => {
+                    const option = document.createElement('option');
+                    option.value = trabajador.id_trabajador;
+                    option.textContent = `${trabajador.nombres} ${trabajador.apellidos} - ${trabajador.numero_documento}`;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                select.innerHTML = '<option>Error al cargar trabajadores</option>';
+            }
+        }
+        // Actualiza el mensaje en modo masivo
+        const cantidadSpan = document.getElementById('masivo-cantidad');
+        if (cantidadSpan) cantidadSpan.textContent = cantidad;
     }
 
-    const trabajador = document.getElementById('trabajador-nombre').value;
-    const gratificacion = document.getElementById('total-gratif').value;
-    const periodo = document.getElementById('gratificaciones').value;
-
-    alert(`Generando reporte de gratificación...\n\nTrabajador: ${trabajador}\nPeríodo: ${periodo} 2025\nMonto: S/ ${gratificacion}`);
 }
+window.GratificacionesManager = GratificacionesManager;
 
-function marcarFavorito() {
-    alert('Registro marcado como favorito');
-}
-
-function eliminar() {
-    if (confirm('¿Está seguro de eliminar este registro?')) {
-        // Limpiar formulario
-        document.getElementById('trabajador').value = '';
-        document.getElementById('trabajador-nombre').value = '';
-        document.getElementById('rem-basica').value = '0';
-        calcularGratificacion();
-        alert('Registro eliminado');
-    }
-}
-
-function herramientas() {
-    alert('Abriendo herramientas adicionales del sistema...');
-}
-
-// Función para agregar conceptos (simulada)
-function agregarConcepto() {
-    const conceptosContent = document.getElementById('conceptos-content');
-    const concepto = {
-        codigo: '001',
-        concepto: 'ASIGNACIÓN FAMILIAR',
-        importe: 102.00
-    };
-
-    const div = document.createElement('div');
-    div.innerHTML = `
-                <div style="display: grid; grid-template-columns: 1fr 2fr 1fr 50px; gap: 10px; padding: 5px; border-bottom: 1px solid #ddd;">
-                    <span>${concepto.codigo}</span>
-                    <span>${concepto.concepto}</span>
-                    <span>S/ ${concepto.importe.toFixed(2)}</span>
-                    <button onclick="this.parentElement.parentElement.remove()" style="background: #e74c3c; color: white; border: none; border-radius: 3px; cursor: pointer;">✕</button>
-                </div>
-            `;
-    conceptosContent.appendChild(div);
-}
-
-// Simular clic en búsqueda
-document.querySelector('.search-icon').addEventListener('click', function () {
-    alert('Abriendo búsqueda avanzada de trabajadores...');
-});
