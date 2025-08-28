@@ -295,7 +295,7 @@ body {
 }
 
 /* ===============================
-   MODAL NUEVO CONCEPTO
+   MODAL NUEVO CONCEPTO - VERSIÓN MEJORADA
    =============================== */
 .conceptos-modal-overlay {
   position: fixed;
@@ -311,6 +311,7 @@ body {
   opacity: 0;
   visibility: hidden;
   transition: all 0.3s ease;
+  padding: 20px;
 }
 
 .conceptos-modal-overlay.active {
@@ -321,13 +322,15 @@ body {
 .conceptos-modal-container {
   background: #fff;
   border-radius: 12px;
-  width: 90vw;
-  max-width: 800px;
+  width: 95vw;
+  max-width: 900px;
   max-height: 90vh;
   overflow: hidden;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
   transform: translateY(-20px);
   transition: transform 0.3s ease;
+  display: flex;
+  flex-direction: column;
 }
 
 .conceptos-modal-overlay.active .conceptos-modal-container {
@@ -342,6 +345,7 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-shrink: 0;
 }
 
 .conceptos-modal-header h2 {
@@ -367,35 +371,57 @@ body {
   color: #495057;
 }
 
-/* Contenido del Modal */
+/* Contenido del Modal - CON SCROLL */
 .conceptos-modal-content {
-  padding: 24px;
-  max-height: calc(90vh - 140px);
+  flex: 1;
   overflow-y: auto;
+  padding: 24px;
+  min-height: 0;
 }
 
-/* Layout de dos columnas */
+/* Scrollbar personalizada para el contenido */
+.conceptos-modal-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.conceptos-modal-content::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.conceptos-modal-content::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+.conceptos-modal-content::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Layout de dos columnas - RESPONSIVE MEJORADO */
 .conceptos-form-layout {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 24px;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 
 .conceptos-columna-izquierda,
 .conceptos-columna-derecha {
-  min-width: 0; /* Permite que el contenido se ajuste */
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Secciones */
 .conceptos-seccion {
-  margin-bottom: 0; /* Remover margin bottom por defecto */
+  margin-bottom: 0;
 }
 
 .conceptos-seccion-full-width {
   margin-bottom: 0;
-  margin-top: 24px;
-  padding-top: 24px;
+  margin-top: 20px;
+  padding-top: 20px;
   border-top: 1px solid #e9ecef;
 }
 
@@ -560,7 +586,7 @@ body {
   font-size: 0.95rem;
 }
 
-/* Footer del Modal */
+/* Footer del Modal - SIEMPRE VISIBLE */
 .conceptos-modal-footer {
   background: #f8f9fa;
   padding: 20px 24px;
@@ -568,6 +594,7 @@ body {
   display: flex;
   gap: 12px;
   justify-content: flex-end;
+  flex-shrink: 0;
 }
 
 .conceptos-modal-footer button {
@@ -578,6 +605,7 @@ body {
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
+  min-width: 120px;
 }
 
 .conceptos-btn-cancelar {
@@ -598,6 +626,11 @@ body {
   background: #0056b3;
 }
 
+.conceptos-btn-crear:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+}
+
 /* Campo dinámico */
 .conceptos-campo-dinamico {
   opacity: 0;
@@ -612,9 +645,27 @@ body {
 
 /* Responsive */
 @media (max-width: 768px) {
+  .conceptos-modal-overlay {
+    padding: 10px;
+  }
+  
   .conceptos-modal-container {
-    width: 95vw;
-    max-height: 95vh;
+    width: 100%;
+    max-width: none;
+    max-height: calc(100vh - 20px);
+    border-radius: 8px;
+  }
+  
+  .conceptos-modal-header {
+    padding: 16px 20px;
+  }
+  
+  .conceptos-modal-header h2 {
+    font-size: 1.3rem;
+  }
+  
+  .conceptos-modal-content {
+    padding: 20px;
   }
   
   .conceptos-form-layout {
@@ -637,11 +688,76 @@ body {
   }
   
   .conceptos-modal-footer {
-    flex-direction: column-reverse;
+    padding: 16px 20px;
+    flex-direction: column;
   }
   
   .conceptos-modal-footer button {
     width: 100%;
+    min-width: auto;
+  }
+}
+
+@media (max-height: 700px) {
+  .conceptos-modal-container {
+    max-height: 95vh;
+  }
+  
+  .conceptos-modal-header {
+    padding: 16px 20px;
+  }
+  
+  .conceptos-modal-content {
+    padding: 16px 20px;
+  }
+  
+  .conceptos-modal-footer {
+    padding: 16px 20px;
+  }
+  
+  .conceptos-form-layout {
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  
+  .conceptos-seccion-full-width {
+    margin-top: 16px;
+    padding-top: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .conceptos-modal-overlay {
+    padding: 5px;
+  }
+  
+  .conceptos-modal-container {
+    max-height: calc(100vh - 10px);
+    border-radius: 6px;
+  }
+  
+  .conceptos-modal-header {
+    padding: 12px 16px;
+  }
+  
+  .conceptos-modal-header h2 {
+    font-size: 1.2rem;
+  }
+  
+  .conceptos-modal-content {
+    padding: 16px;
+  }
+  
+  .conceptos-modal-footer {
+    padding: 12px 16px;
+  }
+  
+  .conceptos-form-layout {
+    gap: 12px;
+  }
+  
+  .conceptos-campos-grid-single {
+    gap: 10px;
   }
 }
 

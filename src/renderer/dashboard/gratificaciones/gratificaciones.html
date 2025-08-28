@@ -1,0 +1,152 @@
+<div class="container">
+  <!-- Header -->
+  <div class="header">
+    <h1>Planilla de Gratificaciones</h1>
+    <p>Gestiona las gratificaciones de Julio y Diciembre</p>
+    <div class="section-content-card">
+      <div class="section-content-card-item">
+        <span>Periodo Actual</span>
+        <p>Diciembre 2025</p>
+      </div>
+      <div class="section-content-card-item">
+        <span>
+          Empleados Activos
+        </span>
+        <p>1</p>
+      </div>
+      <div class="section-content-card-item">
+        <span>Estimado Total</span>
+        <p>0</p>
+      </div>
+      <div class="section-content-card-item">
+        <span>Gratificaciones Calculadas</span>
+        <p>0</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <div class="tabs-list">
+      <button class="tab-trigger active" data-tab="calculate">Calcular Gratificaciones</button>
+      <button class="tab-trigger" data-tab="results">Resultados</button>
+      <button class="tab-trigger" data-tab="history">Historial</button>
+    </div>
+
+    <!-- Tab Content -->
+    <div class="tab-content" id="calculate">
+      <!-- Calculation Mode Selection -->
+      <div class="card">
+        <div class="card-header">
+          <h2><span class="icon calculator-icon"></span> Modalidad de Cálculo</h2>
+        </div>
+        <div class="card-content">
+          <div class="modes-grid">
+            <div class="mode-card active" data-mode="individual" id="mode-individual">
+              <div class="mode-header">
+                <span class="icon users-icon"></span>
+                <h3>Individual</h3>
+              </div>
+              <p>Por trabajador seleccionado</p>
+            </div>
+            <div class="mode-card" data-mode="group" id="mode-group">
+              <div class="mode-header">
+                <span class="icon building-icon"></span>
+                <h3>Por Grupo</h3>
+              </div>
+              <p>Por área, cargo o estado</p>
+            </div>
+            <div class="mode-card" data-mode="massive" id="mode-massive">
+              <div class="mode-header">
+                <span class="icon calculator-icon"></span>
+                <h3>Masivo</h3>
+              </div>
+              <p>Todos los trabajadores activos</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card calculator-content">
+        <div class="period-selection">
+          <div class="flex-center">
+            <span class="icon gift-icon"></span>
+            <span class="period-label">Período de Gratificaciones:</span>
+          </div>
+          <div class="select-group">
+            <select id="semester-select">
+              <option value="1">Julio</option>
+              <option value="2" selected>Diciembre</option>
+            </select>
+            <select id="year-select">
+              <option value="2023">2023</option>
+              <option value="2024">2024</option>
+              <option value="2025" selected>2025</option>
+              <option value="2026">2026</option>
+              <option value="2027">2027</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- ...dentro de la tab-content con id="calculate"... -->
+      <div class="mode-content" id="mode-individual-content">
+        <div class="card calculator-content">
+          <div class="employee-select">
+            <h3>Editor de Cálculo Individual</h3>
+            <select name="employee" id="employee-select">
+              
+            </select>
+            <div id="datos-trabajador-row"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modo Grupo: dos combos para área y cargo -->
+      <div class="mode-content hidden" id="mode-group-content">
+        <div class="card calculator-content">
+          <div class="employee-select">
+            <h3>Editor de Cálculo por Grupo</h3>
+            <div class="select-group">
+              <select id="area-select">
+                <option value="">Seleccione área</option>
+                <!-- Opciones dinámicas de áreas -->
+              </select>
+              <select id="cargo-select">
+                <option value="">Seleccione cargo</option>
+                <!-- Opciones dinámicas de cargos -->
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modo Masivo: mensaje con cantidad dinámica -->
+      <div class="mode-content hidden" id="mode-massive-content">
+        <div class="card calculator-content">
+          <div class="employee-select">
+            <h3>Editor de Cálculo Masivo</h3>
+            <p id="masivo-msg">Se calculará la planilla para los <span id="masivo-cantidad">0</span> empleados activos.
+            </p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="tab-content hidden" id="results">
+      <div class="card">
+        <div class="card-content">
+          <p>Contenido de resultados</p>
+        </div>
+      </div>
+    </div>
+    <div class="tab-content hidden" id="history">
+      <div class="card">
+        <div class="card-content">
+          <p>Contenido del historial</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="gratificaciones.js"></script>

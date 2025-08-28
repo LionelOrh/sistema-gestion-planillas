@@ -49,6 +49,41 @@ body {
 .button-exportar:hover{
     background-color: #e0e0e0;
 }
+.button-asistencia {
+  background-color: #ff9800;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 16px;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-left: 8px;
+  transition: background-color 0.2s;
+}
+.button-asistencia:hover {
+  background-color: #e67e22;
+}
+
+.btn-exportarexcel {
+  background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-left: 8px;
+  box-shadow: 0 2px 8px rgba(44, 62, 80, 0.08);
+  transition: background 0.2s, transform 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.btn-exportarexcel:hover {
+  background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+  transform: translateY(-2px) scale(1.04);
+}
 
 .trabajadores-filtros, .trabajadores-filtros * {
   box-sizing: border-box;
@@ -1355,4 +1390,496 @@ body {
 @keyframes spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
+}
+
+/* ===== ESTILOS PARA MENÚ DESPLEGABLE DE ACCIONES ===== */
+.acciones-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+}
+
+/* Botón de menú con 3 puntos */
+.btn-menu-opciones {
+  background: #6c757d;
+  color: white;
+  border: none;
+  padding: 6px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.btn-menu-opciones:hover {
+  background: #5a6268;
+  transform: scale(1.05);
+}
+
+.btn-menu-opciones .dots {
+  display: inline-block;
+  line-height: 1;
+  font-weight: bold;
+}
+
+/* Menú desplegable */
+.dropdown-menu-container {
+  position: relative;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: white;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  min-width: 180px;
+  z-index: 1000;
+  display: none;
+  overflow: hidden;
+  margin-top: 4px;
+}
+
+.dropdown-menu.show {
+  display: block;
+  animation: fadeInDown 0.2s ease;
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px 16px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 14px;
+  color: #495057;
+  text-align: left;
+  transition: all 0.2s ease;
+}
+
+.dropdown-item:hover {
+  background: #f8f9fa;
+  color: #212529;
+}
+
+.dropdown-item:active {
+  background: #e9ecef;
+}
+
+/* Separador en el dropdown */
+.dropdown-divider {
+  height: 1px;
+  margin: 8px 0;
+  background: #e9ecef;
+}
+
+/* ===== ESTILOS PARA MODAL DE CONSTANCIA ===== */
+.modal-constancia-container {
+  background: white;
+  border-radius: 16px;
+  max-width: 90vw;
+  width: 900px;
+  max-height: 90vh;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-constancia-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0;
+}
+
+.constancia-preview {
+  padding: 20px;
+  background: #f8f9fa;
+  min-height: 400px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+/* Documento de constancia */
+.constancia-documento {
+  background: white;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  max-width: 800px;
+  width: 100%;
+  font-family: 'Times New Roman', serif;
+  line-height: 1.6;
+}
+
+.constancia-header {
+  text-align: center;
+  padding: 40px 40px 20px 40px;
+  border-bottom: 3px solid #007bff;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+}
+
+.empresa-info h1 {
+  margin: 0 0 8px 0;
+  font-size: 32px;
+  font-weight: bold;
+  color: #212529;
+  letter-spacing: 1px;
+}
+
+.empresa-subtitulo {
+  margin: 0;
+  font-size: 14px;
+  color: #6c757d;
+  font-weight: 500;
+}
+
+.constancia-body {
+  padding: 40px;
+}
+
+.constancia-titulo {
+  text-align: center;
+  font-size: 24px;
+  font-weight: bold;
+  color: #212529;
+  margin: 0 0 40px 0;
+  text-decoration: underline;
+  letter-spacing: 2px;
+}
+
+.constancia-contenido {
+  font-size: 16px;
+  color: #212529;
+  text-align: justify;
+}
+
+.constancia-contenido p {
+  margin: 0 0 20px 0;
+  text-indent: 40px;
+}
+
+.constancia-contenido strong {
+  font-weight: bold;
+  color: #007bff;
+}
+
+.constancia-fecha-lugar {
+  margin: 40px 0 60px 0;
+  text-align: left;
+}
+
+.constancia-fecha-lugar p {
+  text-indent: 0;
+  margin: 0;
+  font-weight: 500;
+}
+
+.constancia-firma {
+  text-align: center;
+  margin-top: 60px;
+}
+
+.firma-linea {
+  border-top: 2px solid #212529;
+  width: 300px;
+  margin: 0 auto 15px auto;
+}
+
+.firma-texto p {
+  margin: 0;
+  text-indent: 0;
+  font-weight: bold;
+  color: #212529;
+  font-size: 14px;
+}
+
+/* Botón de descarga especial */
+.btn-descargar-pdf {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  color: white;
+  border: none;
+  padding: 14px 28px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 180px;
+  justify-content: center;
+}
+
+.btn-descargar-pdf:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(40, 167, 69, 0.3);
+}
+
+.btn-descargar-pdf:active {
+  transform: translateY(0);
+}
+
+.btn-descargar-pdf:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Responsive para modal de constancia */
+@media (max-width: 768px) {
+  .modal-constancia-container {
+    width: 95vw;
+    max-height: 95vh;
+  }
+  
+  .constancia-documento {
+    margin: 10px;
+  }
+  
+  .constancia-header {
+    padding: 20px;
+  }
+  
+  .empresa-info h1 {
+    font-size: 24px;
+  }
+  
+  .constancia-body {
+    padding: 20px;
+  }
+  
+  .constancia-titulo {
+    font-size: 20px;
+  }
+  
+  .constancia-contenido {
+    font-size: 14px;
+  }
+  
+  .constancia-contenido p {
+    text-indent: 20px;
+  }
+  
+  .modal-footer {
+    padding: 16px 20px;
+    flex-direction: column-reverse;
+    gap: 12px;
+  }
+  
+  .btn-descargar-pdf,
+  .btn-cancelar {
+    width: 100%;
+  }
+}
+
+/* Animación para carga del documento */
+@keyframes documentLoad {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.constancia-documento {
+  animation: documentLoad 0.5s ease;
+}
+
+/* Efectos de impresión */
+@media print {
+  .modal-overlay,
+  .modal-header,
+  .modal-footer {
+    display: none !important;
+  }
+  
+  .constancia-documento {
+    box-shadow: none;
+    border: none;
+  }
+  
+  .constancia-preview {
+    background: white;
+    padding: 0;
+  }
+}
+
+/* Modal de asistencia personalizado */
+.modal-asistencia-box {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 12px 40px rgba(44,62,80,0.18);
+  max-width: 400px;
+  width: 95vw;
+  padding: 32px 28px 24px 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  animation: fadeInDown 0.3s;
+}
+
+.modal-asistencia-box .modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.modal-asistencia-box h2 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 600;
+  color: #34495e;
+}
+
+.modal-asistencia-box .modal-close {
+  background: none;
+  border: none;
+  color: #34495e;
+  font-size: 28px;
+  cursor: pointer;
+  padding: 0;
+  border-radius: 50%;
+  transition: background 0.2s;
+}
+
+.modal-asistencia-box .modal-close:hover {
+  background: #f2f2f2;
+}
+
+.modal-asistencia-box .modal-form {
+  margin-top: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.modal-asistencia-box .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.modal-asistencia-box label {
+  font-weight: 500;
+  color: #34495e;
+  font-size: 14px;
+}
+
+.modal-asistencia-box input[type="text"] {
+  background: #f8f9fa;
+  border: 1.5px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 15px;
+  color: #2c3e50;
+}
+
+.modal-asistencia-box input[type="time"] {
+  background: #f8f9fa;
+  border: 1.5px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 15px;
+  color: #2c3e50;
+  width: 140px;
+  letter-spacing: 2px;
+}
+
+.asistencia-btn-group {
+  display: flex;
+  gap: 16px;
+  margin-top: 6px;
+}
+
+.btn-entrada, .btn-salida {
+  flex: 1;
+  padding: 12px 0;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.btn-entrada {
+  background: linear-gradient(135deg, #27ae60 0%, #43cea2 100%);
+  color: white;
+}
+
+.btn-entrada:hover {
+  background: linear-gradient(135deg, #219150 0%, #2bc4ad 100%);
+  transform: translateY(-2px);
+}
+
+.btn-salida {
+  background: linear-gradient(135deg, #e74c3c 0%, #f7971e 100%);
+  color: white;
+}
+
+.btn-salida:hover {
+  background: linear-gradient(135deg, #c0392b 0%, #f7971e 100%);
+  transform: translateY(-2px);
+}
+
+/* Responsive para el modal de asistencia */
+@media (max-width: 600px) {
+  .modal-asistencia-box {
+    max-width: 98vw;
+    padding: 18px 8px 14px 8px;
+  }
+  .modal-asistencia-box h2 {
+    font-size: 18px;
+  }
+  .btn-entrada, .btn-salida {
+    font-size: 14px;
+    padding: 10px 0;
+  }
+}
+
+/* Estilos para la tabla de asistencia */
+.asistencia-tabla th, .asistencia-tabla td {
+  border: 1px solid #e0e0e0;
+  padding: 10px 8px;
+  text-align: center;
+  font-size: 15px;
+}
+.asistencia-tabla th {
+  background: #34495e;
+  color: #fff;
+  font-weight: 600;
+}
+.asistencia-tabla tbody tr:nth-child(even) td {
+  background: #f9f9f9;
+}
+.asistencia-tabla tbody tr td {
+  background: #fff;
 }

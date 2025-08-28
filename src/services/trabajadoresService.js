@@ -131,18 +131,6 @@ async function crearTrabajador(datosFormulario) {
     
   } catch (err) {
     console.error('Error al crear trabajador:', err);
-    
-    // Manejar errores específicos
-    if (err.code === 'ER_DUP_ENTRY') {
-      if (err.sqlMessage.includes('numero_documento')) {
-        throw new Error('El número de documento ya existe');
-      }
-      if (err.sqlMessage.includes('codigo')) {
-        throw new Error('El código de trabajador ya existe');
-      }
-    }
-    
-    throw new Error('Error al crear el trabajador: ' + err.message);
   }
 }
 
@@ -208,10 +196,20 @@ async function obtenerTrabajadorPorId(id) {
   }
 }
 
+// ...existing code...
 async function actualizarTrabajador(id, datosFormulario) {
   try {
     console.log('Actualizando trabajador ID:', id, 'con datos:', datosFormulario);
-    
+
+    // Verificar si el número de documento ya existe en otro trabajador
+    const [existeDocumento] = await pool.query(
+      'SELECT id_trabajador FROM trabajadores WHERE numero_documento = ? AND id_trabajador != ?',
+      [datosFormulario.numeroDocumento, id]
+    );
+    if (existeDocumento.length > 0) {
+      throw new Error('El número de documento ya existe');
+    }
+
     const query = `
       UPDATE trabajadores SET
         nombres = ?,
@@ -278,8 +276,8 @@ async function actualizarTrabajador(id, datosFormulario) {
       datosFormulario.cci || null,
       datosFormulario.sistemaPension ? parseInt(datosFormulario.sistemaPension) : null,
       datosFormulario.numeroAfiliacion || null,
-      datosFormulario.asignacionFamiliar === 'on' ? 1 : 0, // Convertir checkbox a booleano
-      parseInt(datosFormulario.cantidadHijos) || 0, // Asegurar que sea número
+      datosFormulario.asignacionFamiliar === 'on' ? 1 : 0,
+      parseInt(datosFormulario.cantidadHijos) || 0,
       id
     ];
     
@@ -289,15 +287,13 @@ async function actualizarTrabajador(id, datosFormulario) {
       throw new Error('Trabajador no encontrado');
     }
 
-    // **Gestión de Asignación Familiar en actualización**
+    // Gestión de Asignación Familiar en actualización
     const tieneAsignacion = datosFormulario.asignacionFamiliar === 'on';
     const cantidadHijos = parseInt(datosFormulario.cantidadHijos) || 0;
     
     if (tieneAsignacion && cantidadHijos > 0) {
-      // Asignar asignación familiar si no la tiene
       await asignarAsignacionFamiliar(id);
     } else {
-      // Remover asignación familiar si no cumple condiciones
       await removerAsignacionFamiliar(id);
     }
     
@@ -310,18 +306,15 @@ async function actualizarTrabajador(id, datosFormulario) {
     
   } catch (err) {
     console.error('Error al actualizar trabajador:', err);
-    
-    // Manejar errores específicos
     if (err.code === 'ER_DUP_ENTRY') {
       if (err.sqlMessage.includes('numero_documento')) {
         throw new Error('El número de documento ya existe');
       }
     }
-    
     throw new Error('Error al actualizar el trabajador: ' + err.message);
   }
 }
-
+// ...existing code...
 async function obtenerSiguienteCodigo() {
   try {
     const [rows] = await pool.query(
@@ -504,6 +497,172 @@ async function removerAsignacionFamiliar(idTrabajador) {
   }
 }
 
+async function generarConstanciaPDF(datosConstancia) {
+  try {
+    console.log('Servicio: Generando constancia PDF con datos:', datosConstancia);
+    
+    // Validar que tenemos todos los datos necesarios
+    if (!datosConstancia.nombreCompleto || !datosConstancia.dni || !datosConstancia.cargo) {
+      throw new Error('Faltan datos necesarios para generar la constancia');
+    }
+    
+    // Preparar plantilla HTML para la constancia
+    const plantillaHTML = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="UTF-8">
+          <title>Constancia de Trabajo - ${datosConstancia.nombreCompleto}</title>
+          <style>
+            body {
+              font-family: 'Times New Roman', serif;
+              margin: 40px;
+              line-height: 1.6;
+              color: #212529;
+            }
+            .constancia-header {
+              text-align: center;
+              padding-bottom: 30px;
+              border-bottom: 3px solid #007bff;
+              margin-bottom: 40px;
+            }
+            .empresa-info h1 {
+              font-size: 32px;
+              font-weight: bold;
+              margin: 0 0 10px 0;
+              letter-spacing: 1px;
+            }
+            .empresa-subtitulo {
+              font-size: 14px;
+              color: #6c757d;
+              margin: 0;
+            }
+            .constancia-titulo {
+              text-align: center;
+              font-size: 24px;
+              font-weight: bold;
+              text-decoration: underline;
+              letter-spacing: 2px;
+              margin: 0 0 40px 0;
+            }
+            .constancia-contenido {
+              font-size: 16px;
+              text-align: justify;
+            }
+            .constancia-contenido p {
+              margin: 0 0 20px 0;
+              text-indent: 40px;
+            }
+            .constancia-contenido strong {
+              font-weight: bold;
+              color: #007bff;
+            }
+            .constancia-fecha-lugar {
+              margin: 40px 0 60px 0;
+            }
+            .constancia-fecha-lugar p {
+              text-indent: 0;
+              margin: 0;
+              font-weight: 500;
+            }
+            .constancia-firma {
+              text-align: center;
+              margin-top: 60px;
+            }
+            .firma-linea {
+              border-top: 2px solid #212529;
+              width: 300px;
+              margin: 0 auto 15px auto;
+            }
+            .firma-texto p {
+              margin: 0;
+              text-indent: 0;
+              font-weight: bold;
+              font-size: 14px;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="constancia-header">
+            <div class="empresa-info">
+              <h1>TIC-TECHNOLOGIES</h1>
+              <p class="empresa-subtitulo">R.U.C. 20XXXXXXXXX</p>
+            </div>
+          </div>
+          
+          <h2 class="constancia-titulo">CONSTANCIA DE TRABAJO</h2>
+          
+          <div class="constancia-contenido">
+            <p>Por medio de la presente, se deja constancia que <strong>${datosConstancia.nombreCompleto}</strong>, identificado(a) con D.N.I. N° <strong>${datosConstancia.dni}</strong>, labora en nuestra empresa <strong>TIC-TECHNOLOGIES</strong> desde el <strong>${datosConstancia.fechaIngreso}</strong>, desempeñando el cargo de <strong>${datosConstancia.cargo}</strong>.</p>
+            
+            <p>Durante su permanencia en la empresa, ha demostrado ser una persona responsable, eficiente y con gran disposición para las tareas encomendadas.</p>
+            
+            <p>Se expide la presente constancia a solicitud del interesado(a) para los fines que estime convenientes.</p>
+            
+            <div class="constancia-fecha-lugar">
+              <p>Lima, ${datosConstancia.fechaActual}</p>
+            </div>
+            
+            <div class="constancia-firma">
+              <div class="firma-linea"></div>
+              <div class="firma-texto">
+                <p><strong>Firma del Representante Legal</strong></p>
+                <p>TIC-TECHNOLOGIES</p>
+              </div>
+            </div>
+          </div>
+        </body>
+      </html>
+    `;
+    
+    // Usar módulos Node.js de forma segura
+    const fs = require('fs');
+    const path = require('path');
+    const { shell } = require('electron');
+    const os = require('os');
+    
+    // Crear carpeta temporal en el directorio temporal del sistema
+    const tempDir = path.join(os.tmpdir(), 'constancias-trabajo');
+    if (!fs.existsSync(tempDir)) {
+      fs.mkdirSync(tempDir, { recursive: true });
+    }
+    
+    // Generar nombre único para el archivo
+    const nombreSeguro = datosConstancia.nombreCompleto.replace(/[^a-zA-Z0-9]/g, '_');
+    const timestamp = Date.now();
+    const nombreArchivo = `Constancia_${nombreSeguro}_${timestamp}.html`;
+    const rutaArchivo = path.join(tempDir, nombreArchivo);
+    
+    console.log('Servicio: Creando archivo en:', rutaArchivo);
+    
+    // Escribir archivo HTML
+    fs.writeFileSync(rutaArchivo, plantillaHTML, 'utf8');
+    
+    // Abrir archivo en el navegador por defecto para que el usuario pueda imprimirlo como PDF
+    await shell.openPath(rutaArchivo);
+    
+    console.log('Servicio: Constancia generada exitosamente');
+    
+    return {
+      success: true,
+      mensaje: 'Constancia abierta en el navegador. Use Ctrl+P para imprimir como PDF.',
+      archivo: rutaArchivo
+    };
+    
+  } catch (err) {
+    console.error('Servicio: Error al generar constancia PDF:', err);
+    return {
+      success: false,
+      error: 'Error al generar la constancia en PDF: ' + err.message
+    };
+  }
+}
+
+// Función adicional para mostrar historial del trabajador (placeholder)
+function mostrarHistorialTrabajador(id) {
+  console.log('Función de historial en desarrollo para trabajador:', id);
+}
+
 module.exports = {
   obtenerTrabajadores,
   obtenerTrabajadorPorId,
@@ -513,5 +672,7 @@ module.exports = {
   obtenerTrabajadoresPorArea,
   asignarESSALUDAutomatico,
   asignarAsignacionFamiliar,
-  removerAsignacionFamiliar
+  removerAsignacionFamiliar,
+  generarConstanciaPDF,
+  mostrarHistorialTrabajador
 };

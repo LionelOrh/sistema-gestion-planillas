@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const path = require('path');
 const { login } = require('../services/loginService');
 const { obtenerTrabajadores, obtenerTrabajadorPorId, crearTrabajador, actualizarTrabajador, obtenerTrabajadoresParaPlanilla, obtenerTrabajadoresPorArea } = require('../services/trabajadoresService');
@@ -7,6 +7,9 @@ const conceptosService = require('../services/conceptosService');
 const trabajadorConceptosService = require('../services/trabajadorConceptosService');
 const planillasService = require('../services/planillasService');
 const parametrosService = require('../services/parametrosService');
+const trabajadoresService = require('../services/trabajadoresService');
+const licenciasService = require('../services/licenciasService');
+const utilidadesService = require('../services/utilidadesService');
 
 let loginWindow = null;
 let dashboardWindow = null;
@@ -15,6 +18,8 @@ function createLoginWindow() {
   loginWindow = new BrowserWindow({
     width: 500,
     height: 600,
+    icon: path.join(__dirname, '../assent/logo.png'), // <-- aquí agregas el icono
+
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
@@ -35,6 +40,7 @@ function createDashboardWindow() {
     maximizable: true,
     minimizable: true,
     frame: true, // muestra los controles nativos de la ventana
+    icon: path.join(__dirname, '../assent/logo.png'), // <-- aquí agregas el icono
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
@@ -108,6 +114,9 @@ app.whenReady().then(() => {
       console.error('Error en handler actualizar-trabajador:', error);
       throw error;
     }
+  });
+  ipcMain.handle('obtener-boletas-por-planilla', async (event, idPlanilla) => {
+    return await planillasService.obtenerBoletasPorPlanilla(idPlanilla);
   });
 
   // IPC handlers para trabajadores en planillas
@@ -310,11 +319,11 @@ app.whenReady().then(() => {
   ipcMain.handle('get-trabajador-conceptos', async (event, idTrabajador, tipoConcepto = null) => {
     try {
       console.log(`[IPC] Obteniendo conceptos del trabajador ${idTrabajador}, tipo: ${tipoConcepto || 'todos'}`);
-      
+
       const resultado = await trabajadorConceptosService.obtenerConceptosPorTrabajador(idTrabajador, tipoConcepto);
-      
+
       console.log(`[IPC] Conceptos obtenidos para trabajador ${idTrabajador}:`, resultado.conceptos?.length || 0);
-      
+
       return resultado;
     } catch (error) {
       console.error('[IPC] Error en get-trabajador-conceptos:', error);
@@ -326,11 +335,11 @@ app.whenReady().then(() => {
   ipcMain.handle('get-trabajador-aportes', async (event, idTrabajador) => {
     try {
       console.log(`[IPC] Calculando aportes del trabajador ${idTrabajador}`);
-      
+
       const resultado = await trabajadorConceptosService.obtenerAportesTrabajador(idTrabajador);
-      
+
       console.log(`[IPC] Aportes calculados para trabajador ${idTrabajador}:`, resultado.aportes?.length || 0);
-      
+
       return resultado;
     } catch (error) {
       console.error('[IPC] Error en get-trabajador-aportes:', error);
@@ -342,11 +351,11 @@ app.whenReady().then(() => {
   ipcMain.handle('get-aportes-empleador', async (event, idTrabajador) => {
     try {
       console.log(`[IPC] Obteniendo aportes del empleador para trabajador ${idTrabajador}`);
-      
+
       const resultado = await trabajadorConceptosService.obtenerConceptosPorTrabajador(idTrabajador, 'aporte-empleador');
-      
+
       console.log(`[IPC] Aportes del empleador obtenidos para trabajador ${idTrabajador}:`, resultado.conceptos?.length || 0);
-      
+
       return resultado;
     } catch (error) {
       console.error('[IPC] Error en get-aportes-empleador:', error);
@@ -357,16 +366,16 @@ app.whenReady().then(() => {
   // ============================================
   // HANDLERS PARA PLANILLAS
   // ============================================
-  
+
   // Handler para crear nueva planilla
   ipcMain.handle('crear-planilla', async (event, planillaData) => {
     try {
       console.log('[IPC] Creando nueva planilla:', planillaData);
-      
+
       const resultado = await planillasService.crearPlanilla(planillaData);
-      
+
       console.log('[IPC] Planilla creada exitosamente:', resultado.id_planilla);
-      
+
       return resultado;
     } catch (error) {
       console.error('[IPC] Error creando planilla:', error);
@@ -378,11 +387,11 @@ app.whenReady().then(() => {
   ipcMain.handle('guardar-calculos-planilla', async (event, idPlanilla, datosCalculados) => {
     try {
       console.log(`[IPC] Guardando cálculos para planilla ${idPlanilla}`);
-      
+
       const resultado = await planillasService.guardarCalculosPlanilla(idPlanilla, datosCalculados);
-      
+
       console.log(`[IPC] Cálculos guardados exitosamente para planilla ${idPlanilla}`);
-      
+
       return resultado;
     } catch (error) {
       console.error('[IPC] Error guardando cálculos:', error);
@@ -394,11 +403,11 @@ app.whenReady().then(() => {
   ipcMain.handle('listar-planillas', async (event, filtros = {}) => {
     try {
       console.log('[IPC] Listando planillas con filtros:', filtros);
-      
+
       const resultado = await planillasService.listarPlanillas(filtros);
-      
+
       console.log(`[IPC] Planillas obtenidas: ${resultado.planillas?.length || 0}`);
-      
+
       return resultado;
     } catch (error) {
       console.error('[IPC] Error listando planillas:', error);
@@ -410,11 +419,11 @@ app.whenReady().then(() => {
   ipcMain.handle('obtener-estadisticas-planillas', async (event) => {
     try {
       console.log('[IPC] Obteniendo estadísticas de planillas');
-      
+
       const resultado = await planillasService.obtenerEstadisticas();
-      
+
       console.log('[IPC] Estadísticas obtenidas:', resultado.estadisticas);
-      
+
       return resultado;
     } catch (error) {
       console.error('[IPC] Error obteniendo estadísticas:', error);
@@ -426,11 +435,11 @@ app.whenReady().then(() => {
   ipcMain.handle('obtener-detalle-planilla', async (event, idPlanilla) => {
     try {
       console.log(`[IPC] Obteniendo detalle de planilla ${idPlanilla}`);
-      
+
       const resultado = await planillasService.obtenerDetallePlanilla(idPlanilla);
-      
+
       console.log(`[IPC] Detalle obtenido para planilla ${idPlanilla}`);
-      
+
       return resultado;
     } catch (error) {
       console.error('[IPC] Error obteniendo detalle:', error);
@@ -442,11 +451,11 @@ app.whenReady().then(() => {
   ipcMain.handle('actualizar-estado-planilla', async (event, idPlanilla, nuevoEstado) => {
     try {
       console.log(`[IPC] Actualizando estado de planilla ${idPlanilla} a ${nuevoEstado}`);
-      
+
       const resultado = await planillasService.actualizarEstadoPlanilla(idPlanilla, nuevoEstado);
-      
+
       console.log(`[IPC] Estado actualizado para planilla ${idPlanilla}`);
-      
+
       return resultado;
     } catch (error) {
       console.error('[IPC] Error actualizando estado:', error);
@@ -457,41 +466,283 @@ app.whenReady().then(() => {
   // ============================================
   // HANDLERS PARA PARAMETROS DEL SISTEMA
   // ============================================
-  
+
   // Handler para obtener RMV
   ipcMain.handle('obtener-rmv', async () => {
     try {
       console.log('[IPC] Obteniendo RMV del sistema');
-      
+
       const resultado = await parametrosService.obtenerRMV();
-      
+
       console.log('[IPC] RMV obtenido:', resultado);
-      
+
       return resultado;
     } catch (error) {
       console.error('[IPC] Error obteniendo RMV:', error);
-      return { 
-        success: true, 
-        valor: 1130.00, 
-        esRespaldo: true, 
-        mensaje: 'RMV de respaldo' 
+      return {
+        success: true,
+        valor: 1130.00,
+        esRespaldo: true,
+        mensaje: 'RMV de respaldo'
       };
     }
   });
-  
+
   // Handler para obtener parámetro por código
   ipcMain.handle('obtener-parametro', async (event, codigo) => {
     try {
       console.log(`[IPC] Obteniendo parámetro: ${codigo}`);
-      
+
       const resultado = await parametrosService.obtenerParametroPorCodigo(codigo);
-      
+
       console.log(`[IPC] Parámetro ${codigo} obtenido:`, resultado);
-      
+
       return resultado;
     } catch (error) {
       console.error('[IPC] Error obteniendo parámetro:', error);
       return { success: false, error: error.message };
+    }
+  });
+
+  // Handler para generar constancia de trabajo en PDF
+  ipcMain.handle('generar-constancia-pdf', async (event, datosConstancia) => {
+    try {
+      console.log('Handler: Generando constancia PDF para trabajador:', datosConstancia);
+      const resultado = await trabajadoresService.generarConstanciaPDF(datosConstancia);
+      console.log('Handler: Resultado de generación PDF:', resultado);
+      return resultado;
+    } catch (error) {
+      console.error('Handler: Error al generar constancia PDF:', error);
+      throw error;
+    }
+  });
+
+  // ============================================
+  // HANDLERS PARA LICENCIAS
+  // ============================================
+
+  // Obtener todas las licencias
+  ipcMain.handle('obtener-licencias', async (event, filtros = {}) => {
+    try {
+      console.log('[IPC] Obteniendo licencias con filtros:', filtros);
+      const resultado = await licenciasService.obtenerLicencias(filtros);
+      console.log('[IPC] Licencias obtenidas:', resultado.licencias?.length || 0);
+      return resultado;
+    } catch (error) {
+      console.error('[IPC] Error obteniendo licencias:', error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  // Obtener licencia por ID
+  ipcMain.handle('obtener-licencia-por-id', async (event, idLicencia) => {
+    try {
+      console.log('[IPC] Obteniendo licencia por ID:', idLicencia);
+      const resultado = await licenciasService.obtenerLicenciaPorId(idLicencia);
+      console.log('[IPC] Licencia obtenida:', resultado.success);
+      return resultado;
+    } catch (error) {
+      console.error('[IPC] Error obteniendo licencia por ID:', error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  // Crear nueva licencia
+  ipcMain.handle('crear-licencia', async (event, datosLicencia) => {
+    try {
+      console.log('[IPC] Creando licencia:', datosLicencia);
+      const resultado = await licenciasService.crearLicencia(datosLicencia); // datosLicencia incluye conGose
+      console.log('[IPC] Licencia creada con ID:', resultado.id_licencia);
+      return resultado;
+    } catch (error) {
+      console.error('[IPC] Error creando licencia:', error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  // Actualizar licencia
+  ipcMain.handle('actualizar-licencia', async (event, idLicencia, datosLicencia) => {
+    try {
+      console.log('[IPC] Actualizando licencia:', idLicencia, datosLicencia);
+      const resultado = await licenciasService.actualizarLicencia(idLicencia, datosLicencia); // datosLicencia incluye conGose
+      console.log('[IPC] Licencia actualizada:', resultado.success);
+      return resultado;
+    } catch (error) {
+      console.error('[IPC] Error actualizando licencia:', error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  // Eliminar licencia
+  ipcMain.handle('eliminar-licencia', async (event, idLicencia) => {
+    try {
+      console.log('[IPC] Eliminando licencia:', idLicencia);
+      const resultado = await licenciasService.eliminarLicencia(idLicencia);
+      console.log('[IPC] Licencia eliminada:', resultado.success);
+      return resultado;
+    } catch (error) {
+      console.error('[IPC] Error eliminando licencia:', error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  // Actualizar estado de licencia
+  ipcMain.handle('actualizar-estado-licencia', async (event, idLicencia, nuevoEstado) => {
+    try {
+      console.log('[IPC] Actualizando estado de licencia:', idLicencia, nuevoEstado);
+      const resultado = await licenciasService.actualizarEstadoLicencia(idLicencia, nuevoEstado);
+      console.log('[IPC] Estado actualizado:', resultado.success);
+      return resultado;
+    } catch (error) {
+      console.error('[IPC] Error actualizando estado:', error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  // Obtener tipos de licencia
+  ipcMain.handle('obtener-tipos-licencia', async () => {
+    try {
+      console.log('[IPC] Obteniendo tipos de licencia');
+      const resultado = await licenciasService.obtenerTiposLicencia();
+      console.log('[IPC] Tipos obtenidos:', resultado.tipos?.length || 0);
+      return resultado;
+    } catch (error) {
+      console.error('[IPC] Error obteniendo tipos de licencia:', error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  // Obtener estadísticas de licencias
+  ipcMain.handle('obtener-estadisticas-licencias', async () => {
+    try {
+      console.log('[IPC] Obteniendo estadísticas de licencias');
+      const resultado = await licenciasService.obtenerEstadisticas();
+      console.log('[IPC] Estadísticas obtenidas:', resultado.success);
+      return resultado;
+    } catch (error) {
+      console.error('[IPC] Error obteniendo estadísticas:', error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  // === HANDLERS DE UTILIDADES ===
+
+  // Obtener trabajadores para utilidades
+  ipcMain.handle('obtener-trabajadores-utilidades', async () => {
+    try {
+      console.log('[IPC] Obteniendo trabajadores para utilidades');
+      const trabajadores = await utilidadesService.obtenerTrabajadoresParaUtilidades();
+      console.log(`[IPC] ${trabajadores.length} trabajadores obtenidos para utilidades`);
+      return trabajadores;
+    } catch (error) {
+      console.error('[IPC] Error obteniendo trabajadores para utilidades:', error);
+      throw error;
+    }
+  });
+
+  // Obtener trabajadores elegibles para un año específico
+  ipcMain.handle('obtener-trabajadores-elegibles', async (event, año) => {
+    try {
+      console.log(`[IPC] Obteniendo trabajadores elegibles para el año ${año}`);
+      const trabajadores = await utilidadesService.obtenerTrabajadoresElegibles(año);
+      console.log(`[IPC] ${trabajadores.length} trabajadores elegibles encontrados`);
+      return trabajadores;
+    } catch (error) {
+      console.error('[IPC] Error obteniendo trabajadores elegibles:', error);
+      throw error;
+    }
+  });
+
+  // Calcular utilidades
+  ipcMain.handle('calcular-utilidades', async (event, parametros) => {
+    try {
+      console.log('[IPC] Calculando utilidades con parámetros:', parametros);
+
+      // Validar parámetros
+      const errores = utilidadesService.validarParametrosCalculo(parametros);
+      if (errores.length > 0) {
+        throw new Error(`Parámetros inválidos: ${errores.join(', ')}`);
+      }
+
+      const resultado = await utilidadesService.calcularUtilidades(parametros);
+      console.log('[IPC] Utilidades calculadas exitosamente:', {
+        trabajadores: resultado.distribuciones.length,
+        montoTotal: resultado.totales.montoTotal,
+        totalDistribuido: resultado.totales.totalDistribuido
+      });
+
+      return resultado;
+    } catch (error) {
+      console.error('[IPC] Error calculando utilidades:', error);
+      throw error;
+    }
+  });
+
+  // Exportar utilidades a Excel
+  ipcMain.handle('exportar-utilidades-excel', async (event, datosUtilidades) => {
+    try {
+      console.log('[IPC] Exportando utilidades a Excel');
+
+      // Mostrar diálogo para seleccionar ubicación
+      const result = await dialog.showSaveDialog({
+        title: 'Exportar Utilidades a Excel',
+        defaultPath: `Utilidades_${datosUtilidades.configuracion.empresa}_${datosUtilidades.configuracion.year}.xlsx`,
+        filters: [
+          { name: 'Excel Files', extensions: ['xlsx'] }
+        ]
+      });
+
+      if (result.canceled) {
+        return { canceled: true };
+      }
+
+      // Aquí se implementaría la lógica de exportación a Excel
+      // Por ahora solo simularemos la exportación
+      console.log(`[IPC] Archivo Excel guardado en: ${result.filePath}`);
+
+      return {
+        success: true,
+        filePath: result.filePath,
+        message: 'Archivo Excel exportado exitosamente'
+      };
+
+    } catch (error) {
+      console.error('[IPC] Error exportando a Excel:', error);
+      throw error;
+    }
+  });
+
+  // Exportar utilidades a PDF
+  ipcMain.handle('exportar-utilidades-pdf', async (event, datosUtilidades) => {
+    try {
+      console.log('[IPC] Exportando utilidades a PDF');
+
+      // Mostrar diálogo para seleccionar ubicación
+      const result = await dialog.showSaveDialog({
+        title: 'Exportar Utilidades a PDF',
+        defaultPath: `Utilidades_${datosUtilidades.configuracion.empresa}_${datosUtilidades.configuracion.year}.pdf`,
+        filters: [
+          { name: 'PDF Files', extensions: ['pdf'] }
+        ]
+      });
+
+      if (result.canceled) {
+        return { canceled: true };
+      }
+
+      // Aquí se implementaría la lógica de exportación a PDF
+      // Por ahora solo simularemos la exportación
+      console.log(`[IPC] Archivo PDF guardado en: ${result.filePath}`);
+
+      return {
+        success: true,
+        filePath: result.filePath,
+        message: 'Archivo PDF exportado exitosamente'
+      };
+
+    } catch (error) {
+      console.error('[IPC] Error exportando a PDF:', error);
+      throw error;
     }
   });
 

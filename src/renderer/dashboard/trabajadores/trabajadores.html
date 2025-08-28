@@ -7,6 +7,7 @@
         <div>
             <input type="button" class="button-exportar" value="Exportar" id="btnExportar">
             <input type="button" class="button-agregar" value="Agregar Trabajador" id="btnAgregarTrabajador">
+            <input type="button" class="button-asistencia" value="Ver Asistencia" id="btnVerAsistencia">
         </div>
     </header>
     <hr>
@@ -244,17 +245,28 @@
                         <select id="regimenLaboral" name="regimenLaboral">
                             <option value="">Seleccionar...</option>
                             <option value="GENERAL">Régimen General</option>
-                            <option value="MYPE">Régimen MYPE</option>
+                            <option value="MICRO_EMPRESA">Micro Empresa</option>
+                            <option value="PEQUENA_EMPRESA">Pequeña Empresa</option>
                             <option value="AGRARIO">Régimen Agrario</option>
+                            <option value="PESQUERO">Régimen Pesquero</option>
+                            <option value="MINERO">Régimen Minero</option>
+                            <option value="CONSTRUCCION_CIVIL">Construcción Civil</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label for="tipoJornada">Tipo de Jornada</label>
                         <select id="tipoJornada" name="tipoJornada">
                             <option value="">Seleccionar...</option>
-                            <option value="COMPLETA">Jornada Completa</option>
-                            <option value="PARCIAL">Jornada Parcial</option>
-                            <option value="REDUCIDA">Jornada Reducida</option>
+                            <option value="COMPLETA">Jornada Completa (8 horas)</option>
+                            <option value="PARCIAL">Jornada Parcial (menos de 4 horas)</option>
+                            <option value="REDUCIDA">Jornada Reducida (4-6 horas)</option>
+                            <option value="ATIPICA">Jornada Atípica</option>
+                            <option value="ACUMULATIVA">Jornada Acumulativa</option>
+                            <option value="NOCTURNA">Jornada Nocturna</option>
+                            <option value="MIXTA">Jornada Mixta</option>
+                            <option value="ROTATIVA">Jornada Rotativa</option>
+                            <option value="FLEXIBLE">Horario Flexible</option>
+                            <option value="INTERMITENTE">Jornada Intermitente</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -314,7 +326,7 @@
                     </div>
                     <div class="form-group">
                         <label for="cantidadHijos">Cantidad de Hijos</label>
-                        <input type="number" id="cantidadHijos" name="cantidadHijos" min="0" max="10" value="0">
+                        <input type="text" id="cantidadHijos" name="cantidadHijos" min="0" max="10" value="0">
                     </div>
                 </div>
             </div>
@@ -559,6 +571,63 @@
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Asistencia de Trabajadores -->
+<div class="modal-overlay" id="modalAsistenciaTrabajadores" style="display: none;">
+    <div class="modal-container" style="max-width: 700px;">
+        <div class="modal-header">
+            <h2>Registro de Asistencia de Trabajadores</h2>
+            <button class="modal-close" id="btnCerrarModalAsistencia">&times;</button>
+        </div>
+        <div class="modal-form" style="padding: 24px;">
+            <table class="asistencia-tabla" style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr>
+                        <th>ID Asistencia</th>
+                        <th>Trabajador</th>
+                        <th>Turno</th>
+                        <th>Régimen Laboral</th>
+                        <th>Fecha de Asistencia</th>
+                        <th>Entrada/Salida</th>
+                        <th>Hora de Registro</th>
+                        <th>Área</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Aquí puedes agregar filas de ejemplo si lo deseas -->
+                    <tr>
+                        <td>1</td>
+                        <td>Juan Pérez</td>
+                        <td>General</td>
+                        <td>Mañana</td>
+                        <td>2023-10-01</td>
+                        <td>Entrada</td>
+                        <td>08:00</td>
+                        <td>Oficina</td>
+                        <td>Registrado</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>María López</td>
+                        <td>Micro Empresa</td>
+                        <td>Tarde</td>
+                        <td>2023-10-01</td>
+                        <td>Salida</td>
+                        <td>17:30</td>
+                        <td>Oficina</td>
+                        <td>Registrado</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn-cancelar" id="btnCerrarModalAsistenciaFooter">Cerrar</button>
+            <button type="button" class="btn-exportarexcel" id="btnExportarExcelAsistencia">Exportar a Excel</button>
+
         </div>
     </div>
 </div>

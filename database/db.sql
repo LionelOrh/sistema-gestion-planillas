@@ -24,12 +24,12 @@ DROP TABLE IF EXISTS `conceptos`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `conceptos` (
   `id_concepto` int NOT NULL AUTO_INCREMENT,
-  `codigo` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `nombre` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `tipo` enum('ingreso','descuento','aporte-trabajador','aporte-empleador') COLLATE utf8mb4_unicode_ci NOT NULL,
-  `tipo_calculo` enum('monto-fijo','porcentaje') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `codigo` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `nombre` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `tipo` enum('ingreso','descuento','aporte-trabajador','aporte-empleador') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `tipo_calculo` enum('monto-fijo','porcentaje') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `valor` decimal(10,4) NOT NULL DEFAULT '0.0000',
-  `codigo_contable` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `codigo_contable` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `es_remunerativo` tinyint(1) DEFAULT '0',
   `activo` tinyint(1) DEFAULT '1',
   `fecha_inicio` date NOT NULL,
@@ -43,7 +43,7 @@ CREATE TABLE `conceptos` (
   KEY `idx_activo` (`activo`),
   KEY `idx_fecha_inicio` (`fecha_inicio`),
   KEY `idx_fecha_fin` (`fecha_fin`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -52,7 +52,7 @@ CREATE TABLE `conceptos` (
 
 LOCK TABLES `conceptos` WRITE;
 /*!40000 ALTER TABLE `conceptos` DISABLE KEYS */;
-INSERT INTO `conceptos` VALUES (1,'001','Bonificación de Antiguedad','ingreso','monto-fijo',102.5000,'621002',0,1,'2024-01-01',NULL,'2025-08-13 18:48:17','2025-08-15 15:48:14'),(2,'301','ESSALUD','aporte-empleador','porcentaje',9.0000,'627301',0,1,'2025-08-13',NULL,'2025-08-13 18:58:53','2025-08-14 21:07:41'),(3,'002','Bonificación por movilidad','ingreso','monto-fijo',100.0000,'62973',1,1,'2025-08-13',NULL,'2025-08-13 19:15:01','2025-08-14 20:31:06'),(4,'242','Vales','ingreso','monto-fijo',60202.0000,'62122',0,1,'2025-08-14',NULL,'2025-08-14 00:55:43','2025-08-14 00:55:43'),(5,'243','Canasta','ingreso','monto-fijo',20.0000,'60271',0,1,'2025-08-14',NULL,'2025-08-14 00:57:33','2025-08-14 00:57:33'),(6,'022','Asignación Familiar','ingreso','porcentaje',11.0000,'622001',1,1,'2025-08-15',NULL,'2025-08-15 20:07:43','2025-08-15 22:06:19');
+INSERT INTO `conceptos` VALUES (1,'001','Bonificación de Antiguedad','ingreso','monto-fijo',102.5000,'621002',1,1,'2024-01-01',NULL,'2025-08-13 18:48:17','2025-08-15 23:28:04'),(2,'301','ESSALUD','aporte-empleador','porcentaje',9.0000,'627301',0,1,'2025-08-13',NULL,'2025-08-13 18:58:53','2025-08-14 21:07:41'),(3,'002','Bonificación por movilidad','ingreso','monto-fijo',100.0000,'62973',1,1,'2025-08-13',NULL,'2025-08-13 19:15:01','2025-08-15 23:28:09'),(4,'242','Vales','ingreso','monto-fijo',60.0000,'62122',0,1,'2025-08-14',NULL,'2025-08-14 00:55:43','2025-08-17 08:03:10'),(5,'243','Canasta','ingreso','monto-fijo',20.0000,'60271',0,1,'2025-08-14',NULL,'2025-08-14 00:57:33','2025-08-14 00:57:33'),(6,'022','Asignación Familiar','ingreso','porcentaje',10.0000,'622001',1,1,'2025-08-15',NULL,'2025-08-15 20:07:43','2025-08-15 23:05:35'),(7,'501','Bonificación de Alimentación','ingreso','monto-fijo',120.0000,'62003',0,1,'2025-08-19',NULL,'2025-08-19 19:40:41','2025-08-19 19:40:41'),(8,'601','Bonificación por condiciones especiales de trabajo','ingreso','monto-fijo',300.0000,'620987',0,1,'2025-08-19',NULL,'2025-08-19 19:42:24','2025-08-19 19:42:24'),(9,'353','Bonificación por productividad o desempeño','ingreso','monto-fijo',50.0000,'621045',0,1,'2025-08-19',NULL,'2025-08-19 19:48:45','2025-08-19 19:48:45');
 /*!40000 ALTER TABLE `conceptos` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -73,7 +73,7 @@ CREATE TABLE `detalle_afp` (
   PRIMARY KEY (`id_detalle_afp`),
   KEY `id_sistema_pension` (`id_sistema_pension`),
   CONSTRAINT `detalle_afp_ibfk_1` FOREIGN KEY (`id_sistema_pension`) REFERENCES `sistema_pension` (`id_sistema_pension`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -82,7 +82,7 @@ CREATE TABLE `detalle_afp` (
 
 LOCK TABLES `detalle_afp` WRITE;
 /*!40000 ALTER TABLE `detalle_afp` DISABLE KEYS */;
-INSERT INTO `detalle_afp` VALUES (1,2,10.00,1.55,'FLUJO',1.37),(2,3,10.00,1.60,'FLUJO',1.37),(4,5,10.00,1.69,'FLUJO',1.37),(9,4,10.00,1.47,'FLUJO',1.37);
+INSERT INTO `detalle_afp` VALUES (1,2,10.00,1.55,'FLUJO',1.37),(2,3,10.00,1.60,'FLUJO',1.37),(4,5,10.00,1.69,'FLUJO',1.37),(10,4,10.00,1.47,'FLUJO',1.37);
 /*!40000 ALTER TABLE `detalle_afp` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -111,6 +111,41 @@ LOCK TABLES `detalle_onp` WRITE;
 /*!40000 ALTER TABLE `detalle_onp` DISABLE KEYS */;
 INSERT INTO `detalle_onp` VALUES (3,1,13.00);
 /*!40000 ALTER TABLE `detalle_onp` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `licencia`
+--
+
+DROP TABLE IF EXISTS `licencia`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `licencia` (
+  `id_licencia` int NOT NULL AUTO_INCREMENT,
+  `id_trabajador` int NOT NULL,
+  `id_tipo_licencia` int NOT NULL,
+  `fecha_inicio` date NOT NULL,
+  `fecha_fin` date NOT NULL,
+  `dias` int GENERATED ALWAYS AS (((to_days(`fecha_fin`) - to_days(`fecha_inicio`)) + 1)) STORED,
+  `motivo` text,
+  `estado` enum('PENDIENTE','ACTIVA','CONCLUIDA','CANCELADA') DEFAULT 'PENDIENTE',
+  `con_gose` tinyint(1) NOT NULL DEFAULT '1',
+  PRIMARY KEY (`id_licencia`),
+  KEY `fk_licencia_trabajador` (`id_trabajador`),
+  KEY `fk_licencia_tipo` (`id_tipo_licencia`),
+  CONSTRAINT `fk_licencia_tipo` FOREIGN KEY (`id_tipo_licencia`) REFERENCES `tipo_licencia` (`id_tipo_licencia`),
+  CONSTRAINT `fk_licencia_trabajador` FOREIGN KEY (`id_trabajador`) REFERENCES `trabajadores` (`id_trabajador`)
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `licencia`
+--
+
+LOCK TABLES `licencia` WRITE;
+/*!40000 ALTER TABLE `licencia` DISABLE KEYS */;
+INSERT INTO `licencia` (`id_licencia`, `id_trabajador`, `id_tipo_licencia`, `fecha_inicio`, `fecha_fin`, `motivo`, `estado`, `con_gose`) VALUES (7,8,2,'2025-08-19','2025-09-20','Será padre y por eso se ausentará por un par de días','ACTIVA',0),(8,7,4,'2025-08-19','2025-09-18','Tiene que presentar su maestría y necesita ausentarse por eso tendrá un mes de vacaciones con goce de haber','PENDIENTE',1),(9,2,5,'2025-08-26','2025-09-02','Fallecio su madre','ACTIVA',1),(10,3,1,'2025-08-30','2025-08-31',NULL,'ACTIVA',1),(11,3,1,'2025-08-30','2025-08-31',NULL,'ACTIVA',1);
+/*!40000 ALTER TABLE `licencia` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -163,10 +198,10 @@ DROP TABLE IF EXISTS `planilla_asientos_contables`;
 CREATE TABLE `planilla_asientos_contables` (
   `id_asiento` int NOT NULL AUTO_INCREMENT,
   `id_planilla` int NOT NULL,
-  `numero_asiento` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `numero_asiento` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `fecha_asiento` date NOT NULL,
-  `glosa` text COLLATE utf8mb4_unicode_ci NOT NULL,
-  `estado` enum('generado','contabilizado','anulado') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'generado',
+  `glosa` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `estado` enum('generado','contabilizado','anulado') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'generado',
   `total_debe` decimal(12,2) NOT NULL DEFAULT '0.00',
   `total_haber` decimal(12,2) NOT NULL DEFAULT '0.00',
   `id_usuario_creacion` int DEFAULT NULL,
@@ -203,11 +238,11 @@ CREATE TABLE `planilla_detalle_asientos` (
   `id_detalle_asiento` int NOT NULL AUTO_INCREMENT,
   `id_asiento` int NOT NULL,
   `id_concepto` int DEFAULT NULL,
-  `codigo_cuenta` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `nombre_cuenta` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `codigo_cuenta` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `nombre_cuenta` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `debe` decimal(12,2) NOT NULL DEFAULT '0.00',
   `haber` decimal(12,2) NOT NULL DEFAULT '0.00',
-  `detalle` text COLLATE utf8mb4_unicode_ci,
+  `detalle` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `id_trabajador` int DEFAULT NULL,
   `fecha_creacion` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id_detalle_asiento`),
@@ -241,15 +276,15 @@ CREATE TABLE `planilla_detalle_conceptos` (
   `id_detalle` int NOT NULL AUTO_INCREMENT,
   `id_planilla_trabajador` int NOT NULL,
   `id_concepto` int NOT NULL,
-  `concepto_codigo` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `concepto_nombre` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `concepto_tipo` enum('ingreso','descuento','aporte-trabajador','aporte-empleador') COLLATE utf8mb4_unicode_ci NOT NULL,
-  `tipo_calculo` enum('monto-fijo','porcentaje') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `concepto_codigo` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `concepto_nombre` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `concepto_tipo` enum('ingreso','descuento','aporte-trabajador','aporte-empleador') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `tipo_calculo` enum('monto-fijo','porcentaje') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `valor_original` decimal(10,4) NOT NULL,
   `base_calculo` decimal(10,2) DEFAULT NULL,
   `monto_calculado` decimal(10,2) NOT NULL,
-  `formula_aplicada` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `origen_calculo` enum('automatico','manual','sistema') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'automatico',
+  `formula_aplicada` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `origen_calculo` enum('automatico','manual','sistema') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'automatico',
   `fecha_calculo` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id_detalle`),
   KEY `idx_planilla_trabajador` (`id_planilla_trabajador`),
@@ -257,7 +292,7 @@ CREATE TABLE `planilla_detalle_conceptos` (
   KEY `idx_tipo` (`concepto_tipo`),
   CONSTRAINT `planilla_detalle_conceptos_ibfk_1` FOREIGN KEY (`id_planilla_trabajador`) REFERENCES `planilla_trabajadores` (`id_planilla_trabajador`) ON DELETE CASCADE,
   CONSTRAINT `planilla_detalle_conceptos_ibfk_2` FOREIGN KEY (`id_concepto`) REFERENCES `conceptos` (`id_concepto`) ON DELETE RESTRICT
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -266,7 +301,7 @@ CREATE TABLE `planilla_detalle_conceptos` (
 
 LOCK TABLES `planilla_detalle_conceptos` WRITE;
 /*!40000 ALTER TABLE `planilla_detalle_conceptos` DISABLE KEYS */;
-INSERT INTO `planilla_detalle_conceptos` VALUES (1,1,1,'CONCEPTO_1','Bonificación de Antiguedad','ingreso','monto-fijo',102.5000,NULL,102.50,NULL,'automatico','2025-08-15 15:00:12'),(2,1,3,'CONCEPTO_3','Bonificación por movilidad','ingreso','monto-fijo',100.0000,NULL,100.00,NULL,'automatico','2025-08-15 15:00:12'),(3,2,3,'CONCEPTO_3','Bonificación por movilidad','ingreso','monto-fijo',100.0000,NULL,100.00,NULL,'automatico','2025-08-15 15:00:12'),(4,13,3,'CONCEPTO_3','Bonificación por movilidad','ingreso','monto-fijo',100.0000,NULL,100.00,NULL,'automatico','2025-08-15 16:34:06'),(5,13,3,'CONCEPTO_3','Bonificación por movilidad','ingreso','monto-fijo',100.0000,NULL,100.00,NULL,'automatico','2025-08-15 16:34:06');
+INSERT INTO `planilla_detalle_conceptos` VALUES (1,4,3,'CONCEPTO_3','Bonificación por movilidad','ingreso','monto-fijo',100.0000,NULL,100.00,NULL,'automatico','2025-08-21 20:06:16'),(2,5,9,'CONCEPTO_9','Bonificación por productividad o desempeño','ingreso','monto-fijo',50.0000,NULL,50.00,NULL,'automatico','2025-08-21 20:06:16'),(3,8,7,'CONCEPTO_7','Bonificación de Alimentación','ingreso','monto-fijo',120.0000,NULL,120.00,NULL,'automatico','2025-08-21 20:06:17'),(4,9,4,'CONCEPTO_4','Vales','ingreso','monto-fijo',60.0000,NULL,60.00,NULL,'automatico','2025-08-21 20:06:17'),(5,15,9,'CONCEPTO_9','Bonificación por productividad o desempeño','ingreso','monto-fijo',50.0000,NULL,50.00,NULL,'automatico','2025-08-28 15:55:20'),(6,18,7,'CONCEPTO_7','Bonificación de Alimentación','ingreso','monto-fijo',120.0000,NULL,120.00,NULL,'automatico','2025-08-28 15:55:20'),(7,19,4,'CONCEPTO_4','Vales','ingreso','monto-fijo',60.0000,NULL,60.00,NULL,'automatico','2025-08-28 15:55:20');
 /*!40000 ALTER TABLE `planilla_detalle_conceptos` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -282,10 +317,10 @@ CREATE TABLE `planilla_trabajadores` (
   `id_planilla` int NOT NULL,
   `id_trabajador` int NOT NULL,
   `trabajador_codigo` int NOT NULL,
-  `trabajador_nombres` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `trabajador_apellidos` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `trabajador_area` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `trabajador_cargo` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `trabajador_nombres` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `trabajador_apellidos` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `trabajador_area` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `trabajador_cargo` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `sueldo_basico` decimal(10,2) NOT NULL,
   `id_sistema_pension` int NOT NULL,
   `dias_laborados` tinyint NOT NULL DEFAULT '30',
@@ -306,7 +341,7 @@ CREATE TABLE `planilla_trabajadores` (
   CONSTRAINT `planilla_trabajadores_ibfk_1` FOREIGN KEY (`id_planilla`) REFERENCES `planillas` (`id_planilla`) ON DELETE CASCADE,
   CONSTRAINT `planilla_trabajadores_ibfk_2` FOREIGN KEY (`id_trabajador`) REFERENCES `trabajadores` (`id_trabajador`) ON DELETE RESTRICT,
   CONSTRAINT `planilla_trabajadores_ibfk_3` FOREIGN KEY (`id_sistema_pension`) REFERENCES `sistema_pension` (`id_sistema_pension`) ON DELETE RESTRICT
-) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -315,7 +350,7 @@ CREATE TABLE `planilla_trabajadores` (
 
 LOCK TABLES `planilla_trabajadores` WRITE;
 /*!40000 ALTER TABLE `planilla_trabajadores` DISABLE KEYS */;
-INSERT INTO `planilla_trabajadores` VALUES (1,1,4,1004,'Ana Lucia','Rodríguez Pérez','Administración','Contador',2500.00,3,30,0.0,0.0,0,2702.50,0.00,0.00,243.23,0.00,'2025-08-15 15:00:12'),(2,1,5,1005,'Pedro','Martínez Gómez','Control de Calidad','Inspector de Tejidos',1700.00,3,30,0.0,0.0,1,1800.00,56.67,0.00,162.00,0.00,'2025-08-15 15:00:12'),(3,1,3,1003,'Adribell','Montes','Mantenimiento','Técnico de Equipos',1500.00,5,30,1.0,0.0,0,1507.81,0.00,0.00,135.00,0.00,'2025-08-15 15:00:12'),(4,2,5,1005,'Pedro','Martínez Gómez','Control de Calidad','Inspector de Tejidos',1700.00,3,30,0.0,0.0,0,0.00,0.00,0.00,0.00,0.00,'2025-08-15 15:31:49'),(5,3,7,1007,'Elita',' Cabrera Sanchez','Producción','Inspector de Tejidos',2000.00,1,30,0.0,0.0,1,2000.00,66.67,0.00,180.00,0.00,'2025-08-15 15:42:17'),(6,3,1,1001,'Juan','Pérez Gómez','Producción','Operario de Máquinas',1500.00,4,30,0.0,0.0,0,1500.00,0.00,0.00,135.00,0.00,'2025-08-15 15:42:17'),(7,3,6,1006,'Lionel Erix','Orihuela Cabrera','Producción','Asistente',1500.00,1,30,0.0,0.0,0,1500.00,0.00,0.00,135.00,0.00,'2025-08-15 15:42:17'),(8,3,2,1002,'María','Gómez López','Producción','Supervisor de Línea',2000.00,3,30,0.0,0.0,0,2000.00,0.00,0.00,180.00,0.00,'2025-08-15 15:42:17'),(9,4,3,1003,'Adribell','Montes','Mantenimiento','Técnico de Equipos',1500.00,5,30,0.0,0.0,0,0.00,0.00,0.00,0.00,0.00,'2025-08-15 15:44:46'),(10,5,4,1004,'Ana Lucia','Rodríguez Pérez','Administración','Contador',2500.00,3,30,0.0,0.0,0,0.00,0.00,0.00,0.00,0.00,'2025-08-15 15:47:27'),(11,6,4,1004,'Ana Lucia','Rodríguez Pérez','Administración','Contador',2500.00,3,30,0.0,0.0,0,0.00,0.00,0.00,0.00,0.00,'2025-08-15 15:48:43'),(12,7,3,1003,'Adribell','Montes','Mantenimiento','Técnico de Equipos',1500.00,5,30,0.0,0.0,0,0.00,0.00,0.00,0.00,0.00,'2025-08-15 16:32:01'),(13,8,7,1007,'Elita',' Cabrera Sanchez','Producción','Inspector de Tejidos',2000.00,1,30,0.0,0.0,0,2100.00,0.00,0.00,189.00,0.00,'2025-08-15 16:34:06'),(14,8,1,1001,'Juan','Pérez Gómez','Producción','Operario de Máquinas',1500.00,4,30,0.0,0.0,0,1500.00,0.00,0.00,135.00,0.00,'2025-08-15 16:34:06'),(15,8,6,1006,'Lionel Erix','Orihuela Cabrera','Producción','Asistente',1500.00,1,30,0.0,0.0,0,1500.00,0.00,0.00,135.00,0.00,'2025-08-15 16:34:06'),(16,8,2,1002,'María','Gómez López','Producción','Supervisor de Línea',2000.00,3,30,0.0,0.0,0,2000.00,0.00,0.00,180.00,0.00,'2025-08-15 16:34:06'),(17,9,3,1003,'Adribell','Montes','Mantenimiento','Técnico de Equipos',1500.00,5,30,0.0,0.0,0,0.00,0.00,0.00,0.00,0.00,'2025-08-15 20:52:47'),(18,10,3,1003,'Adribell','Montes','Mantenimiento','Técnico de Equipos',1500.00,5,30,0.0,0.0,0,0.00,0.00,0.00,0.00,0.00,'2025-08-15 21:42:08'),(19,11,3,1003,'Adribell','Montes','Mantenimiento','Técnico de Equipos',1500.00,5,30,0.0,0.0,0,0.00,0.00,0.00,0.00,0.00,'2025-08-15 21:43:26'),(20,12,3,1003,'Adribell','Montes','Mantenimiento','Técnico de Equipos',1500.00,5,30,0.0,0.0,0,0.00,0.00,0.00,0.00,0.00,'2025-08-15 22:06:00');
+INSERT INTO `planilla_trabajadores` VALUES (1,1,4,1004,'Ana Luciaa','Rodríguez Pérez','Administración','Contador',2500.00,3,30,0.0,0.0,0,2500.00,0.00,324.25,225.00,2175.75,'2025-08-21 20:06:16'),(2,1,31,1009,'Lucio','Orihuela','Administración','Técnico de Equipos',1400.00,4,30,0.0,0.0,0,1400.00,0.00,179.76,126.00,1220.24,'2025-08-21 20:06:16'),(3,1,5,1005,'Pedro','Martínez Gómez','Control de Calidad','Inspector de Tejidos',1700.00,3,30,0.0,0.0,0,1700.00,0.00,220.49,153.00,1479.51,'2025-08-21 20:06:16'),(4,1,3,1003,'Adribel','Montes','Mantenimiento','Técnico de Equipos',1800.00,5,30,0.0,0.0,0,1900.00,0.00,248.14,171.00,1651.86,'2025-08-21 20:06:16'),(5,1,8,1008,'Anthoni','Amasifuen Nolorbe','Producción','Operario de Máquinas',2500.00,1,30,0.0,0.0,0,2550.00,0.00,331.50,229.50,2218.50,'2025-08-21 20:06:16'),(6,1,7,1007,'Elita',' Cabrera Sanchez','Producción','Inspector de Tejidos',2000.00,1,30,0.0,0.0,0,2000.00,0.00,260.00,180.00,1740.00,'2025-08-21 20:06:16'),(7,1,1,1001,'Juan','Pérez Gómez','Producción','Operario de Máquinas',1500.00,4,30,0.0,0.0,0,1500.00,0.00,192.60,135.00,1307.40,'2025-08-21 20:06:17'),(8,1,6,1006,'Lionel Erix','Orihuela Cabrera','Producción','Asistente',1500.00,1,30,0.0,0.0,0,1620.00,0.00,210.60,145.80,1409.40,'2025-08-21 20:06:17'),(9,1,2,1002,'María','Gómez López','Producción','Supervisor de Línea',2000.00,3,30,0.0,0.0,0,2060.00,0.00,267.18,185.40,1792.82,'2025-08-21 20:06:17'),(10,2,3,1003,'Adribel','Montes','Mantenimiento','Técnico de Equipos',1500.00,5,30,0.0,0.0,0,0.00,0.00,0.00,0.00,0.00,'2025-08-27 22:15:02'),(11,3,4,1004,'Ana Luciaa','Rodríguez Pérez','Administración','Contador',2500.00,3,30,0.0,0.0,0,2500.00,0.00,324.25,225.00,2175.75,'2025-08-28 15:55:20'),(12,3,31,1009,'Lucio','Orihuela','Administración','Técnico de Equipos',1400.00,4,30,0.0,0.0,0,1400.00,0.00,179.76,126.00,1220.24,'2025-08-28 15:55:20'),(13,3,5,1005,'Pedro','Martínez Gómez','Control de Calidad','Inspector de Tejidos',1700.00,3,30,0.0,0.0,0,1700.00,0.00,220.49,153.00,1479.51,'2025-08-28 15:55:20'),(14,3,3,1003,'Adribel','Montes','Mantenimiento','Técnico de Equipos',1500.00,5,30,0.0,0.0,0,1500.00,0.00,195.90,135.00,1304.10,'2025-08-28 15:55:20'),(15,3,8,1008,'Anthoni','Amasifuen Nolorbe','Producción','Operario de Máquinas',2500.00,1,30,0.0,0.0,0,2550.00,0.00,331.50,229.50,2218.50,'2025-08-28 15:55:20'),(16,3,7,1007,'Elita',' Cabrera Sanchez','Producción','Inspector de Tejidos',2000.00,1,30,0.0,0.0,0,2000.00,0.00,260.00,180.00,1740.00,'2025-08-28 15:55:20'),(17,3,1,1001,'Juan','Pérez Gómez','Producción','Operario de Máquinas',1500.00,4,30,0.0,0.0,0,1500.00,0.00,192.60,135.00,1307.40,'2025-08-28 15:55:20'),(18,3,6,1006,'Lionel Erix','Orihuela Cabrera','Producción','Asistente',1500.00,1,30,0.0,0.0,0,1620.00,0.00,210.60,145.80,1409.40,'2025-08-28 15:55:20'),(19,3,2,1002,'María','Gómez López','Producción','Supervisor de Línea',2000.00,3,30,0.0,0.0,0,2060.00,0.00,267.18,185.40,1792.82,'2025-08-28 15:55:20');
 /*!40000 ALTER TABLE `planilla_trabajadores` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -328,14 +363,14 @@ DROP TABLE IF EXISTS `planillas`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `planillas` (
   `id_planilla` int NOT NULL AUTO_INCREMENT,
-  `nombre` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `tipo_periodo` enum('quincenal','mensual') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `nombre` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `tipo_periodo` enum('quincenal','mensual') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `mes` tinyint NOT NULL,
   `ano` year NOT NULL,
   `fecha_inicio` date NOT NULL,
   `fecha_fin` date NOT NULL,
-  `observaciones` text COLLATE utf8mb4_unicode_ci,
-  `estado` enum('borrador','calculada','procesando','finalizada','pagada') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'borrador',
+  `observaciones` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `estado` enum('borrador','calculada','procesando','finalizada','pagada') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'borrador',
   `total_trabajadores` int NOT NULL DEFAULT '0',
   `total_conceptos` int NOT NULL DEFAULT '0',
   `total_ingresos` decimal(12,2) NOT NULL DEFAULT '0.00',
@@ -350,7 +385,7 @@ CREATE TABLE `planillas` (
   KEY `idx_estado` (`estado`),
   KEY `idx_periodo` (`ano`,`mes`),
   KEY `idx_tipo_periodo` (`tipo_periodo`)
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -359,7 +394,7 @@ CREATE TABLE `planillas` (
 
 LOCK TABLES `planillas` WRITE;
 /*!40000 ALTER TABLE `planillas` DISABLE KEYS */;
-INSERT INTO `planillas` VALUES (1,'Planilla Mensual Agosto 2025','mensual',8,2025,'2025-08-01','2025-08-31',NULL,'calculada',3,15,6010.31,56.67,779.87,540.23,5173.77,'2025-08-15 10:00:12','2025-08-15 14:58:46','2025-08-15 15:00:12'),(2,'Planilla Mensual Agosto 2025','mensual',8,2025,'2025-08-01','2025-08-31',NULL,'borrador',1,0,0.00,0.00,0.00,0.00,0.00,NULL,'2025-08-15 15:31:49','2025-08-15 15:31:49'),(3,'Planilla Mensual Agosto 2025','mensual',8,2025,'2025-08-01','2025-08-31',NULL,'calculada',4,12,7000.00,66.67,907.00,630.00,6026.33,'2025-08-15 10:42:17','2025-08-15 15:40:11','2025-08-15 15:42:17'),(4,'Planilla Mensual Agosto 2025','mensual',8,2025,'2025-08-01','2025-08-31',NULL,'borrador',1,0,0.00,0.00,0.00,0.00,0.00,NULL,'2025-08-15 15:44:46','2025-08-15 15:44:46'),(5,'Planilla Mensual Agosto 2025','mensual',8,2025,'2025-08-01','2025-08-31',NULL,'borrador',1,0,0.00,0.00,0.00,0.00,0.00,NULL,'2025-08-15 15:47:27','2025-08-15 15:47:27'),(6,'Planilla Mensual Agosto 2025','mensual',8,2025,'2025-08-01','2025-08-31',NULL,'borrador',1,0,0.00,0.00,0.00,0.00,0.00,NULL,'2025-08-15 15:48:43','2025-08-15 15:48:43'),(7,'Planilla Mensual Agosto 2025','mensual',8,2025,'2025-08-01','2025-08-31',NULL,'borrador',1,0,0.00,0.00,0.00,0.00,0.00,NULL,'2025-08-15 16:32:01','2025-08-15 16:32:01'),(8,'Planilla Mensual Agosto 2025','mensual',8,2025,'2025-08-01','2025-08-31',NULL,'calculada',4,13,7100.00,0.00,920.00,639.00,6180.00,'2025-08-15 11:34:06','2025-08-15 16:33:22','2025-08-15 16:34:06'),(9,'Planilla Mensual Agosto 2025','mensual',8,2025,'2025-08-01','2025-08-31',NULL,'borrador',1,0,0.00,0.00,0.00,0.00,0.00,NULL,'2025-08-15 20:52:47','2025-08-15 20:52:47'),(10,'Planilla Mensual Agosto 2025','mensual',8,2025,'2025-08-01','2025-08-31',NULL,'borrador',1,0,0.00,0.00,0.00,0.00,0.00,NULL,'2025-08-15 21:42:08','2025-08-15 21:42:08'),(11,'Planilla Mensual Agosto 2025','mensual',8,2025,'2025-08-01','2025-08-31',NULL,'borrador',1,0,0.00,0.00,0.00,0.00,0.00,NULL,'2025-08-15 21:43:26','2025-08-15 21:43:26'),(12,'Planilla Mensual Agosto 2025','mensual',8,2025,'2025-08-01','2025-08-31',NULL,'borrador',1,0,0.00,0.00,0.00,0.00,0.00,NULL,'2025-08-15 22:06:00','2025-08-15 22:06:00');
+INSERT INTO `planillas` VALUES (1,'Planilla Mensual Agosto 2025','mensual',8,2025,'2025-08-01','2025-08-31',NULL,'calculada',9,34,17230.00,0.00,2234.52,1550.70,14995.48,'2025-08-21 15:06:16','2025-08-21 20:06:14','2025-08-21 20:06:16'),(2,'Planilla Mensual Agosto 2025','mensual',8,2025,'2025-08-01','2025-08-31',NULL,'borrador',1,0,0.00,0.00,0.00,0.00,0.00,NULL,'2025-08-27 22:15:02','2025-08-27 22:15:02'),(3,'Planilla Mensual Agosto 2025','mensual',8,2025,'2025-08-01','2025-08-31',NULL,'calculada',9,33,16830.00,0.00,2182.28,1514.70,14647.72,'2025-08-28 10:55:20','2025-08-28 15:47:04','2025-08-28 15:55:20');
 /*!40000 ALTER TABLE `planillas` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -390,6 +425,31 @@ INSERT INTO `sistema_pension` VALUES (1,'ONP','ONP','5501'),(2,'AFP Integra','AF
 UNLOCK TABLES;
 
 --
+-- Table structure for table `tipo_licencia`
+--
+
+DROP TABLE IF EXISTS `tipo_licencia`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `tipo_licencia` (
+  `id_tipo_licencia` int NOT NULL AUTO_INCREMENT,
+  `nombre` varchar(100) NOT NULL,
+  `descripcion` text,
+  PRIMARY KEY (`id_tipo_licencia`)
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `tipo_licencia`
+--
+
+LOCK TABLES `tipo_licencia` WRITE;
+/*!40000 ALTER TABLE `tipo_licencia` DISABLE KEYS */;
+INSERT INTO `tipo_licencia` VALUES (1,'Licencia por maternidad','Descanso por maternidad, según normativa vigente'),(2,'Licencia por paternidad','Descanso por nacimiento de hijo'),(3,'Licencia médica','Ausencia por incapacidad temporal de salud'),(4,'Licencia por estudios','Permiso para capacitación o estudios'),(5,'Licencia por fallecimiento','Permiso por duelo de familiar directo'),(6,'Licencia especial','Otros tipos de licencia autorizados por la empresa');
+/*!40000 ALTER TABLE `tipo_licencia` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `trabajador_conceptos`
 --
 
@@ -411,7 +471,7 @@ CREATE TABLE `trabajador_conceptos` (
   KEY `idx_activo` (`activo`),
   CONSTRAINT `trabajador_conceptos_ibfk_1` FOREIGN KEY (`id_trabajador`) REFERENCES `trabajadores` (`id_trabajador`) ON DELETE CASCADE,
   CONSTRAINT `trabajador_conceptos_ibfk_2` FOREIGN KEY (`id_concepto`) REFERENCES `conceptos` (`id_concepto`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=33 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -420,7 +480,7 @@ CREATE TABLE `trabajador_conceptos` (
 
 LOCK TABLES `trabajador_conceptos` WRITE;
 /*!40000 ALTER TABLE `trabajador_conceptos` DISABLE KEYS */;
-INSERT INTO `trabajador_conceptos` VALUES (1,4,3,'2025-08-13 16:20:54',1,'2025-08-13 16:20:54','2025-08-13 16:20:54'),(2,3,3,'2025-08-13 16:29:25',0,'2025-08-13 16:29:25','2025-08-13 16:29:40'),(3,4,1,'2025-08-13 17:08:29',1,'2025-08-13 17:08:29','2025-08-13 17:08:29'),(4,5,2,'2025-08-14 09:44:38',1,'2025-08-14 09:44:38','2025-08-14 09:44:38'),(5,5,3,'2025-08-14 09:44:53',1,'2025-08-14 09:44:53','2025-08-14 09:44:53'),(6,2,2,'2025-08-14 09:44:59',1,'2025-08-14 09:44:59','2025-08-14 09:44:59'),(7,1,2,'2025-08-14 09:45:05',1,'2025-08-14 09:45:05','2025-08-14 09:45:05'),(8,4,2,'2025-08-14 09:45:11',1,'2025-08-14 09:45:11','2025-08-14 09:45:11'),(9,3,2,'2025-08-14 09:45:33',1,'2025-08-14 09:45:33','2025-08-14 09:45:33'),(10,6,2,'2025-08-14 09:45:45',1,'2025-08-14 09:45:45','2025-08-14 09:45:45'),(11,7,2,'2025-08-14 09:45:52',1,'2025-08-14 09:45:52','2025-08-14 09:45:52'),(13,3,5,'2025-08-15 10:43:41',1,'2025-08-15 10:43:41','2025-08-15 10:43:41'),(16,7,3,'2025-08-15 10:58:27',1,'2025-08-15 10:58:27','2025-08-15 10:58:27'),(17,3,1,'2025-08-15 11:31:10',1,'2025-08-15 11:31:10','2025-08-15 11:31:10'),(19,3,6,'2025-08-15 15:52:19',1,'2025-08-15 15:52:19','2025-08-15 15:52:19');
+INSERT INTO `trabajador_conceptos` VALUES (20,3,2,'2025-08-21 14:29:53',1,'2025-08-21 14:29:53','2025-08-21 14:29:53'),(21,4,2,'2025-08-21 14:30:05',1,'2025-08-21 14:30:05','2025-08-21 14:30:05'),(22,8,2,'2025-08-21 14:30:11',1,'2025-08-21 14:30:11','2025-08-21 14:30:11'),(23,5,2,'2025-08-21 14:30:29',1,'2025-08-21 14:30:29','2025-08-21 14:30:29'),(24,2,2,'2025-08-21 14:30:37',1,'2025-08-21 14:30:37','2025-08-21 14:30:37'),(25,31,2,'2025-08-21 14:30:44',1,'2025-08-21 14:30:44','2025-08-21 14:30:44'),(26,6,2,'2025-08-21 14:30:50',1,'2025-08-21 14:30:50','2025-08-21 14:30:50'),(27,1,2,'2025-08-21 14:30:57',1,'2025-08-21 14:30:57','2025-08-21 14:30:57'),(28,7,2,'2025-08-21 14:31:03',1,'2025-08-21 14:31:03','2025-08-21 14:31:03'),(29,3,3,'2025-08-21 14:31:13',0,'2025-08-21 14:31:13','2025-08-27 17:15:33'),(30,8,9,'2025-08-21 14:31:20',1,'2025-08-21 14:31:20','2025-08-21 14:31:20'),(31,6,7,'2025-08-21 14:31:29',1,'2025-08-21 14:31:29','2025-08-21 14:31:29'),(32,2,4,'2025-08-21 14:31:37',1,'2025-08-21 14:31:37','2025-08-21 14:31:37');
 /*!40000 ALTER TABLE `trabajador_conceptos` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -452,7 +512,8 @@ CREATE TABLE `trabajadores` (
   `cargo` varchar(100) NOT NULL,
   `area` varchar(100) NOT NULL,
   `fecha_ingreso` date NOT NULL,
-  `tipo_contrato` enum('INDEFINIDO','TEMPORAL','LOCACION','PRACTICAS') DEFAULT NULL,
+  `tipo_contrato` enum('INDEFINIDO','PLAZO_FIJO','OCASIONAL','SUPLENCIA','EMERGENCIA','OBRA_DETERMINADA_O_SERVICIO_ESPECIFICO','INTERMITENTE','TEMPORADA') DEFAULT 'INDEFINIDO',
+  `fecha_cese` date DEFAULT NULL,
   `sueldo` decimal(10,2) NOT NULL,
   `regimen_laboral` enum('GENERAL','MYPE','AGRARIO') DEFAULT NULL,
   `tipo_jornada` enum('COMPLETA','PARCIAL','REDUCIDA') DEFAULT NULL,
@@ -480,7 +541,7 @@ CREATE TABLE `trabajadores` (
   KEY `idx_asignacion_familiar` (`asignacion_familiar`),
   CONSTRAINT `fk_trabajadores_sistema_pension` FOREIGN KEY (`id_sistema_pension`) REFERENCES `sistema_pension` (`id_sistema_pension`) ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `chk_cantidad_hijos` CHECK ((`cantidad_hijos` >= 0))
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=49 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -489,7 +550,7 @@ CREATE TABLE `trabajadores` (
 
 LOCK TABLES `trabajadores` WRITE;
 /*!40000 ALTER TABLE `trabajadores` DISABLE KEYS */;
-INSERT INTO `trabajadores` VALUES (1,1001,'Juan','Pérez Gómez','DNI','12345678','1990-05-15','M','CASADO','PERUANA','Av. Los Olivos 123','3944','3927','3926','987654321','juan.perez@textil.com','EMPLEADO','Operario de Máquinas','Producción','2020-01-15','INDEFINIDO',1500.00,'GENERAL','COMPLETA','MAÑANA','BCP','1234567890','00212345678901234567','HAB123456789','ACTIVO','2025-08-13 14:02:43','2025-08-13 17:03:01',4,0,0),(2,1002,'María','Gómez López','DNI','87654321','1988-08-22','F','SOLTERO','PERUANA','Jr. Las Flores 456','3962','3927','3926','976543210','maria.gomez@textil.com','EMPLEADO','Supervisor de Línea','Producción','2019-03-10','INDEFINIDO',2000.00,'GENERAL','COMPLETA','MAÑANA','BBVA','0987654321','01198765432109876543','INT987654321','ACTIVO','2025-08-13 14:02:43','2025-08-14 16:39:44',3,0,0),(3,1003,'Adribell','Montes','DNI','11223344','1985-12-03','F','SOLTERO','PERUANA','Calle Real 789','3286','3285','3926','965432109','carlos.lopez@textil.com','OBRERO','Técnico de Equipos','Mantenimiento','2018-07-20','INDEFINIDO',1500.00,'GENERAL','COMPLETA','ROTATIVO','INTERBANK','1122334455','00311223344551122334','ONP11223344','ACTIVO','2025-08-13 14:02:43','2025-08-15 20:52:19',5,1,1),(4,1004,'Ana Lucia','Rodríguez Pérez','DNI','44332211','1998-04-18','F','SOLTERO','PERUANA','Av. Universitaria 321','3963','3927','3926','954321098','ana.rodriguez@textil.com','EMPLEADO','Contador','Administración','2025-08-01','INDEFINIDO',2500.00,'GENERAL','COMPLETA','MAÑANA','SCOTIABANK','4433221100','02144332211004433221','PRI443322110','ACTIVO','2025-08-13 14:02:43','2025-08-13 20:20:00',3,0,0),(5,1005,'Pedro','Martínez Gómez','DNI','55443322','1987-09-14','M','CONVIVIENTE','PERUANA','Psje. Los Pinos 147','3969','3927','3926','943210987','pedro.martinez@textil.com','OBRERO','Inspector de Tejidos','Control de Calidad','2020-06-12','TEMPORAL',1700.00,'GENERAL','COMPLETA','TARDE','BN','5544332211','01855443322115544332','PRO554433221','ACTIVO','2025-08-13 14:02:43','2025-08-14 16:39:50',3,0,0),(6,1006,'Lionel Erix','Orihuela Cabrera','DNI','76139322','2005-10-26','M','SOLTERO','PERUANA','Mz k lote 26 Asent H Inca Pachacutec','3291','3285','3926','907992645','lionelorihuelac@gmail.com','EMPLEADO','Asistente','Producción','2025-01-01','INDEFINIDO',1500.00,'GENERAL','COMPLETA','MAÑANA','BBVA','1234567890','00212345678901234567','ONP11223344','ACTIVO','2025-08-13 14:54:08','2025-08-13 16:44:39',1,0,0),(7,1007,'Elita',' Cabrera Sanchez','DNI','40275228','1979-08-22','F','CONVIVIENTE','PERUANA','Mz k lote 26 Asent H Inca Pachacutec','3291','3285','3926','998129226','elitacabrerasanchez@gmail.com','EMPLEADO','Inspector de Tejidos','Producción','2025-08-01','TEMPORAL',2000.00,'GENERAL','COMPLETA','MAÑANA','BCP','1234567890','00212345678901234567','ONP12345678','ACTIVO','2025-08-13 17:07:07','2025-08-13 17:07:32',1,0,0);
+INSERT INTO `trabajadores` VALUES (1,1001,'Juan','Pérez Gómez','DNI','12345678','1990-05-15','M','CASADO','PERUANA','Av. Los Olivos 123','3944','3927','3926','987654321','juan.perez@textil.com','EMPLEADO','Operario de Máquinas','Producción','2020-01-15','INDEFINIDO',NULL,1500.00,'GENERAL','COMPLETA','MAÑANA','BCP','1234567890','00212345678901234567','HAB123456789','ACTIVO','2025-08-13 14:02:43','2025-08-13 17:03:01',4,0,0),(2,1002,'María','Gómez López','DNI','87654321','1988-08-22','F','SOLTERO','PERUANA','Jr. Las Flores 456','3962','3927','3926','976543210','maria.gomez@textil.com','EMPLEADO','Supervisor de Línea','Producción','2019-03-10','INDEFINIDO',NULL,2000.00,'GENERAL','COMPLETA','MAÑANA','BBVA','0987654321','01198765432109876543','INT987654321','ACTIVO','2025-08-13 14:02:43','2025-08-14 16:39:44',3,0,0),(3,1003,'Adribel','Montes','DNI','65468232','1985-12-03','F','CASADO','PERUANA','Calle Real 789','3286','3285','3926','965432109','carlos.lopez@textil.com','OBRERO','Técnico de Equipos','Mantenimiento','2018-07-20','PLAZO_FIJO',NULL,1500.00,'GENERAL','COMPLETA','ROTATIVO','INTERBANK','1122334455','00311223344551122334','ONP11223344','ACTIVO','2025-08-13 14:02:43','2025-08-27 22:14:43',5,0,0),(4,1004,'Ana Luciaa','Rodríguez Pérez','DNI','44332211','1998-04-18','F','SOLTERO','PERUANA','Av. Universitaria 321','3963','3927','3926','954321098','ana.rodriguez@textil.com','EMPLEADO','Contador','Administración','2025-08-01','INDEFINIDO',NULL,2500.00,'GENERAL','COMPLETA','MAÑANA','SCOTIABANK','4433221100','02144332211004433221','PRI443322110','ACTIVO','2025-08-13 14:02:43','2025-08-21 19:11:13',3,0,0),(5,1005,'Pedro','Martínez Gómez','DNI','55443322','1987-09-14','M','CONVIVIENTE','PERUANA','Psje. Los Pinos 147','3969','3927','3926','943210987','pedro.martinez@textil.com','OBRERO','Inspector de Tejidos','Control de Calidad','2020-06-12','INDEFINIDO',NULL,1700.00,'GENERAL','COMPLETA','TARDE','BN','5544332211','01855443322115544332','PRO554433221','ACTIVO','2025-08-13 14:02:43','2025-08-15 22:58:58',3,0,0),(6,1006,'Lionel Erix','Orihuela Cabrera','DNI','76139322','2005-10-26','M','SOLTERO','PERUANA','Mz k lote 26 Asent H Inca Pachacutec','3291','3285','3926','907992645','lionelorihuelac@gmail.com','EMPLEADO','Asistente','Producción','2025-01-01','INDEFINIDO',NULL,1500.00,'GENERAL','COMPLETA','MAÑANA','BBVA','1234567890','00212345678901234567','ONP11223344','ACTIVO','2025-08-13 14:54:08','2025-08-13 16:44:39',1,0,0),(7,1007,'Elita',' Cabrera Sanchez','DNI','40275228','1979-08-22','F','CONVIVIENTE','PERUANA','Mz k lote 26 Asent H Inca Pachacutec','3291','3285','3926','998129226','elitacabrerasanchez@gmail.com','EMPLEADO','Inspector de Tejidos','Producción','2025-08-01','INDEFINIDO',NULL,2000.00,'GENERAL','COMPLETA','MAÑANA','BCP','1234567890','00212345678901234567','ONP12345678','ACTIVO','2025-08-13 17:07:07','2025-08-15 22:58:58',1,0,0),(8,1008,'Anthoni','Amasifuen Nolorbe','DNI','45653221','2005-11-17','M','SOLTERO','PERUANA','Mz h 26 Asent H Inca Pachacutec','3291','3285','3926','986532142','anonti@gmail.com','EMPLEADO','Operario de Máquinas','Producción','2020-10-15','PLAZO_FIJO','2025-12-31',2500.00,'GENERAL','COMPLETA','MAÑANA','BBVA','0987654321','02020-0120-02102-21','12321412412412','ACTIVO','2025-08-15 23:03:41','2025-08-26 19:42:54',1,0,0),(31,1009,'Lucio','Orihuela','DNI','76653278','2004-06-08','M','SOLTERO','PERUANA','Mz k lt 26 Asent Humano Inca Pachacutec','3291','3285','3926','986532452','luico7@gmail.com','EMPLEADO','Técnico de Equipos','Administración','2025-01-01','INDEFINIDO',NULL,1400.00,'GENERAL','COMPLETA','MAÑANA','BBVA','0123654789','123654789654123','784521369','ACTIVO','2025-08-21 17:59:22','2025-08-21 17:59:22',4,1,1);
 /*!40000 ALTER TABLE `trabajadores` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -530,4 +591,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-08-15 17:15:03
+-- Dump completed on 2025-08-28 11:10:32

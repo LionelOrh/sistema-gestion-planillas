@@ -129,6 +129,103 @@ class PlanillasService {
       connection.release();
     }
   }
+
+  /**
+ * Retorna todas las boletas de pago de los trabajadores de una planilla,
+ * asegurando que los totales estén correctamente calculados.
+ */
+  async obtenerBoletasPorPlanilla(idPlanilla) {
+    try {
+      const [trabajadoresRows] = await pool.execute(`
+      SELECT 
+        pt.id_planilla_trabajador,
+        pt.id_trabajador,
+        pt.trabajador_nombres,
+        pt.trabajador_apellidos,
+        pt.trabajador_area,
+        pt.trabajador_cargo,
+        pt.sueldo_basico,
+        pt.dias_laborados,
+        pt.horas_extras_25,
+        pt.horas_extras_35,
+        pt.faltas,
+        pt.total_ingresos,
+        pt.total_descuentos,
+        pt.total_aportes_trabajador,
+        pt.total_aportes_empleador,
+        pt.neto_a_pagar,
+        t.codigo AS trabajador_codigo,
+        t.numero_documento AS trabajador_dni
+      FROM planilla_trabajadores pt
+      JOIN trabajadores t ON pt.id_trabajador = t.id_trabajador
+      WHERE pt.id_planilla = ?
+      ORDER BY pt.trabajador_apellidos, pt.trabajador_nombres
+    `, [idPlanilla]);
+
+      for (const trabajador of trabajadoresRows) {
+        const [conceptosRows] = await pool.execute(`
+        SELECT 
+          concepto_nombre,
+          concepto_tipo,
+          monto_calculado
+        FROM planilla_detalle_conceptos
+        WHERE id_planilla_trabajador = ?
+        ORDER BY concepto_tipo, concepto_nombre
+      `, [trabajador.id_planilla_trabajador]);
+
+        // Si no hay descuentos, aportes, etc. en conceptos, agrégalos manualmente
+        if (parseFloat(trabajador.total_descuentos) > 0) {
+          conceptosRows.push({
+            concepto_nombre: 'Descuentos',
+            concepto_tipo: 'descuento',
+            monto_calculado: trabajador.total_descuentos
+          });
+        }
+        if (parseFloat(trabajador.total_aportes_trabajador) > 0) {
+          conceptosRows.push({
+            concepto_nombre: 'Aportes Trabajador',
+            concepto_tipo: 'aporte-trabajador',
+            monto_calculado: trabajador.total_aportes_trabajador
+          });
+        }
+        if (parseFloat(trabajador.total_aportes_empleador) > 0) {
+          conceptosRows.push({
+            concepto_nombre: 'Aportes Empleador',
+            concepto_tipo: 'aporte-empleador',
+            monto_calculado: trabajador.total_aportes_empleador
+          });
+        }
+
+        trabajador.conceptos = conceptosRows;
+
+        // Recalcula los totales como antes
+        let ingresos = parseFloat(trabajador.sueldo_basico) || 0;
+        let descuentos = 0, aportesTrabajador = 0, aportesEmpleador = 0, neto = 0;
+        conceptosRows.forEach(c => {
+          if (c.concepto_tipo === 'ingreso') ingresos += parseFloat(c.monto_calculado || 0);
+          else if (c.concepto_tipo === 'descuento') descuentos += parseFloat(c.monto_calculado || 0);
+          else if (c.concepto_tipo === 'aporte-trabajador' || c.concepto_tipo === 'aporte') aportesTrabajador += parseFloat(c.monto_calculado || 0);
+          else if (c.concepto_tipo === 'aporte-empleador') aportesEmpleador += parseFloat(c.monto_calculado || 0);
+        });
+        neto = ingresos - descuentos - aportesTrabajador;
+
+        trabajador.total_ingresos = ingresos;
+        trabajador.total_descuentos = descuentos;
+        trabajador.total_aportes_trabajador = aportesTrabajador;
+        trabajador.total_aportes_empleador = aportesEmpleador;
+        trabajador.neto_a_pagar = neto;
+      }
+
+      return {
+        success: true,
+        trabajadores: trabajadoresRows
+      };
+    } catch (error) {
+      console.error('[PlanillasService] Error en obtenerBoletasPorPlanilla:', error);
+      throw error;
+    }
+  }
+
   
   // Guardar cálculos de planilla (cambiar estado a 'calculada')
   async guardarCalculosPlanilla(idPlanilla, datosCalculados) {
@@ -444,6 +541,7 @@ class PlanillasService {
     ];
     return meses[numeroMes] || 'Mes';
   }
+  
 }
 
 module.exports = new PlanillasService();
